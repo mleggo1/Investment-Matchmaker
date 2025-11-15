@@ -283,6 +283,60 @@ function PortfolioDonut({ data }) {
   );
 }
 
+// ---------- Password gate ----------
+function PasswordGate({ children }) {
+  const [attempt, setAttempt] = useState("");
+  const [error, setError] = useState("");
+  const [isUnlocked, setIsUnlocked] = useState(false);
+
+  const expectedPassword = useMemo(() => {
+    const month = new Date().getMonth() + 1;
+    return `MJL${month}`;
+  }, []);
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const normalized = attempt.trim().toUpperCase();
+    if (normalized === expectedPassword) {
+      setIsUnlocked(true);
+      setError("");
+    } else {
+      setError("Incorrect password. Please try again.");
+    }
+  };
+
+  if (isUnlocked) {
+    return children;
+  }
+
+  return (
+    <div className="password-gate">
+      <div className="password-gate__card">
+        <h1>Welcome to Investment Matchmaker</h1>
+        <p>Please enter this month&rsquo;s password to continue.</p>
+        <form className="password-gate__form" onSubmit={handleSubmit}>
+          <label htmlFor="password-input" className="visually-hidden">
+            Password
+          </label>
+          <input
+            id="password-input"
+            type="password"
+            className="password-gate__input"
+            placeholder="Enter password"
+            value={attempt}
+            onChange={(e) => setAttempt(e.target.value)}
+            autoComplete="off"
+          />
+          <button type="submit" className="primary-button password-gate__button">
+            Log in
+          </button>
+          {error && <span className="password-gate__error">{error}</span>}
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // ---------- Print stylesheet ----------
 const PrintStyles = () => (
   <style>{`
@@ -655,6 +709,8 @@ export default function InvestmentMatchmakerApp() {
   const [portfolioValue, setPortfolioValue] = useState(100000);
   const resultsRef = useRef(null);
   const progressRef = useRef(null);
+  const etfInfoRef = useRef(null);
+  const [showEtfInfo, setShowEtfInfo] = useState(false);
 
   // Restore from localStorage
   useEffect(() => {
@@ -675,6 +731,32 @@ export default function InvestmentMatchmakerApp() {
     const state = { theme, stage, answers, riskOverride, portfolioValue };
     localStorage.setItem("im_v1_state", JSON.stringify(state));
   }, [theme, stage, answers, riskOverride, portfolioValue]);
+
+  useEffect(() => {
+    if (stage !== "results") {
+      setShowEtfInfo(false);
+    }
+  }, [stage]);
+
+  useEffect(() => {
+    if (!showEtfInfo) return;
+    const handleClickOutside = (event) => {
+      if (etfInfoRef.current && !etfInfoRef.current.contains(event.target)) {
+        setShowEtfInfo(false);
+      }
+    };
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setShowEtfInfo(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keyup", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keyup", handleEscape);
+    };
+  }, [showEtfInfo]);
 
   const progress = useMemo(() => {
     const answered = answers.filter(a => !Number.isNaN(a)).length;
@@ -768,307 +850,347 @@ export default function InvestmentMatchmakerApp() {
   const surfaceClass = "surface-card";
 
   return (
-    <div className={shellClass} data-theme={theme}>
-      <PrintStyles />
-      <div className="app-background" aria-hidden="true">
-        <span className="app-glow app-glow--one" />
-        <span className="app-glow app-glow--two" />
-        <span className="app-grid" />
-      </div>
-      <div className="app-container">
-        <header className="app-header">
-          <div className="app-brand">
-            <span className="brand-mark">
-              <span className="brand-glow" />
-            </span>
-            <div>
-              <p className="brand-eyebrow">Freedom by Design</p>
-              <h1>Investment Matchmaker</h1>
-              <p className="brand-tagline">Your goals. Your risk. Your perfect portfolio in under five minutes.</p>
+    <PasswordGate>
+      <div className={shellClass} data-theme={theme}>
+        <PrintStyles />
+        <div className="app-background" aria-hidden="true">
+          <span className="app-glow app-glow--one" />
+          <span className="app-glow app-glow--two" />
+          <span className="app-grid" />
+        </div>
+        <div className="app-container">
+          <header className="app-header">
+            <div className="app-brand">
+              <span className="brand-mark">
+                <span className="brand-glow" />
+              </span>
+              <div>
+                <p className="brand-eyebrow">Freedom by Design</p>
+                <h1>Investment Matchmaker</h1>
+                <p className="brand-tagline">Your goals. Your risk. Your perfect portfolio in under five minutes.</p>
+              </div>
             </div>
-          </div>
-          <div className="header-actions no-print">
-            <button className="ghost-button" onClick={() => setTheme(t => (t === "dark" ? "light" : "dark"))}>
-              {theme === "dark" ? "Switch to light" : "Switch to dark"}
-            </button>
-            {stage === "results" && (
-              <button className="ghost-button" onClick={handleExportPDF}>
-                Export PDF
+            <div className="header-actions no-print">
+              <button className="ghost-button" onClick={() => setTheme(t => (t === "dark" ? "light" : "dark"))}>
+                {theme === "dark" ? "Switch to light" : "Switch to dark"}
               </button>
-            )}
-          </div>
-        </header>
+              {stage === "results" && (
+                <button className="ghost-button" onClick={handleExportPDF}>
+                  Export PDF
+                </button>
+              )}
+            </div>
+          </header>
 
-        {stage === "home" && (
-          <main className="home-view">
-            <section className={`${surfaceClass} hero-card`}>
-              <div className="hero-card__content">
+          {stage === "home" && (
+            <main className="home-view">
+              <section className={`${surfaceClass} hero-card`}>
+                <div className="hero-card__content">
                 <span className="hero-eyebrow">Guided experience</span>
-                <h2>Feel like a private banking client.</h2>
-                <p>Answer a crafted risk discovery and receive an Apple-level portfolio reveal with projections, clarity and polish.</p>
-                <div className="hero-actions">
-                  <button className="primary-button no-print" onClick={() => setStage("quiz")}>
-                    Launch matchmaker
-                  </button>
-                  <button className="ghost-button no-print" onClick={() => setStage("results")}>
-                    Peek at results
-                  </button>
+                <h2>Discover the investments that truly fit you.</h2>
+                <p>Answer a simple, guided risk discovery and get a clear, personalised investment match — the options that suit your goals, your risk style, and your path to multi-generational wealth.</p>
+                  <div className="hero-actions">
+                    <button className="primary-button no-print" onClick={() => setStage("quiz")}>
+                      Launch matchmaker
+                    </button>
+                    <button className="ghost-button no-print" onClick={() => setStage("results")}>
+                      Peek at results
+                    </button>
+                  </div>
                 </div>
+                <div className="hero-highlights">
+                  <div className="highlight-chip">
+                    <span className="highlight-label">Live risk score</span>
+                    <span className="highlight-value">{riskScore}</span>
+                  </div>
+                  <div className="highlight-chip">
+                    <span className="highlight-label">Models curated</span>
+                    <span className="highlight-value">Aggressive · Balanced · Conservative</span>
+                  </div>
+                  <div className="highlight-chip">
+                    <span className="highlight-label">Output</span>
+                    <span className="highlight-value">ETF blend · projections · income</span>
+                  </div>
+                </div>
+              </section>
+              <section className={`${surfaceClass} info-card`}>
+                <h3>What you’ll unlock</h3>
+                <ul className="bullet-list">
+                  <li>Crystal-clear allocation bands across flagship ETFs.</li>
+                  <li>Instant projections for income, 10-year growth and diversification.</li>
+                  <li>Print-ready experience for client or personal review.</li>
+                </ul>
+                <div className="info-card__foot">Educational only. Not financial advice.</div>
+              </section>
+            </main>
+          )}
+
+          {stage === "quiz" && (
+            <main className="quiz-view">
+              <div ref={progressRef} className={`${surfaceClass} quiz-progress`}>
+                <div className="quiz-progress__left">
+                  <span className="quiz-eyebrow">Progress</span>
+                  <div className="progress-bar">
+                    <div className="progress-bar__fill" style={{ width: `${Math.round(progress * 100)}%` }} />
+                  </div>
+                </div>
+                <div className="quiz-progress__score">
+                  Auto risk <span>{riskScore}</span> → {autoModelName}
+                </div>
+                <button className="ghost-button no-print" onClick={() => setStage("home")}>
+                  Exit
+                </button>
               </div>
-              <div className="hero-highlights">
-                <div className="highlight-chip">
-                  <span className="highlight-label">Live risk score</span>
-                  <span className="highlight-value">{riskScore}</span>
-                </div>
-                <div className="highlight-chip">
-                  <span className="highlight-label">Models curated</span>
-                  <span className="highlight-value">Aggressive · Balanced · Conservative</span>
-                </div>
-                <div className="highlight-chip">
-                  <span className="highlight-label">Output</span>
-                  <span className="highlight-value">ETF blend · projections · income</span>
-                </div>
-              </div>
-            </section>
-            <section className={`${surfaceClass} info-card`}>
-              <h3>What you’ll unlock</h3>
-              <ul className="bullet-list">
-                <li>Crystal-clear allocation bands across flagship ETFs.</li>
-                <li>Instant projections for income, 10-year growth and diversification.</li>
-                <li>Print-ready experience for client or personal review.</li>
-              </ul>
-              <div className="info-card__foot">Educational only. Not financial advice.</div>
-            </section>
-          </main>
-        )}
 
-        {stage === "quiz" && (
-          <main className="quiz-view">
-            <div ref={progressRef} className={`${surfaceClass} quiz-progress`}>
-              <div className="quiz-progress__left">
-                <span className="quiz-eyebrow">Progress</span>
-                <div className="progress-bar">
-                  <div className="progress-bar__fill" style={{ width: `${Math.round(progress * 100)}%` }} />
-                </div>
-              </div>
-              <div className="quiz-progress__score">
-                Auto risk <span>{riskScore}</span> → {autoModelName}
-              </div>
-              <button className="ghost-button no-print" onClick={() => setStage("home")}>
-                Exit
-              </button>
-            </div>
-
-            <div className="quiz-questions">
-              {QUIZ.map((q, i) => (
-                <section id={`q-${i}`} key={q.id} className={`${surfaceClass} quiz-question`}>
-                  <div className="quiz-question__meta">
-                    Question {i + 1} of {QUIZ.length}
-                  </div>
-                  <h3>{q.q}</h3>
-                  <div className="quiz-option-grid">
-                    {q.options.map((opt, idx) => {
-                      const selected = !Number.isNaN(answers[i]) && answers[i] === opt.value;
-                      return (
-                        <button
-                          key={idx}
-                          onClick={() => handleAnswer(i, opt.value)}
-                          className={`quiz-option ${selected ? "is-selected" : ""}`}
-                        >
-                          <span>{opt.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </section>
-              ))}
-            </div>
-
-            <div className="quiz-footer">
-              <button
-                className="primary-button no-print"
-                onClick={() => {
-                  setStage("results");
-                  window.requestAnimationFrame(() => {
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  });
-                }}
-              >
-                Reveal my portfolio
-              </button>
-            </div>
-          </main>
-        )}
-
-        {stage === "results" && (
-          <main ref={resultsRef} className="results-view print-block">
-            <section className="summary-section">
-              <article className={`${surfaceClass} summary-card`}>
-                <span className="summary-eyebrow">{modelName} model</span>
-                <h2>Your ETF blueprint</h2>
-                <p>{MODELS[modelName].notes}</p>
-                <div className="summary-metrics">
-                  <div className="summary-metric">
-                    <span>10-year projection</span>
-                    <strong>{currency(metrics.tenYear)}</strong>
-                  </div>
-                  <div className="summary-metric">
-                    <span>Passive income (est.)</span>
-                    <strong>{currency(metrics.passiveIncome)}</strong>
-                  </div>
-                  <div className="summary-metric">
-                    <span>Diversification</span>
-                    <strong>{diversificationPercent}% sectors</strong>
-                  </div>
-                </div>
-              </article>
-
-              <div className="summary-kpis">
-                {kpiItems.map((item) => (
-                  <div key={item.label} className={`${surfaceClass} kpi-card`}>
-                    <span className="kpi-label">{item.label}</span>
-                    <span className="kpi-value">{item.value}</span>
-                    <span className="kpi-hint">{item.hint}</span>
-                  </div>
+              <div className="quiz-questions">
+                {QUIZ.map((q, i) => (
+                  <section id={`q-${i}`} key={q.id} className={`${surfaceClass} quiz-question`}>
+                    <div className="quiz-question__meta">
+                      Question {i + 1} of {QUIZ.length}
+                    </div>
+                    <h3>{q.q}</h3>
+                    <div className="quiz-option-grid">
+                      {q.options.map((opt, idx) => {
+                        const selected = !Number.isNaN(answers[i]) && answers[i] === opt.value;
+                        return (
+                          <button
+                            key={idx}
+                            onClick={() => handleAnswer(i, opt.value)}
+                            className={`quiz-option ${selected ? "is-selected" : ""}`}
+                          >
+                            <span>{opt.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </section>
                 ))}
               </div>
 
-              <aside className={`${surfaceClass} summary-controls`}>
-                <h4>Fine-tune</h4>
-                <label className="control-label">Risk setting</label>
-                <div className="toggle-group">
-                  {["Auto", "Aggressive", "Balanced", "Conservative"].map((option) => (
-                    <button
-                      key={option}
-                      onClick={() => setRiskOverride(option)}
-                      className={`toggle-chip ${riskOverride === option ? "is-active" : ""}`}
-                    >
-                      {option}
-                    </button>
+              <div className="quiz-footer">
+                <button
+                  className="primary-button no-print"
+                  onClick={() => {
+                    setStage("results");
+                    window.requestAnimationFrame(() => {
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    });
+                  }}
+                >
+                  Reveal my portfolio
+                </button>
+              </div>
+            </main>
+          )}
+
+          {stage === "results" && (
+            <main ref={resultsRef} className="results-view print-block">
+              <section className="summary-section">
+                <article className={`${surfaceClass} summary-card`}>
+                  <span className="summary-eyebrow">{modelName} model</span>
+                  <h2>Your ETF blueprint</h2>
+                  <p>{MODELS[modelName].notes}</p>
+                  <div className="summary-metrics">
+                    <div className="summary-metric">
+                      <span>10-year projection</span>
+                      <strong>{currency(metrics.tenYear)}</strong>
+                    </div>
+                    <div className="summary-metric">
+                      <span>Passive income (est.)</span>
+                      <strong>{currency(metrics.passiveIncome)}</strong>
+                    </div>
+                    <div className="summary-metric">
+                      <span>Diversification</span>
+                      <strong>{diversificationPercent}% sectors</strong>
+                    </div>
+                  </div>
+                </article>
+
+                <div className="summary-kpis">
+                  {kpiItems.map((item) => (
+                    <div key={item.label} className={`${surfaceClass} kpi-card`}>
+                      <span className="kpi-label">{item.label}</span>
+                      <span className="kpi-value">{item.value}</span>
+                      <span className="kpi-hint">{item.hint}</span>
+                    </div>
                   ))}
                 </div>
-                <label className="control-label">Portfolio size</label>
-                <PortfolioInput value={portfolioValue} onChange={(v) => setPortfolioValue(clamp(v, 0, 1_000_000_000))} />
-                <div className="projection">
-                  <div>Passive income ≈ <strong>{currency(metrics.passiveIncome)}</strong> p.a.</div>
-                  <div>10-year projection ≈ <strong>{currency(metrics.tenYear)}</strong></div>
-                </div>
-                <div className="diversification">
-                  <span>Diversification</span>
-                  <div className="progress-bar progress-bar--inline">
-                    <div className="progress-bar__fill" style={{ width: `${diversificationPercent}%` }} />
+
+                <aside className={`${surfaceClass} summary-controls`}>
+                  <h4>Fine-tune</h4>
+                  <label className="control-label">Risk setting</label>
+                  <div className="toggle-group">
+                    {["Auto", "Aggressive", "Balanced", "Conservative"].map((option) => (
+                      <button
+                        key={option}
+                        onClick={() => setRiskOverride(option)}
+                        className={`toggle-chip ${riskOverride === option ? "is-active" : ""}`}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                  <label className="control-label">Portfolio size</label>
+                  <PortfolioInput value={portfolioValue} onChange={(v) => setPortfolioValue(clamp(v, 0, 1_000_000_000))} />
+                  <div className="projection">
+                    <div>Passive income ≈ <strong>{currency(metrics.passiveIncome)}</strong> p.a.</div>
+                    <div>10-year projection ≈ <strong>{currency(metrics.tenYear)}</strong></div>
+                  </div>
+                  <div className="diversification">
+                    <span>Diversification</span>
+                    <div className="progress-bar progress-bar--inline">
+                      <div className="progress-bar__fill" style={{ width: `${diversificationPercent}%` }} />
+                    </div>
+                  </div>
+                  <div className="summary-controls__actions no-print">
+                    <button className="ghost-button" onClick={resetQuiz}>
+                      Re-run quiz
+                    </button>
+                    <button className="ghost-button" onClick={() => setStage("home")}>
+                      Back to intro
+                    </button>
+                    <button className="ghost-button" onClick={handleExportPDF}>
+                      Export PDF
+                    </button>
+                  </div>
+                  <p className="control-footnote">Educational guidance only — not financial advice.</p>
+                </aside>
+              </section>
+
+              <section className={`${surfaceClass} allocation-section`}>
+                <div className="section-heading section-heading--with-info">
+                  <div className="section-heading__copy">
+                    <h3>Your ideal portfolio</h3>
+                    <p>
+                      <span className="section-model">{modelName}</span> · {MODELS[modelName].notes}
+                    </p>
+                  </div>
+                  <div className="section-heading__info" ref={etfInfoRef}>
+                    <button
+                      type="button"
+                      className={`etf-info-button ${showEtfInfo ? "is-active" : ""}`}
+                      aria-label="What is an ETF?"
+                      onClick={() => setShowEtfInfo((open) => !open)}
+                    >
+                      i
+                    </button>
+                    {showEtfInfo && (
+                      <div className="etf-info-popover" role="dialog" aria-label="ETF definition">
+                        <p>An Exchange Traded Fund (ETF) is a “basket of investments” you can buy with one click.</p>
+                        <p>
+                          Instead of buying individual shares one by one, for example, BHP or CBA, an ETF bundles lots of shares (or bonds, or assets) together into a single investment. When you buy an ETF, you automatically own small pieces of every company or asset inside that basket.
+                        </p>
+                        <p>It’s simple, low-cost, and gives you instant diversification — which means your money is spread out, not relying on just one company.</p>
+                      </div>
+                    )}
                   </div>
                 </div>
-                <div className="summary-controls__actions no-print">
-                  <button className="ghost-button" onClick={resetQuiz}>
-                    Re-run quiz
-                  </button>
-                  <button className="ghost-button" onClick={() => setStage("home")}>
-                    Back to intro
-                  </button>
-                  <button className="ghost-button" onClick={handleExportPDF}>
-                    Export PDF
-                  </button>
+                <div className="allocation-visual">
+                  <div className="allocation-visual__chart">
+                    <PortfolioDonut data={chartData} />
+                  </div>
+                  <div className="allocation-visual__legend">
+                    {chartData.map((item, index) => {
+                      const gradient = ACCENT_GRADIENTS[index % ACCENT_GRADIENTS.length];
+                      return (
+                        <div key={item.name} className="legend-row">
+                          <span className="legend-swatch" style={{ backgroundImage: gradient }} />
+                          <span className="legend-label">{item.name}</span>
+                          <span className="legend-value">{item.value}%</span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-                <p className="control-footnote">Educational guidance only — not financial advice.</p>
-              </aside>
-            </section>
+                <AllocationList model={model} />
+              </section>
 
-            <section className={`${surfaceClass} allocation-section`}>
-              <div className="section-heading">
-                <h3>Your ideal portfolio</h3>
-                <p>
-                  <span className="section-model">{modelName}</span> · {MODELS[modelName].notes}
-                </p>
-              </div>
-              <div className="allocation-visual">
-                <div className="allocation-visual__chart">
-                  <PortfolioDonut data={chartData} />
+              <section className={`${surfaceClass} table-section`}>
+                <div className="section-heading">
+                  <h3>ETF details</h3>
+                  <p>Understand the role each holding plays inside your stack.</p>
                 </div>
-                <div className="allocation-visual__legend">
-                  {chartData.map((item, index) => {
-                    const gradient = ACCENT_GRADIENTS[index % ACCENT_GRADIENTS.length];
-                    return (
-                      <div key={item.name} className="legend-row">
-                        <span className="legend-swatch" style={{ backgroundImage: gradient }} />
-                        <span className="legend-label">{item.name}</span>
-                        <span className="legend-value">{item.value}%</span>
-                      </div>
-                    );
-                  })}
+                <div className="table-wrapper">
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>Ticker</th>
+                        <th>ETF name</th>
+                        <th className="numeric">Allocation</th>
+                        <th className="numeric">MER</th>
+                        <th className="numeric">5-yr return</th>
+                        <th className="numeric">Yield</th>
+                        <th>Why included</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Object.entries(model)
+                        .filter(([k]) => k !== "notes")
+                        .map(([ticker, weight]) => {
+                          const e = getETF(ticker);
+                          return (
+                          <tr key={ticker} className="data-table__row">
+                              <td className="ticker-cell">{ticker}</td>
+                              <td>{e.name}</td>
+                              <td className="numeric">{weight}%</td>
+                              <td className="numeric">{e.mer.toFixed(2)}%</td>
+                              <td className="numeric">{percent(e.return_5y, 1)}</td>
+                              <td className="numeric">{percent(e.yield, 1)}</td>
+                              <td>
+                                {e.sector === "US Equities" && "Core US market exposure (broad, deep)."}
+                                {e.sector === "Tech Growth" && "Growth engine via mega-cap tech winners."}
+                                {e.sector === "Automation" && "Robotics/AI automation thematic tilt."}
+                                {e.sector === "Crypto & Blockchain" && "High beta satellite for asymmetric upside."}
+                                {e.sector === "Aussie Dividends" && "Income and franking credits focus."}
+                                {e.sector === "A-REITs" && "Property income and diversification."}
+                                {e.sector === "Global Blue-Chip" && "Global quality blue-chips for resilience."}
+                                {e.sector === "Bonds (AU)" && "Defensive ballast to dampen drawdowns."}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                    </tbody>
+                  </table>
                 </div>
-              </div>
-              <AllocationList model={model} />
-            </section>
+                <p className="table-footnote">Illustrative data. Educational only — not financial advice.</p>
+              </section>
 
-            <section className={`${surfaceClass} table-section`}>
-              <div className="section-heading">
-                <h3>ETF details</h3>
-                <p>Understand the role each holding plays inside your stack.</p>
-              </div>
-              <div className="table-wrapper">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Ticker</th>
-                      <th>ETF name</th>
-                      <th className="numeric">Allocation</th>
-                      <th className="numeric">MER</th>
-                      <th className="numeric">5-yr return</th>
-                      <th className="numeric">Yield</th>
-                      <th>Why included</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Object.entries(model)
-                      .filter(([k]) => k !== "notes")
-                      .map(([ticker, weight]) => {
-                        const e = getETF(ticker);
-                        return (
-                          <tr key={ticker}>
-                            <td className="ticker-cell">{ticker}</td>
-                            <td>{e.name}</td>
-                            <td className="numeric">{weight}%</td>
-                            <td className="numeric">{e.mer.toFixed(2)}%</td>
-                            <td className="numeric">{percent(e.return_5y, 1)}</td>
-                            <td className="numeric">{percent(e.yield, 1)}</td>
-                            <td>
-                              {e.sector === "US Equities" && "Core US market exposure (broad, deep)."}
-                              {e.sector === "Tech Growth" && "Growth engine via mega-cap tech winners."}
-                              {e.sector === "Automation" && "Robotics/AI automation thematic tilt."}
-                              {e.sector === "Crypto & Blockchain" && "High beta satellite for asymmetric upside."}
-                              {e.sector === "Aussie Dividends" && "Income and franking credits focus."}
-                              {e.sector === "A-REITs" && "Property income and diversification."}
-                              {e.sector === "Global Blue-Chip" && "Global quality blue-chips for resilience."}
-                              {e.sector === "Bonds (AU)" && "Defensive ballast to dampen drawdowns."}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                  </tbody>
-                </table>
-              </div>
-              <p className="table-footnote">Illustrative data. Educational only — not financial advice.</p>
-            </section>
+              <section className={`${surfaceClass} callout`}>
+                <div className="callout__content">
+                  <span className="callout-badge">Signature blueprint</span>
+                  <h3>Build Your Wealth Blueprint — Your Path to Financial Freedom</h3>
+                  <p>Get a simple, clear roadmap for your financial future and a launchpad for your family.</p>
+                  <p>I’ll craft a tailored plan that shows you exactly how and why to invest so you can build lasting multi-generational wealth, all in one powerful view.</p>
+                  <div className="callout-highlight">
+                    <span>What you’ll get</span>
+                    <i />
+                  </div>
+                  <ul className="callout-list">
+                    <li>Confirm your investment options — what to buy and why</li>
+                    <li>Your Ultimate Target — what you can safely spend in retirement, right through to horizon</li>
+                    <li>The Power of Compounding — why time in the market beats timing the market</li>
+                    <li>Automation & execution so it becomes set-and-forget</li>
+                    <li>Psychology & mindset guidance to keep you consistent</li>
+                    <li>Personalised coaching suggestions aligned to your goals</li>
+                    <li>Step-by-step setup to put everything in place</li>
+                  </ul>
+                  <div className="callout-cta">
+                    <button className="callout-button" type="button" onClick={() => setStage("quiz")}>
+                      Build my blueprint
+                    </button>
+                    <span className="callout-cta__hint">Includes a first-draft roadmap within 48 hours.</span>
+                  </div>
+                </div>
+              </section>
+            </main>
+          )}
 
-            <section className={`${surfaceClass} callout`}>
-              <div>
-                <h3>Want a bespoke Wealth Blueprint PDF?</h3>
-                <p>We’ll model 10-year cash flow, growth scenarios and next steps branded “Freedom by Design — Michael Leggo”.</p>
-                <p className="callout-disclaimer">Educational guidance only — not financial advice.</p>
-              </div>
-              <button className="primary-button no-print" onClick={handleExportPDF}>
-                Export PDF
-              </button>
-            </section>
-          </main>
-        )}
-
-        <footer className="app-footer">
-          © {new Date().getFullYear()} Investment Matchmaker · Educational only — not financial advice · Built by Michael Leggo.
-        </footer>
+          <footer className="app-footer">
+            © {new Date().getFullYear()} Investment Matchmaker · Educational only — not financial advice · Built by Michael Leggo.
+          </footer>
+        </div>
       </div>
-    </div>
+    </PasswordGate>
   );
 }
 
