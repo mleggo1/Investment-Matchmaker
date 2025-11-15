@@ -4,39 +4,32 @@ on:
   push:
     branches: [main]
 
+# This gives GitHub permission to push to gh-pages
+permissions:
+  contents: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-<<<<<<< HEAD
           node-version: 20
-=======
-          node-version: 18
->>>>>>> 118fdb577fba256179379cd8dc5f19c85a26995f
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build
         run: npm run build
 
-<<<<<<< HEAD
       - name: Deploy to GitHub Pages
-=======
-      - name: Deploy
->>>>>>> 118fdb577fba256179379cd8dc5f19c85a26995f
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
-<<<<<<< HEAD
-
-=======
->>>>>>> 118fdb577fba256179379cd8dc5f19c85a26995f
+          publish_branch: gh-pages
