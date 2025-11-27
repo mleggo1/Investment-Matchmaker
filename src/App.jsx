@@ -1253,9 +1253,9 @@ export default function InvestmentMatchmakerApp() {
                     <li>Get personalised coaching about education only — not advice</li>
                   </ul>
                   <div className="callout-cta">
-                    <button className="callout-button" type="button" onClick={() => setStage("quiz")}>
+                    <a href="https://wealthbydesign.vercel.app/contact" target="_blank" rel="noopener noreferrer" className="callout-button">
                       Start learning
-                    </button>
+                    </a>
                     <span className="callout-cta__hint">General financial education only — not financial advice.</span>
                   </div>
                 </div>

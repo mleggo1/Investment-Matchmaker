@@ -1366,6 +1366,9 @@
   transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
   box-shadow: 0 25px 45px rgba(2, 6, 23, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(8px);
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
 }
 
 .callout-button:hover {
