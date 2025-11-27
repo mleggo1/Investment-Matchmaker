@@ -52,15 +52,15 @@ const ETFs = [
 const MODELS = {
   Aggressive: {
     IVV: 35, NDQ: 25, CRYP: 15, RBTZ: 15, VHY: 10,
-    notes: "High growth tilt with tech and crypto satellites; income via VHY.",
+    notes: "This is an educational example of how someone with similar quiz responses might explore risk and diversification. It is not a recommendation or personal advice.",
   },
   Balanced: {
     IVV: 30, NDQ: 20, VHY: 20, VAP: 10, IOO: 10, CRYP: 10,
-    notes: "Core global + tech growth, plus income/property; small crypto sleeve.",
+    notes: "This is an educational example of how someone with similar quiz responses might explore risk and diversification. It is not a recommendation or personal advice.",
   },
   Conservative: {
     VHY: 25, VAP: 20, IOO: 20, VAF: 15, IVV: 10, NDQ: 10,
-    notes: "Income/property/blue-chips with bonds for ballast; modest growth tilt.",
+    notes: "This is an educational example of how someone with similar quiz responses might explore risk and diversification. It is not a recommendation or personal advice.",
   },
 };
 
@@ -217,7 +217,7 @@ function PortfolioInput({ value, onChange }) {
   );
 }
 
-function AllocationList({ model }) {
+function AllocationList({ model, modelName }) {
   const entries = Object.entries(model).filter(([key]) => key !== "notes");
 
   return (
@@ -237,6 +237,9 @@ function AllocationList({ model }) {
               </div>
             </header>
             <div className="allocation-item__name">{etf.name}</div>
+            <div className="allocation-item__description">
+              {ticker} — shown here as part of an example {modelName?.toLowerCase() || "illustrative"} mix
+            </div>
             <div className="allocation-item__meta">
               <span>{etf.sector}</span>
               <span>MER {etf.mer.toFixed(2)}%</span>
@@ -245,8 +248,8 @@ function AllocationList({ model }) {
               <div className="allocation-item__bar-fill" style={{ width: `${weight}%`, backgroundImage: gradient }} />
             </div>
             <footer className="allocation-item__footer">
-              <div>5y CAGR {percent(etf.return_5y, 1)}</div>
-              <div>Yield {percent(etf.yield, 1)}</div>
+              <div>5y CAGR {percent(etf.return_5y, 1)} (illustrative)</div>
+              <div>Yield {percent(etf.yield, 1)} (illustrative)</div>
             </footer>
           </article>
         );
@@ -278,6 +281,55 @@ function PortfolioDonut({ data }) {
       </ResponsiveContainer>
       <div className="allocation-donut__center">
         <span>ETF Split</span>
+      </div>
+    </div>
+  );
+}
+
+// ---------- Education Gate (ASIC Compliance) ----------
+function EducationGate({ children }) {
+  const [hasAccepted, setHasAccepted] = useState(false);
+  const [checkboxChecked, setCheckboxChecked] = useState(false);
+
+  const handleAccept = (event) => {
+    event.preventDefault();
+    if (checkboxChecked) {
+      setHasAccepted(true);
+    }
+  };
+
+  if (hasAccepted) {
+    return children;
+  }
+
+  return (
+    <div className="education-gate">
+      <div className="education-gate__card">
+        <h1>GENERAL EDUCATION ONLY — NOT FINANCIAL ADVICE</h1>
+        <div className="education-gate__content">
+          <p>This tool is for educational purposes only.</p>
+          <p>It does not provide financial product advice, personal advice, or recommendations.</p>
+          <p>Any portfolios, allocations, projections or ETF examples shown are illustrative only and are not suggestions to buy, sell or implement any product.</p>
+        </div>
+        <form className="education-gate__form" onSubmit={handleAccept}>
+          <label className="education-gate__checkbox-label">
+            <input
+              type="checkbox"
+              checked={checkboxChecked}
+              onChange={(e) => setCheckboxChecked(e.target.checked)}
+              required
+              className="education-gate__checkbox"
+            />
+            <span>I understand that this tool is educational only and does not provide financial advice.</span>
+          </label>
+          <button
+            type="submit"
+            className={`education-gate__button ${checkboxChecked ? "" : "is-disabled"}`}
+            disabled={!checkboxChecked}
+          >
+            Continue
+          </button>
+        </form>
       </div>
     </div>
   );
@@ -850,8 +902,9 @@ export default function InvestmentMatchmakerApp() {
   const surfaceClass = "surface-card";
 
   return (
-    <PasswordGate>
-      <div className={shellClass} data-theme={theme}>
+    <EducationGate>
+      <PasswordGate>
+        <div className={shellClass} data-theme={theme}>
         <PrintStyles />
         <div className="app-background" aria-hidden="true">
           <span className="app-glow app-glow--one" />
@@ -867,7 +920,7 @@ export default function InvestmentMatchmakerApp() {
               <div>
                 <p className="brand-eyebrow">Freedom by Design</p>
                 <h1>Investment Matchmaker</h1>
-                <p className="brand-tagline">Your goals. Your risk. Your perfect portfolio in under five minutes.</p>
+                <p className="brand-tagline">Explore how different investment styles work — through simple, illustrative examples.</p>
               </div>
             </div>
             <div className="header-actions no-print">
@@ -886,15 +939,16 @@ export default function InvestmentMatchmakerApp() {
             <main className="home-view">
               <section className={`${surfaceClass} hero-card`}>
                 <div className="hero-card__content">
-                <span className="hero-eyebrow">Guided experience</span>
-                <h2>Discover the investments that truly fit you.</h2>
-                <p>Answer a simple, guided risk discovery and get a clear, personalised investment match — the options that suit your goals, your risk style, and your path to multi-generational wealth.</p>
+                <span className="hero-eyebrow">Educational tool</span>
+                <h2>Explore hypothetical ETF mixes based on different risk styles — for learning only.</h2>
+                <p>Answer a few questions and we'll show you educational example portfolios to help you understand how risk, time horizon and diversification can influence long-term outcomes.</p>
+                <p>Nothing here tells you what to buy — this is general education only.</p>
                   <div className="hero-actions">
                     <button className="primary-button no-print" onClick={() => setStage("quiz")}>
-                      Launch matchmaker
+                      Start education tool
                     </button>
                     <button className="ghost-button no-print" onClick={() => setStage("results")}>
-                      Peek at results
+                      View example mixes
                     </button>
                   </div>
                 </div>
@@ -914,13 +968,13 @@ export default function InvestmentMatchmakerApp() {
                 </div>
               </section>
               <section className={`${surfaceClass} info-card`}>
-                <h3>What you’ll unlock</h3>
+                <h3>What you'll explore</h3>
                 <ul className="bullet-list">
-                  <li>Crystal-clear allocation bands across flagship ETFs.</li>
-                  <li>Instant projections for income, 10-year growth and diversification.</li>
-                  <li>Print-ready experience for client or personal review.</li>
+                  <li>Illustrative allocation examples across different ETF types.</li>
+                  <li>Hypothetical projections for income, 10-year growth and diversification concepts.</li>
+                  <li>Educational examples for learning purposes only.</li>
                 </ul>
-                <div className="info-card__foot">Educational only. Not financial advice.</div>
+                <div className="info-card__foot">General education only. Not financial advice.</div>
               </section>
             </main>
           )}
@@ -935,11 +989,16 @@ export default function InvestmentMatchmakerApp() {
                   </div>
                 </div>
                 <div className="quiz-progress__score">
-                  Auto risk <span>{riskScore}</span> → {autoModelName}
+                  Example risk score <span>{riskScore}</span> → {autoModelName} example
                 </div>
                 <button className="ghost-button no-print" onClick={() => setStage("home")}>
                   Exit
                 </button>
+              </div>
+
+              <div className={`${surfaceClass} quiz-disclaimer`}>
+                <p><strong>Your answers help us select an illustrative example to teach different concepts.</strong></p>
+                <p>This does not create a personalised portfolio.</p>
               </div>
 
               <div className="quiz-questions">
@@ -977,7 +1036,7 @@ export default function InvestmentMatchmakerApp() {
                     });
                   }}
                 >
-                  Reveal my portfolio
+                  Show educational example
                 </button>
               </div>
             </main>
@@ -986,34 +1045,54 @@ export default function InvestmentMatchmakerApp() {
           {stage === "results" && (
             <main ref={resultsRef} className="results-view print-block">
               <section className="summary-section">
+                <div className={`${surfaceClass} education-banner`}>
+                  <strong>EDUCATIONAL EXAMPLE ONLY — NOT A RECOMMENDATION</strong>
+                  <p>This mix is hypothetical and shown only to teach concepts such as diversification, risk, and long-term compounding.</p>
+                  <p>It is not telling you what to buy.</p>
+                </div>
+
                 <article className={`${surfaceClass} summary-card`}>
-                  <span className="summary-eyebrow">{modelName} model</span>
-                  <h2>Your ETF blueprint</h2>
+                  <span className="summary-eyebrow">{modelName} example</span>
+                  <h2>Example ETF mix (educational only)</h2>
                   <p>{MODELS[modelName].notes}</p>
                   <div className="summary-metrics">
                     <div className="summary-metric">
-                      <span>10-year projection</span>
+                      <span>10-year hypothetical projection (illustrative only)</span>
                       <strong>{currency(metrics.tenYear)}</strong>
                     </div>
                     <div className="summary-metric">
-                      <span>Passive income (est.)</span>
+                      <span>Illustrative yield example — varies widely in real markets</span>
                       <strong>{currency(metrics.passiveIncome)}</strong>
                     </div>
                     <div className="summary-metric">
-                      <span>Diversification</span>
+                      <span>Diversification (example)</span>
                       <strong>{diversificationPercent}% sectors</strong>
                     </div>
                   </div>
+                  <p className="summary-disclaimer">All projections are hypothetical and based on simplified, backward-looking assumptions. They do not represent actual or expected performance.</p>
                 </article>
 
                 <div className="summary-kpis">
-                  {kpiItems.map((item) => (
-                    <div key={item.label} className={`${surfaceClass} kpi-card`}>
-                      <span className="kpi-label">{item.label}</span>
-                      <span className="kpi-value">{item.value}</span>
-                      <span className="kpi-hint">{item.hint}</span>
-                    </div>
-                  ))}
+                  <div className={`${surfaceClass} kpi-card`}>
+                    <span className="kpi-label">Illustrative historical average — not a forecast or guarantee</span>
+                    <span className="kpi-value">{percent(metrics.expReturn, 1)}</span>
+                    <span className="kpi-hint">Weighted 5-year CAGR (illustrative).</span>
+                  </div>
+                  <div className={`${surfaceClass} kpi-card`}>
+                    <span className="kpi-label">Fee Drag</span>
+                    <span className="kpi-value">{percent(metrics.feeDrag, 2)}</span>
+                    <span className="kpi-hint">Management expense ratio per annum.</span>
+                  </div>
+                  <div className={`${surfaceClass} kpi-card`}>
+                    <span className="kpi-label">Volatility</span>
+                    <span className="kpi-value">{percent(metrics.vol, 1)}</span>
+                    <span className="kpi-hint">Simplified blend excluding covariance.</span>
+                  </div>
+                  <div className={`${surfaceClass} kpi-card`}>
+                    <span className="kpi-label">Yield (Forward)</span>
+                    <span className="kpi-value">{percent(metrics.yieldPct, 1)}</span>
+                    <span className="kpi-hint">Projected cash yield before tax.</span>
+                  </div>
                 </div>
 
                 <aside className={`${surfaceClass} summary-controls`}>
@@ -1033,8 +1112,8 @@ export default function InvestmentMatchmakerApp() {
                   <label className="control-label">Portfolio size</label>
                   <PortfolioInput value={portfolioValue} onChange={(v) => setPortfolioValue(clamp(v, 0, 1_000_000_000))} />
                   <div className="projection">
-                    <div>Passive income ≈ <strong>{currency(metrics.passiveIncome)}</strong> p.a.</div>
-                    <div>10-year projection ≈ <strong>{currency(metrics.tenYear)}</strong></div>
+                    <div>Illustrative yield example ≈ <strong>{currency(metrics.passiveIncome)}</strong> p.a. (varies widely in real markets)</div>
+                    <div>10-year hypothetical projection (illustrative only) ≈ <strong>{currency(metrics.tenYear)}</strong></div>
                   </div>
                   <div className="diversification">
                     <span>Diversification</span>
@@ -1053,16 +1132,16 @@ export default function InvestmentMatchmakerApp() {
                       Export PDF
                     </button>
                   </div>
-                  <p className="control-footnote">Educational guidance only — not financial advice.</p>
+                  <p className="control-footnote">All examples, projections and mixes are hypothetical and for educational purposes only. Not financial advice.</p>
                 </aside>
               </section>
 
               <section className={`${surfaceClass} allocation-section`}>
                 <div className="section-heading section-heading--with-info">
                   <div className="section-heading__copy">
-                    <h3>Your ideal portfolio</h3>
+                    <h3>Illustrative portfolio example</h3>
                     <p>
-                      <span className="section-model">{modelName}</span> · {MODELS[modelName].notes}
+                      <span className="section-model">{modelName} example</span> · {MODELS[modelName].notes}
                     </p>
                   </div>
                   <div className="section-heading__info" ref={etfInfoRef}>
@@ -1096,19 +1175,19 @@ export default function InvestmentMatchmakerApp() {
                         <div key={item.name} className="legend-row">
                           <span className="legend-swatch" style={{ backgroundImage: gradient }} />
                           <span className="legend-label">{item.name}</span>
-                          <span className="legend-value">{item.value}%</span>
+                          <span className="legend-value">(e.g. {item.value}% in this example)</span>
                         </div>
                       );
                     })}
                   </div>
                 </div>
-                <AllocationList model={model} />
+                <AllocationList model={model} modelName={modelName} />
               </section>
 
               <section className={`${surfaceClass} table-section`}>
                 <div className="section-heading">
                   <h3>ETF details</h3>
-                  <p>Understand the role each holding plays inside your stack.</p>
+                  <p>Understand the role each holding plays inside the portfolio.</p>
                 </div>
                 <div className="table-wrapper">
                   <table className="data-table">
@@ -1120,7 +1199,7 @@ export default function InvestmentMatchmakerApp() {
                         <th className="numeric">MER</th>
                         <th className="numeric">5-yr return</th>
                         <th className="numeric">Yield</th>
-                        <th>Why included</th>
+                        <th>Educational context</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1132,19 +1211,19 @@ export default function InvestmentMatchmakerApp() {
                           <tr key={ticker} className="data-table__row">
                               <td className="ticker-cell">{ticker}</td>
                               <td>{e.name}</td>
-                              <td className="numeric">{weight}%</td>
+                              <td className="numeric">(e.g. {weight}% in this example)</td>
                               <td className="numeric">{e.mer.toFixed(2)}%</td>
                               <td className="numeric">{percent(e.return_5y, 1)}</td>
                               <td className="numeric">{percent(e.yield, 1)}</td>
                               <td>
-                                {e.sector === "US Equities" && "Core US market exposure (broad, deep)."}
-                                {e.sector === "Tech Growth" && "Growth engine via mega-cap tech winners."}
-                                {e.sector === "Automation" && "Robotics/AI automation thematic tilt."}
-                                {e.sector === "Crypto & Blockchain" && "High beta satellite for asymmetric upside."}
-                                {e.sector === "Aussie Dividends" && "Income and franking credits focus."}
-                                {e.sector === "A-REITs" && "Property income and diversification."}
-                                {e.sector === "Global Blue-Chip" && "Global quality blue-chips for resilience."}
-                                {e.sector === "Bonds (AU)" && "Defensive ballast to dampen drawdowns."}
+                                {e.sector === "US Equities" && "Often used by some investors seeking broad US market exposure."}
+                                {e.sector === "Tech Growth" && "Represents how tech-focused ETFs can contribute growth exposure in a diversified mix."}
+                                {e.sector === "Automation" && "Illustrates how thematic ETFs can add sector-specific exposure."}
+                                {e.sector === "Crypto & Blockchain" && "Shows how high-volatility assets can be included in example portfolios."}
+                                {e.sector === "Aussie Dividends" && "Often used by some investors seeking income and franking credits."}
+                                {e.sector === "A-REITs" && "Represents how property ETFs can contribute income & sector diversification."}
+                                {e.sector === "Global Blue-Chip" && "Illustrates exposure to global companies in a diversified mix."}
+                                {e.sector === "Bonds (AU)" && "Shows how fixed income can reduce volatility in sample portfolios."}
                               </td>
                             </tr>
                           );
@@ -1152,33 +1231,32 @@ export default function InvestmentMatchmakerApp() {
                     </tbody>
                   </table>
                 </div>
-                <p className="table-footnote">Illustrative data. Educational only — not financial advice.</p>
+                <p className="table-footnote">All data shown is illustrative and for educational purposes only. Not financial advice.</p>
               </section>
 
               <section className={`${surfaceClass} callout`}>
                 <div className="callout__content">
-                  <span className="callout-badge">Signature blueprint</span>
-                  <h3>Build Your Wealth Blueprint — Your Path to Financial Freedom</h3>
-                  <p>Get a simple, clear roadmap for your financial future and a launchpad for your family.</p>
-                  <p>I’ll craft a tailored plan that shows you exactly how and why to invest so you can build lasting multi-generational wealth, all in one powerful view.</p>
+                  <span className="callout-badge">Education service</span>
+                  <h3>Build Your Wealth Blueprint — Education That Empowers You</h3>
+                  <p>Get a clear, simple education roadmap for how wealth is built, how investing works, and how different long-term strategies behave — all explained in plain English.</p>
+                  <p>This service provides general financial education only, not financial advice or product recommendations.</p>
                   <div className="callout-highlight">
-                    <span>What you’ll get</span>
+                    <span>What you'll learn</span>
                     <i />
                   </div>
                   <ul className="callout-list">
-                    <li>Confirm your investment options — what to buy and why</li>
-                    <li>Your Ultimate Target — what you can safely spend in retirement, right through to horizon</li>
-                    <li>The Power of Compounding — why time in the market beats timing the market</li>
-                    <li>Automation & execution so it becomes set-and-forget</li>
-                    <li>Psychology & mindset guidance to keep you consistent</li>
-                    <li>Personalised coaching suggestions aligned to your goals</li>
-                    <li>Step-by-step setup to put everything in place</li>
+                    <li>Understand the main types of investment options and how they work</li>
+                    <li>Learn how people automate their investing to stay consistent</li>
+                    <li>Explore how compounding and time impact long-term outcomes</li>
+                    <li>See example "Ultimate Target" projections under different assumptions</li>
+                    <li>Get psychology & mindset coaching to stay on track</li>
+                    <li>Get personalised coaching about education only — not advice</li>
                   </ul>
                   <div className="callout-cta">
                     <button className="callout-button" type="button" onClick={() => setStage("quiz")}>
-                      Build my blueprint
+                      Start learning
                     </button>
-                    <span className="callout-cta__hint">Includes a first-draft roadmap within 48 hours.</span>
+                    <span className="callout-cta__hint">General financial education only — not financial advice.</span>
                   </div>
                 </div>
               </section>
@@ -1186,11 +1264,17 @@ export default function InvestmentMatchmakerApp() {
           )}
 
           <footer className="app-footer">
-            © {new Date().getFullYear()} Investment Matchmaker · Educational only — not financial advice · Built by Michael Leggo.
+            <p><strong>GENERAL EDUCATION ONLY — NOT FINANCIAL ADVICE</strong></p>
+            <p>All content, tools, examples, charts, projections, and ETF mixes shown are hypothetical and for educational purposes only.</p>
+            <p>Nothing here is financial product advice, personal advice, a recommendation, or an offer to buy/sell any financial product.</p>
+            <p>Michael Leggo and Wealth Blueprint are not licensed financial advisers.</p>
+            <p>Users should consider seeking independent, licensed financial advice before making investment decisions.</p>
+            <p>© {new Date().getFullYear()} Investment Matchmaker · Built by Michael Leggo.</p>
           </footer>
         </div>
       </div>
-    </PasswordGate>
+      </PasswordGate>
+    </EducationGate>
   );
 }
 
