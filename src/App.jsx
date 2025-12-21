@@ -1188,6 +1188,19 @@ export default function InvestmentMatchmakerApp() {
                 <div className="section-heading">
                   <h3>ETF details</h3>
                   <p>Understand the role each holding plays inside the portfolio.</p>
+                  <div className="etf-dashboard-link">
+                    <a 
+                      href="https://etf-dashboards.vercel.app/" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="etf-dashboard-button"
+                    >
+                      <span>Deeper dive into ETFs and what makes them up</span>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 2L14 8L8 14M14 8H2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </a>
+                  </div>
                 </div>
                 <div className="table-wrapper">
                   <table className="data-table">
