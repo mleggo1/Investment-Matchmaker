@@ -3,8 +3,21 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import "./App.css";
 
 // ---------------------------------------------
-// Investment Matchmaker — v1 (JS version for Cursor)
+// Investment Educator — educational examples only (not advice)
 // ---------------------------------------------
+
+const REQUIRED_DISCLAIMER =
+  "This tool is for general education and coaching purposes only. It does not consider your personal objectives, financial situation, or needs. It is not personal financial advice, financial planning, risk profiling, or a recommendation to buy, sell, or hold any financial product. You should make your own decisions and consider seeking advice from a licensed financial adviser before acting.";
+
+const PATHWAY_LABEL = {
+  Aggressive: "Growth-focused example",
+  Balanced: "Balanced mix example",
+  Conservative: "Stability-focused example",
+};
+
+function pathwayLabel(internalName) {
+  return PATHWAY_LABEL[internalName] || internalName;
+}
 
 // ---------- Helpers: currency & parsing (robust) ----------
 function toNumberSafe(n, fallback = 0) {
@@ -52,71 +65,71 @@ const ETFs = [
 const MODELS = {
   Aggressive: {
     IVV: 35, NDQ: 25, CRYP: 15, RBTZ: 15, VHY: 10,
-    notes: "This is an educational example of how someone with similar quiz responses might explore risk and diversification. It is not a recommendation or personal advice.",
+    notes: "General educational example only: a sample mix illustrating diversification and how different asset types can fit together. This may be worth learning more about — it is not a suggestion to buy, sell, or hold anything. Consider speaking with a licensed financial adviser before making investment decisions.",
   },
   Balanced: {
     IVV: 30, NDQ: 20, VHY: 20, VAP: 10, IOO: 10, CRYP: 10,
-    notes: "This is an educational example of how someone with similar quiz responses might explore risk and diversification. It is not a recommendation or personal advice.",
+    notes: "General educational example only: a sample mix illustrating diversification and how different asset types can fit together. This may be worth learning more about — it is not a suggestion to buy, sell, or hold anything. Consider speaking with a licensed financial adviser before making investment decisions.",
   },
   Conservative: {
     VHY: 25, VAP: 20, IOO: 20, VAF: 15, IVV: 10, NDQ: 10,
-    notes: "This is an educational example of how someone with similar quiz responses might explore risk and diversification. It is not a recommendation or personal advice.",
+    notes: "General educational example only: a sample mix illustrating diversification and how different asset types can fit together. This may be worth learning more about — it is not a suggestion to buy, sell, or hold anything. Consider speaking with a licensed financial adviser before making investment decisions.",
   },
 };
 
 // ---------- Quiz ----------
 const QUIZ = [
-  { id: 1, q: "What’s your primary goal?", options: [
-    { label: "Grow wealth", value: 15, tags: ["growth"] },
-    { label: "Build income", value: -5, tags: ["income"] },
-    { label: "Protect capital", value: -10, tags: ["defensive"] },
+  { id: 1, q: "What would you like to learn about first?", options: [
+    { label: "Growth and compounding stories", value: 15, tags: ["growth"] },
+    { label: "Income and cash-flow concepts", value: -5, tags: ["income"] },
+    { label: "Stability and smoothing volatility", value: -10, tags: ["defensive"] },
   ]},
-  { id: 2, q: "How long until you’ll need the money?", options: [
-    { label: "10+ years", value: 15, tags: ["long"] },
-    { label: "5–10 years", value: 5, tags: ["medium"] },
-    { label: "<5 years", value: -10, tags: ["short"] },
+  { id: 2, q: "Which time horizon do you want the examples to emphasise?", options: [
+    { label: "Long horizon (10+ years)", value: 15, tags: ["long"] },
+    { label: "Medium horizon (5–10 years)", value: 5, tags: ["medium"] },
+    { label: "Shorter horizon (under 5 years)", value: -10, tags: ["short"] },
   ]},
-  { id: 3, q: "How do you react when markets drop 20%?", options: [
-    { label: "Buy more", value: 15, tags: ["risk-on"] },
-    { label: "Stay calm", value: 5, tags: ["steady"] },
-    { label: "Sell", value: -15, tags: ["risk-off"] },
+  { id: 3, q: "When learning about market drawdowns, which angle interests you?", options: [
+    { label: "Why some investors add over time", value: 15, tags: ["risk-on"] },
+    { label: "Staying neutral and observing", value: 5, tags: ["steady"] },
+    { label: "Stepping back and de-risking in theory", value: -15, tags: ["risk-off"] },
   ]},
-  { id: 4, q: "What’s more important?", options: [
-    { label: "High growth", value: 12, tags: ["growth"] },
-    { label: "Steady returns", value: 0, tags: ["balanced"] },
-    { label: "Sleep at night", value: -12, tags: ["defensive"] },
+  { id: 4, q: "Do you prefer learning about growth, income, stability, or a balanced overview?", options: [
+    { label: "Growth-oriented examples", value: 12, tags: ["growth"] },
+    { label: "Steady, middle-of-the-road patterns", value: 0, tags: ["balanced"] },
+    { label: "More stability-focused narratives", value: -12, tags: ["defensive"] },
   ]},
-  { id: 5, q: "How much investing experience do you have?", options: [
-    { label: "Lots", value: 10, tags: ["experience"] },
-    { label: "Some", value: 3, tags: ["moderate"] },
-    { label: "None", value: -5, tags: ["new"] },
+  { id: 5, q: "How familiar are you with investing vocabulary today?", options: [
+    { label: "Quite comfortable", value: 10, tags: ["experience"] },
+    { label: "Some exposure", value: 3, tags: ["moderate"] },
+    { label: "Fairly new — keep it plain", value: -5, tags: ["new"] },
   ]},
-  { id: 6, q: "Preferred focus?", options: [
-    { label: "Global tech", value: 10, tags: ["tech"] },
-    { label: "Dividend income", value: -3, tags: ["income"] },
-    { label: "Balanced mix", value: 0, tags: ["balanced"] },
-    { label: "Crypto exposure", value: 12, tags: ["crypto"] },
+  { id: 6, q: "Which investment concept interests you most right now?", options: [
+    { label: "Global tech and innovation", value: 10, tags: ["tech"] },
+    { label: "Dividend income ideas", value: -3, tags: ["income"] },
+    { label: "A balanced tour of several themes", value: 0, tags: ["balanced"] },
+    { label: "Crypto as a concept (high volatility)", value: 12, tags: ["crypto"] },
   ]},
-  { id: 7, q: "Do you want exposure to property, crypto, or both?", options: [
-    { label: "Property", value: -1, tags: ["property"] },
-    { label: "Crypto", value: 6, tags: ["crypto"] },
-    { label: "Both", value: 5, tags: ["property","crypto"] },
-    { label: "Neither", value: 0, tags: [] },
+  { id: 7, q: "Which themes should the walk-through mention in passing?", options: [
+    { label: "Property (A-REITs) as an example", value: -1, tags: ["property"] },
+    { label: "Crypto-related ETFs as an example", value: 6, tags: ["crypto"] },
+    { label: "Both property and crypto examples", value: 5, tags: ["property","crypto"] },
+    { label: "Neither — keep examples simpler", value: 0, tags: [] },
   ]},
-  { id: 8, q: "Annual contribution budget?", options: [
-    { label: "50k+", value: 6, tags: ["capacity"] },
-    { label: "10–50k", value: 3, tags: ["capacity"] },
-    { label: "<10k", value: 0, tags: ["capacity"] },
+  { id: 8, q: "How would you like to explore the materials?", options: [
+    { label: "A quick tour, then deeper reading later", value: 0, tags: ["pace"] },
+    { label: "Walk through examples in order", value: 0, tags: ["pace"] },
+    { label: "Jump between comparison tables", value: 0, tags: ["pace"] },
   ]},
-  { id: 9, q: "Do you prefer active tweaking or set-and-forget?", options: [
-    { label: "Active tweaking", value: 4, tags: ["active"] },
-    { label: "Set-and-forget", value: -2, tags: ["passive"] },
+  { id: 9, q: "Do you prefer hands-on “what-if” examples or a set-and-forget storyline?", options: [
+    { label: "Hands-on what-if examples", value: 4, tags: ["active"] },
+    { label: "Set-and-forget storyline", value: -2, tags: ["passive"] },
   ]},
-  { id: 10, q: "Age range (optional)?", options: [
-    { label: "<30", value: 8, tags: ["young"] },
-    { label: "30–45", value: 3, tags: ["prime"] },
-    { label: "45–60", value: -2, tags: ["mid"] },
-    { label: "60+", value: -6, tags: ["senior"] },
+  { id: 10, q: "Which example scenario would you like to start from?", options: [
+    { label: "Early-career saver (illustrative chapter)", value: 8, tags: ["young"] },
+    { label: "Mid-career learner (illustrative chapter)", value: 3, tags: ["prime"] },
+    { label: "Pre-retirement concepts (illustrative chapter)", value: -2, tags: ["mid"] },
+    { label: "Retirement income concepts (illustrative chapter)", value: -6, tags: ["senior"] },
   ]},
 ];
 
@@ -217,7 +230,7 @@ function PortfolioInput({ value, onChange }) {
   );
 }
 
-function AllocationList({ model, modelName }) {
+function AllocationList({ model, pathwayTitle }) {
   const entries = Object.entries(model).filter(([key]) => key !== "notes");
 
   return (
@@ -238,7 +251,7 @@ function AllocationList({ model, modelName }) {
             </header>
             <div className="allocation-item__name">{etf.name}</div>
             <div className="allocation-item__description">
-              {ticker} — shown here as part of an example {modelName?.toLowerCase() || "illustrative"} mix
+              {ticker} — commonly researched option in this general example only ({pathwayTitle})
             </div>
             <div className="allocation-item__meta">
               <span>{etf.sector}</span>
@@ -307,8 +320,8 @@ function EducationGate({ children }) {
       <div className="education-gate__card">
         <h1>GENERAL EDUCATION ONLY — NOT FINANCIAL ADVICE</h1>
         <div className="education-gate__content">
-          <p>This tool is for educational purposes only.</p>
-          <p>It does not provide financial product advice, personal advice, or recommendations.</p>
+          <p>The Investment Educator is an educational tool that helps you explore different investment concepts, asset classes, and example strategies. It does not provide personal financial advice, assess your risk profile, or recommend any financial product.</p>
+          <p>{REQUIRED_DISCLAIMER}</p>
           <p>Any portfolios, allocations, projections or ETF examples shown are illustrative only and are not suggestions to buy, sell or implement any product.</p>
         </div>
         <form className="education-gate__form" onSubmit={handleAccept}>
@@ -364,7 +377,7 @@ function PasswordGate({ children }) {
   return (
     <div className="password-gate">
       <div className="password-gate__card">
-        <h1>Welcome to Investment Matchmaker</h1>
+        <h1>Welcome to Investment Educator</h1>
         <p>Please enter this month&rsquo;s password to continue.</p>
         <form className="password-gate__form" onSubmit={handleSubmit}>
           <label htmlFor="password-input" className="visually-hidden">
@@ -753,11 +766,11 @@ const PrintStyles = () => (
 );
 
 // ---------- Main App ----------
-export default function InvestmentMatchmakerApp() {
+export default function InvestmentEducatorApp() {
   const [theme, setTheme] = useState("light");
   const [stage, setStage] = useState("home");
   const [answers, setAnswers] = useState(Array(QUIZ.length).fill(NaN));
-  const [riskOverride, setRiskOverride] = useState("Auto");
+  const [examplePathway, setExamplePathway] = useState("Auto");
   const [portfolioValue, setPortfolioValue] = useState(100000);
   const resultsRef = useRef(null);
   const progressRef = useRef(null);
@@ -767,22 +780,23 @@ export default function InvestmentMatchmakerApp() {
   // Restore from localStorage
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("im_v1_state");
+      const saved = localStorage.getItem("ie_v1_state") || localStorage.getItem("im_v1_state");
       if (saved) {
         const s = JSON.parse(saved);
         if (s.theme) setTheme(s.theme);
         if (s.stage) setStage(s.stage);
         if (Array.isArray(s.answers)) setAnswers(s.answers);
-        if (s.riskOverride) setRiskOverride(s.riskOverride);
+        const pathway = s.examplePathway || s.riskOverride;
+        if (pathway) setExamplePathway(pathway);
         if (typeof s.portfolioValue !== "undefined") setPortfolioValue(toNumberSafe(s.portfolioValue, 100000));
       }
     } catch {}
   }, []);
 
   useEffect(() => {
-    const state = { theme, stage, answers, riskOverride, portfolioValue };
-    localStorage.setItem("im_v1_state", JSON.stringify(state));
-  }, [theme, stage, answers, riskOverride, portfolioValue]);
+    const state = { theme, stage, answers, examplePathway, portfolioValue };
+    localStorage.setItem("ie_v1_state", JSON.stringify(state));
+  }, [theme, stage, answers, examplePathway, portfolioValue]);
 
   useEffect(() => {
     if (stage !== "results") {
@@ -815,19 +829,19 @@ export default function InvestmentMatchmakerApp() {
     return answered / QUIZ.length;
   }, [answers]);
 
-  const riskScore = useMemo(() => {
+  const learningPreferenceIndex = useMemo(() => {
     let score = 50;
     answers.forEach(a => { if (!Number.isNaN(a)) score += a; });
     return clamp(score, 0, 100);
   }, [answers]);
 
   const autoModelName = useMemo(() => {
-    if (riskScore > 80) return "Aggressive";
-    if (riskScore > 50) return "Balanced";
+    if (learningPreferenceIndex > 80) return "Aggressive";
+    if (learningPreferenceIndex > 50) return "Balanced";
     return "Conservative";
-  }, [riskScore]);
+  }, [learningPreferenceIndex]);
 
-  const modelName = riskOverride === "Auto" ? autoModelName : riskOverride;
+  const modelName = examplePathway === "Auto" ? autoModelName : examplePathway;
   const model = MODELS[modelName];
 
   const metrics = useMemo(() => computeMetrics(model, portfolioValue), [model, portfolioValue]);
@@ -860,7 +874,7 @@ export default function InvestmentMatchmakerApp() {
   const resetQuiz = () => {
     setAnswers(Array(QUIZ.length).fill(NaN));
     setStage("quiz");
-    setRiskOverride("Auto");
+    setExamplePathway("Auto");
   };
 
   const handleAnswer = (qIndex, value) => {
@@ -919,8 +933,8 @@ export default function InvestmentMatchmakerApp() {
               </span>
               <div>
                 <p className="brand-eyebrow">Freedom by Design</p>
-                <h1>Investment Matchmaker</h1>
-                <p className="brand-tagline">Explore how different investment styles work — through simple, illustrative examples.</p>
+                <h1>Investment Educator</h1>
+                <p className="brand-tagline">Learn how different investment concepts work — through simple, illustrative examples only.</p>
               </div>
             </div>
             <div className="header-actions no-print">
@@ -940,41 +954,41 @@ export default function InvestmentMatchmakerApp() {
               <section className={`${surfaceClass} hero-card`}>
                 <div className="hero-card__content">
                 <span className="hero-eyebrow">Educational tool</span>
-                <h2>Explore hypothetical ETF mixes based on different risk styles — for learning only.</h2>
-                <p>Answer a few questions and we'll show you educational example portfolios to help you understand how risk, time horizon and diversification can influence long-term outcomes.</p>
-                <p>Nothing here tells you what to buy — this is general education only.</p>
+                <h2>Explore investment concepts and hypothetical ETF mixes — for learning only.</h2>
+                <p>The Investment Educator is an educational tool that helps you explore different investment concepts, asset classes, and example strategies. It does not provide personal financial advice, assess your risk profile, or recommend any financial product.</p>
+                <p>Optional prompts help you choose learning angles; they do not evaluate your finances or tell you what to buy.</p>
                   <div className="hero-actions">
                     <button className="primary-button no-print" onClick={() => setStage("quiz")}>
-                      Start education tool
+                      Start learning
                     </button>
                     <button className="ghost-button no-print" onClick={() => setStage("results")}>
-                      View example mixes
+                      Explore investment options
                     </button>
                   </div>
                 </div>
                 <div className="hero-highlights">
                   <div className="highlight-chip">
-                    <span className="highlight-label">Live risk score</span>
-                    <span className="highlight-value">{riskScore}</span>
+                    <span className="highlight-label">Learning snapshot</span>
+                    <span className="highlight-value">{learningPreferenceIndex}</span>
                   </div>
                   <div className="highlight-chip">
-                    <span className="highlight-label">Models curated</span>
-                    <span className="highlight-value">Aggressive · Balanced · Conservative</span>
+                    <span className="highlight-label">Example pathways</span>
+                    <span className="highlight-value">Growth-focused · Balanced mix · Stability-focused</span>
                   </div>
                   <div className="highlight-chip">
-                    <span className="highlight-label">Output</span>
-                    <span className="highlight-value">ETF blend · projections · income</span>
+                    <span className="highlight-label">You can explore</span>
+                    <span className="highlight-value">Example mixes · concepts · comparisons</span>
                   </div>
                 </div>
               </section>
               <section className={`${surfaceClass} info-card`}>
-                <h3>What you'll explore</h3>
+                <h3>Understand investment concepts</h3>
                 <ul className="bullet-list">
-                  <li>Illustrative allocation examples across different ETF types.</li>
-                  <li>Hypothetical projections for income, 10-year growth and diversification concepts.</li>
-                  <li>Educational examples for learning purposes only.</li>
+                  <li>Learn how different investments are often described in plain language.</li>
+                  <li>Compare education examples — not a plan tailored to your circumstances.</li>
+                  <li>See hypothetical numbers that illustrate ideas, not forecasts you should act on.</li>
                 </ul>
-                <div className="info-card__foot">General education only. Not financial advice.</div>
+                <div className="info-card__foot">{REQUIRED_DISCLAIMER}</div>
               </section>
             </main>
           )}
@@ -989,7 +1003,7 @@ export default function InvestmentMatchmakerApp() {
                   </div>
                 </div>
                 <div className="quiz-progress__score">
-                  Example risk score <span>{riskScore}</span> → {autoModelName} example
+                  Learning snapshot <span>{learningPreferenceIndex}</span> — preview: {pathwayLabel(autoModelName)}
                 </div>
                 <button className="ghost-button no-print" onClick={() => setStage("home")}>
                   Exit
@@ -997,8 +1011,8 @@ export default function InvestmentMatchmakerApp() {
               </div>
 
               <div className={`${surfaceClass} quiz-disclaimer`}>
-                <p><strong>Your answers help us select an illustrative example to teach different concepts.</strong></p>
-                <p>This does not create a personalised portfolio.</p>
+                <p><strong>Your choices tune which educational examples we open first — nothing here is advice or an evaluation of what fits you personally.</strong></p>
+                <p>{REQUIRED_DISCLAIMER}</p>
               </div>
 
               <div className="quiz-questions">
@@ -1036,7 +1050,7 @@ export default function InvestmentMatchmakerApp() {
                     });
                   }}
                 >
-                  Show educational example
+                  Learn how different investments work
                 </button>
               </div>
             </main>
@@ -1046,15 +1060,29 @@ export default function InvestmentMatchmakerApp() {
             <main ref={resultsRef} className="results-view print-block">
               <section className="summary-section">
                 <div className={`${surfaceClass} education-banner`}>
-                  <strong>EDUCATIONAL EXAMPLE ONLY — NOT A RECOMMENDATION</strong>
-                  <p>This mix is hypothetical and shown only to teach concepts such as diversification, risk, and long-term compounding.</p>
-                  <p>It is not telling you what to buy.</p>
+                  <strong>GENERAL EDUCATIONAL EXAMPLE — NOT PERSONAL ADVICE</strong>
+                  <p>{REQUIRED_DISCLAIMER}</p>
+                  <p>This mix is hypothetical and shown only to teach ideas such as diversification, volatility, and long-term compounding. It does not tell you what to buy, sell, or hold.</p>
                 </div>
 
                 <article className={`${surfaceClass} summary-card`}>
-                  <span className="summary-eyebrow">{modelName} example</span>
-                  <h2>Example ETF mix (educational only)</h2>
+                  <h3 className="concepts-explore-heading">Concepts you may want to understand further</h3>
+                  <p>Based on the learning preferences you explored, here are some investment concepts commonly discussed in education materials (general examples only, not recommendations):</p>
+                  <ol className="concepts-explore-list">
+                    <li>Broad market ETFs</li>
+                    <li>Higher-growth / thematic ETFs</li>
+                    <li>Dividend-focused ETFs</li>
+                    <li>Defensive assets and bonds</li>
+                    <li>Cash buffers and diversification</li>
+                  </ol>
+                  <p className="concepts-explore-foot">These are education examples only, not recommendations. Compare the sample mixes below to see how each idea might appear in a purely illustrative allocation.</p>
+                </article>
+
+                <article className={`${surfaceClass} summary-card`}>
+                  <span className="summary-eyebrow">{pathwayLabel(modelName)}</span>
+                  <h2>Sample ETF mix (one educational pathway)</h2>
                   <p>{MODELS[modelName].notes}</p>
+                  <p>Use the pathway buttons to compare other <strong>general investment style</strong> examples — none are matched to you personally.</p>
                   <div className="summary-metrics">
                     <div className="summary-metric">
                       <span>10-year hypothetical projection (illustrative only)</span>
@@ -1096,16 +1124,22 @@ export default function InvestmentMatchmakerApp() {
                 </div>
 
                 <aside className={`${surfaceClass} summary-controls`}>
-                  <h4>Fine-tune</h4>
-                  <label className="control-label">Risk setting</label>
+                  <h4>Compare education examples</h4>
+                  <label className="control-label">Example pathway</label>
                   <div className="toggle-group">
-                    {["Auto", "Aggressive", "Balanced", "Conservative"].map((option) => (
+                    {[
+                      { key: "Auto", label: "Auto (from prompts)" },
+                      { key: "Aggressive", label: "Growth-focused" },
+                      { key: "Balanced", label: "Balanced mix" },
+                      { key: "Conservative", label: "Stability-focused" },
+                    ].map(({ key, label }) => (
                       <button
-                        key={option}
-                        onClick={() => setRiskOverride(option)}
-                        className={`toggle-chip ${riskOverride === option ? "is-active" : ""}`}
+                        key={key}
+                        type="button"
+                        onClick={() => setExamplePathway(key)}
+                        className={`toggle-chip ${examplePathway === key ? "is-active" : ""}`}
                       >
-                        {option}
+                        {label}
                       </button>
                     ))}
                   </div>
@@ -1123,7 +1157,7 @@ export default function InvestmentMatchmakerApp() {
                   </div>
                   <div className="summary-controls__actions no-print">
                     <button className="ghost-button" onClick={resetQuiz}>
-                      Re-run quiz
+                      Compare education examples again
                     </button>
                     <button className="ghost-button" onClick={() => setStage("home")}>
                       Back to intro
@@ -1132,7 +1166,7 @@ export default function InvestmentMatchmakerApp() {
                       Export PDF
                     </button>
                   </div>
-                  <p className="control-footnote">All examples, projections and mixes are hypothetical and for educational purposes only. Not financial advice.</p>
+                  <p className="control-footnote">{REQUIRED_DISCLAIMER}</p>
                 </aside>
               </section>
 
@@ -1141,8 +1175,9 @@ export default function InvestmentMatchmakerApp() {
                   <div className="section-heading__copy">
                     <h3>Illustrative portfolio example</h3>
                     <p>
-                      <span className="section-model">{modelName} example</span> · {MODELS[modelName].notes}
+                      <span className="section-model">{pathwayLabel(modelName)}</span> · {MODELS[modelName].notes}
                     </p>
+                    <p className="section-disclaimer">{REQUIRED_DISCLAIMER}</p>
                   </div>
                   <div className="section-heading__info" ref={etfInfoRef}>
                     <button
@@ -1181,13 +1216,13 @@ export default function InvestmentMatchmakerApp() {
                     })}
                   </div>
                 </div>
-                <AllocationList model={model} modelName={modelName} />
+                <AllocationList model={model} pathwayTitle={pathwayLabel(modelName)} />
               </section>
 
               <section className={`${surfaceClass} table-section`}>
                 <div className="section-heading">
                   <h3>ETF details</h3>
-                  <p>Understand the role each holding plays inside the portfolio.</p>
+                  <p>How each holding is often described in educational materials — commonly researched options in a sample mix only.</p>
                 </div>
                 <div className="table-wrapper">
                   <table className="data-table">
@@ -1232,7 +1267,7 @@ export default function InvestmentMatchmakerApp() {
                   </table>
                 </div>
                 <div className="table-section__footer">
-                  <p className="table-footnote">All data shown is illustrative and for educational purposes only. Not financial advice.</p>
+                  <p className="table-footnote">{REQUIRED_DISCLAIMER}</p>
                   <div className="etf-dashboard-link">
                     <a 
                       href="https://etf-dashboards.vercel.app/" 
@@ -1265,7 +1300,7 @@ export default function InvestmentMatchmakerApp() {
                     <li>Explore how compounding and time impact long-term outcomes</li>
                     <li>See example "Ultimate Target" projections under different assumptions</li>
                     <li>Get psychology & mindset coaching to stay on track</li>
-                    <li>Get personalised coaching about education only — not advice</li>
+                    <li>One-to-one coaching on education topics only — not personal advice</li>
                   </ul>
                   <div className="callout-cta">
                     <a href="https://wealthbydesign.vercel.app/contact" target="_blank" rel="noopener noreferrer" className="callout-button">
@@ -1284,7 +1319,8 @@ export default function InvestmentMatchmakerApp() {
             <p>Nothing here is financial product advice, personal advice, a recommendation, or an offer to buy/sell any financial product.</p>
             <p>Michael Leggo and Wealth Blueprint are not licensed financial advisers.</p>
             <p>Users should consider seeking independent, licensed financial advice before making investment decisions.</p>
-            <p>© {new Date().getFullYear()} Investment Matchmaker · Built by Michael Leggo.</p>
+            <p>© {new Date().getFullYear()} Investment Educator · Built by Michael Leggo.</p>
+            <p>{REQUIRED_DISCLAIMER}</p>
           </footer>
         </div>
       </div>
@@ -1296,7 +1332,7 @@ export default function InvestmentMatchmakerApp() {
 // --------- Lightweight Runtime Tests (console) ---------
 (function runtimeTests() {
   try {
-    console.group("Investment Matchmaker — runtime tests");
+    console.group("Investment Educator — runtime tests");
     console.assert(currency(undefined) === currency(0), "currency(undefined) should equal $0");
     console.assert(currency(null) === currency(0), "currency(null) should equal $0");
     console.assert(currency(NaN) === currency(0), "currency(NaN) should equal $0");

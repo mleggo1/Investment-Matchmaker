@@ -575,6 +575,34 @@
   opacity: 0.88;
 }
 
+.concepts-explore-heading {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.15rem, 2.2vw, 1.35rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.concepts-explore-list {
+  margin: 0.5rem 0 1rem;
+  padding-left: 1.25rem;
+  font-size: 0.98rem;
+  line-height: 1.5;
+  opacity: 0.92;
+}
+
+.concepts-explore-foot {
+  margin-top: 0.75rem !important;
+  font-size: 0.95rem;
+  max-width: 640px !important;
+}
+
+.section-disclaimer {
+  font-size: 0.88rem;
+  opacity: 0.88;
+  margin-top: 0.85rem !important;
+  max-width: 720px !important;
+}
+
 .summary-eyebrow {
   text-transform: uppercase;
   font-size: 0.8rem;

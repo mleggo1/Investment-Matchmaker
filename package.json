@@ -1,8 +1,8 @@
 {
-  "name": "investment-matchmaker",
+  "name": "investment-educator",
   "version": "0.0.0",
   "private": true,
-  "homepage": "https://mleggo1.github.io/Investment-Matchmaker/",
+  "homepage": "https://mleggo1.github.io/Investment-Educator/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
