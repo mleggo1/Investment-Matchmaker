@@ -199,10 +199,11 @@ const LEARNING_THEME_MAP = {
 };
 
 function normalizeAnswerIndices(stored) {
-  if (!Array.isArray(stored) || stored.length !== QUIZ.length) {
+  if (!Array.isArray(stored)) {
     return Array(QUIZ.length).fill(UNANSWERED);
   }
-  return stored.map((val, qIdx) => {
+  return Array.from({ length: QUIZ.length }, (_, qIdx) => {
+    const val = stored[qIdx];
     if (val === null || val === undefined || Number.isNaN(val) || val === UNANSWERED) return UNANSWERED;
     if (Number.isInteger(val) && val >= 0 && val < QUIZ[qIdx].options.length) {
       return val;
@@ -215,17 +216,21 @@ function normalizeAnswerIndices(stored) {
 function scoreFromAnswerIndices(answerIndices) {
   let score = 50;
   answerIndices.forEach((optIdx, qIdx) => {
-    if (optIdx >= 0 && optIdx < QUIZ[qIdx].options.length) {
+    if (Number.isInteger(optIdx) && optIdx >= 0 && optIdx < QUIZ[qIdx].options.length) {
       score += QUIZ[qIdx].options[optIdx].value;
     }
   });
   return clamp(score, 0, 100);
 }
 
+function isValidPathway(pathway) {
+  return pathway === "Auto" || Boolean(MODELS[pathway]);
+}
+
 function buildEducationReport(answerIndices) {
   const selections = QUIZ.map((question, qIdx) => {
     const optIdx = answerIndices[qIdx];
-    if (optIdx < 0 || optIdx >= question.options.length) return null;
+    if (!Number.isInteger(optIdx) || optIdx < 0 || optIdx >= question.options.length) return null;
     const option = question.options[optIdx];
     return {
       question: question.q,
@@ -957,7 +962,7 @@ export default function InvestmentEducatorApp() {
           setAnswerIndices(normalizeAnswerIndices(s.answers));
         }
         const pathway = s.examplePathway || s.riskOverride;
-        if (pathway) setExamplePathway(pathway);
+        if (isValidPathway(pathway)) setExamplePathway(pathway);
         if (typeof s.portfolioValue !== "undefined") setPortfolioValue(toNumberSafe(s.portfolioValue, 100000));
       }
     } catch {}
@@ -995,7 +1000,7 @@ export default function InvestmentEducatorApp() {
   }, [showEtfInfo]);
 
   const progress = useMemo(() => {
-    const answered = answerIndices.filter((idx) => idx >= 0).length;
+    const answered = answerIndices.filter((idx) => Number.isInteger(idx) && idx >= 0).length;
     return answered / QUIZ.length;
   }, [answerIndices]);
 
@@ -1016,7 +1021,7 @@ export default function InvestmentEducatorApp() {
   }, [learningPreferenceIndex]);
 
   const modelName = examplePathway === "Auto" ? autoModelName : examplePathway;
-  const model = MODELS[modelName];
+  const model = MODELS[modelName] || MODELS.Balanced;
 
   const metrics = useMemo(() => computeMetrics(model, portfolioValue), [model, portfolioValue]);
   const chartData = useMemo(() => toChartData(model), [model]);
@@ -1250,8 +1255,8 @@ export default function InvestmentEducatorApp() {
                     <>
                       <h3 className="education-report__subheading">What you selected</h3>
                       <dl className="report-choices">
-                        {educationReport.selections.map((item) => (
-                          <div key={item.question} className="report-choices__row">
+                        {educationReport.selections.map((item, index) => (
+                          <div key={`${index}-${item.question}`} className="report-choices__row">
                             <dt>{item.question}</dt>
                             <dd>{item.answer}</dd>
                           </div>
