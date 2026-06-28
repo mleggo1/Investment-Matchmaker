@@ -596,6 +596,115 @@
   max-width: 640px !important;
 }
 
+.education-report p,
+.education-report .report-themes__item p {
+  max-width: 720px;
+}
+
+.education-report__subheading {
+  margin: 1.5rem 0 0.75rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.report-choices {
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.report-choices__row {
+  display: grid;
+  gap: 4px;
+  padding: 0.75rem 1rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.report-choices__row dt {
+  font-size: 0.82rem;
+  opacity: 0.75;
+  font-weight: 600;
+}
+
+.report-choices__row dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.report-themes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.report-themes__item {
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.report-themes__item p {
+  margin: 0.35rem 0 0;
+  font-size: 0.92rem;
+  opacity: 0.88;
+}
+
+.inline-learn-link,
+.ticker-cell__link,
+.etf-name-link,
+.table-learn-link,
+.legend-label--link,
+.allocation-item__name--link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.allocation-item__badge--link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #ffffff;
+  box-shadow: 0 15px 25px rgba(79, 70, 229, 0.25);
+  text-decoration: none;
+}
+
+.allocation-item__badge--link:hover,
+.inline-learn-link:hover,
+.ticker-cell__link:hover,
+.etf-name-link:hover,
+.table-learn-link:hover {
+  opacity: 0.92;
+  filter: brightness(1.05);
+}
+
+.legend-label--link {
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.legend-label--link:hover {
+  text-decoration: underline;
+}
+
+.table-learn-link {
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.external-link-disclaimer {
+  font-size: 0.88rem;
+  opacity: 0.85;
+  margin-top: 1rem;
+}
+
 .section-disclaimer {
   font-size: 0.88rem;
   opacity: 0.88;

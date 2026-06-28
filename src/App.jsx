@@ -117,9 +117,9 @@ const QUIZ = [
     { label: "Neither — keep examples simpler", value: 0, tags: [] },
   ]},
   { id: 8, q: "How would you like to explore the materials?", options: [
-    { label: "A quick tour, then deeper reading later", value: 0, tags: ["pace"] },
-    { label: "Walk through examples in order", value: 0, tags: ["pace"] },
-    { label: "Jump between comparison tables", value: 0, tags: ["pace"] },
+    { label: "A quick tour, then deeper reading later", value: 1, tags: ["pace-quick"] },
+    { label: "Walk through examples in order", value: 2, tags: ["pace-sequential"] },
+    { label: "Jump between comparison tables", value: 3, tags: ["pace-compare"] },
   ]},
   { id: 9, q: "Do you prefer hands-on “what-if” examples or a set-and-forget storyline?", options: [
     { label: "Hands-on what-if examples", value: 4, tags: ["active"] },
@@ -132,6 +132,167 @@ const QUIZ = [
     { label: "Retirement income concepts (illustrative chapter)", value: -6, tags: ["senior"] },
   ]},
 ];
+
+const ETF_DASHBOARD_URL = "https://etf-dashboards.vercel.app/";
+
+const EXTERNAL_LINK_DISCLAIMER =
+  "External links are provided for education and convenience only. They are not recommendations or endorsements.";
+
+const UNANSWERED = -1;
+
+const LEARNING_THEME_MAP = {
+  growth: {
+    title: "Growth & compounding",
+    concepts: ["Broad market ETFs", "Higher-growth / thematic ETFs"],
+    why: "You signalled interest in growth-oriented ideas — helpful for learning how markets and long-term compounding are commonly explained.",
+  },
+  income: {
+    title: "Income & cash-flow concepts",
+    concepts: ["Dividend-focused ETFs", "Yield and distributions (illustrative only)"],
+    why: "Your choices touched on income themes — useful for understanding how yield and cash flow are described in education materials.",
+  },
+  defensive: {
+    title: "Stability & volatility smoothing",
+    concepts: ["Defensive assets and bonds", "Cash buffers and diversification"],
+    why: "You leaned toward stability-focused narratives — a common education topic when explaining how defensive assets are discussed.",
+  },
+  tech: {
+    title: "Innovation & global tech",
+    concepts: ["Tech and innovation ETFs", "Thematic growth examples"],
+    why: "You wanted to explore tech-oriented concepts — useful for learning how sector-focused ETFs are often presented in examples.",
+  },
+  crypto: {
+    title: "Crypto & high-volatility themes",
+    concepts: ["Crypto-related ETF examples", "Volatility and diversification trade-offs"],
+    why: "You asked to see crypto mentioned in examples — helpful for learning how high-volatility assets are described in educational contexts.",
+  },
+  property: {
+    title: "Property (A-REIT) examples",
+    concepts: ["Property / A-REIT ETFs", "Income and sector diversification"],
+    why: "You indicated interest in property-themed examples — useful for learning how real-estate exposure is often illustrated.",
+  },
+  long: {
+    title: "Long time horizons",
+    concepts: ["Compounding over decades", "Broad market exposure examples"],
+    why: "You emphasised long-horizon examples — a core education theme for how time and compounding interact in illustrations.",
+  },
+  short: {
+    title: "Shorter time horizons",
+    concepts: ["Liquidity and stability concepts", "Defensive asset examples"],
+    why: "You focused on shorter-horizon illustrations — helpful for learning how educators discuss liquidity and stability.",
+  },
+  balanced: {
+    title: "Balanced, mixed approaches",
+    concepts: ["Multi-asset example mixes", "Diversification across sectors"],
+    why: "You preferred a balanced tour — useful for comparing how different asset types appear together in sample mixes.",
+  },
+  experience: {
+    title: "Deeper vocabulary & mechanics",
+    concepts: ["Fees (MER)", "Holdings and asset allocation"],
+    why: "You are comfortable with investing vocabulary — you may benefit from drilling into holdings, fees, and composition on external education tools.",
+  },
+  new: {
+    title: "Plain-language foundations",
+    concepts: ["What ETFs are", "How diversification works"],
+    why: "You asked for plain-language learning — start with foundational concepts before diving into detailed product comparisons.",
+  },
+};
+
+function normalizeAnswerIndices(stored) {
+  if (!Array.isArray(stored) || stored.length !== QUIZ.length) {
+    return Array(QUIZ.length).fill(UNANSWERED);
+  }
+  return stored.map((val, qIdx) => {
+    if (val === null || val === undefined || Number.isNaN(val) || val === UNANSWERED) return UNANSWERED;
+    if (Number.isInteger(val) && val >= 0 && val < QUIZ[qIdx].options.length) {
+      return val;
+    }
+    const legacyIdx = QUIZ[qIdx].options.findIndex((o) => o.value === val);
+    return legacyIdx >= 0 ? legacyIdx : UNANSWERED;
+  });
+}
+
+function scoreFromAnswerIndices(answerIndices) {
+  let score = 50;
+  answerIndices.forEach((optIdx, qIdx) => {
+    if (optIdx >= 0 && optIdx < QUIZ[qIdx].options.length) {
+      score += QUIZ[qIdx].options[optIdx].value;
+    }
+  });
+  return clamp(score, 0, 100);
+}
+
+function buildEducationReport(answerIndices) {
+  const selections = QUIZ.map((question, qIdx) => {
+    const optIdx = answerIndices[qIdx];
+    if (optIdx < 0 || optIdx >= question.options.length) return null;
+    const option = question.options[optIdx];
+    return {
+      question: question.q,
+      answer: option.label,
+      tags: option.tags,
+    };
+  }).filter(Boolean);
+
+  const tagWeights = {};
+  selections.forEach(({ tags }) => {
+    tags.forEach((tag) => {
+      tagWeights[tag] = (tagWeights[tag] || 0) + 1;
+    });
+  });
+
+  const rankedTags = Object.entries(tagWeights)
+    .filter(([tag]) => LEARNING_THEME_MAP[tag])
+    .sort((a, b) => b[1] - a[1])
+    .map(([tag]) => tag);
+
+  const themes = rankedTags.map((tag) => ({
+    tag,
+    ...LEARNING_THEME_MAP[tag],
+  }));
+
+  const conceptSet = new Set();
+  themes.forEach((theme) => theme.concepts.forEach((c) => conceptSet.add(c)));
+  if (conceptSet.size === 0) {
+    ["Broad market ETFs", "Dividend-focused ETFs", "Defensive assets and bonds", "Cash buffers and diversification"].forEach((c) => conceptSet.add(c));
+  }
+
+  const themeTitles = themes.map((t) => t.title.toLowerCase());
+  const score = scoreFromAnswerIndices(answerIndices);
+  const pathwayHint = pathwayLabel(
+    score > 80 ? "Aggressive" : score > 50 ? "Balanced" : "Conservative",
+  );
+
+  return {
+    hasSelections: selections.length > 0,
+    selections,
+    themes,
+    concepts: [...conceptSet],
+    pathwayHint,
+    intro: selections.length
+      ? "Based on your selected learning preferences, this summary collates what you chose and highlights areas you may wish to understand further — for education only."
+      : "Complete the learning prompts to build a summary from your selections. Until then, here are general concepts commonly used in illustrative examples.",
+    closing: "These are education examples only, not recommendations. Consider speaking with a licensed financial adviser before making investment decisions.",
+    wealthBridge: selections.length
+      ? `You explored themes such as ${themeTitles.slice(0, 3).join(", ") || "general investing concepts"}. Wealth Blueprint can help you continue that learning journey with structured education — not product advice.`
+      : "Wealth Blueprint offers structured financial education — how wealth is built, how investing works, and how strategies are explained in plain English. Not financial advice.",
+  };
+}
+
+function EtfEducationalLink({ ticker, className, children, style }) {
+  return (
+    <a
+      href={ETF_DASHBOARD_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={className}
+      style={style}
+      title={`Learn more about ${ticker} on the ETF education dashboard (external link, not a recommendation)`}
+    >
+      {children}
+    </a>
+  );
+}
 
 // ---------- Visual constants ----------
 const ACCENT_GRADIENTS = [
@@ -241,17 +402,22 @@ function AllocationList({ model, pathwayTitle }) {
         return (
           <article key={ticker} className="allocation-item">
             <header className="allocation-item__header">
-              <span className="allocation-item__badge" style={{ backgroundImage: gradient }}>
+              <EtfEducationalLink ticker={ticker} className="allocation-item__badge allocation-item__badge--link" style={{ backgroundImage: gradient }}>
                 {ticker}
-              </span>
+              </EtfEducationalLink>
               <div className="allocation-item__weight">
                 {weight}
                 <span className="allocation-item__weight-unit">%</span>
               </div>
             </header>
-            <div className="allocation-item__name">{etf.name}</div>
+            <EtfEducationalLink ticker={ticker} className="allocation-item__name allocation-item__name--link">
+              {etf.name}
+            </EtfEducationalLink>
             <div className="allocation-item__description">
-              {ticker} — commonly researched option in this general example only ({pathwayTitle})
+              {ticker} — commonly researched option in this general example only ({pathwayTitle}).{" "}
+              <EtfEducationalLink ticker={ticker} className="inline-learn-link">
+                Explore holdings &amp; fees (external)
+              </EtfEducationalLink>
             </div>
             <div className="allocation-item__meta">
               <span>{etf.sector}</span>
@@ -769,7 +935,7 @@ const PrintStyles = () => (
 export default function InvestmentEducatorApp() {
   const [theme, setTheme] = useState("light");
   const [stage, setStage] = useState("home");
-  const [answers, setAnswers] = useState(Array(QUIZ.length).fill(NaN));
+  const [answerIndices, setAnswerIndices] = useState(() => Array(QUIZ.length).fill(UNANSWERED));
   const [examplePathway, setExamplePathway] = useState("Auto");
   const [portfolioValue, setPortfolioValue] = useState(100000);
   const resultsRef = useRef(null);
@@ -785,7 +951,11 @@ export default function InvestmentEducatorApp() {
         const s = JSON.parse(saved);
         if (s.theme) setTheme(s.theme);
         if (s.stage) setStage(s.stage);
-        if (Array.isArray(s.answers)) setAnswers(s.answers);
+        if (Array.isArray(s.answerIndices)) {
+          setAnswerIndices(normalizeAnswerIndices(s.answerIndices));
+        } else if (Array.isArray(s.answers)) {
+          setAnswerIndices(normalizeAnswerIndices(s.answers));
+        }
         const pathway = s.examplePathway || s.riskOverride;
         if (pathway) setExamplePathway(pathway);
         if (typeof s.portfolioValue !== "undefined") setPortfolioValue(toNumberSafe(s.portfolioValue, 100000));
@@ -794,9 +964,9 @@ export default function InvestmentEducatorApp() {
   }, []);
 
   useEffect(() => {
-    const state = { theme, stage, answers, examplePathway, portfolioValue };
+    const state = { theme, stage, answerIndices, examplePathway, portfolioValue };
     localStorage.setItem("ie_v1_state", JSON.stringify(state));
-  }, [theme, stage, answers, examplePathway, portfolioValue]);
+  }, [theme, stage, answerIndices, examplePathway, portfolioValue]);
 
   useEffect(() => {
     if (stage !== "results") {
@@ -825,15 +995,19 @@ export default function InvestmentEducatorApp() {
   }, [showEtfInfo]);
 
   const progress = useMemo(() => {
-    const answered = answers.filter(a => !Number.isNaN(a)).length;
+    const answered = answerIndices.filter((idx) => idx >= 0).length;
     return answered / QUIZ.length;
-  }, [answers]);
+  }, [answerIndices]);
 
-  const learningPreferenceIndex = useMemo(() => {
-    let score = 50;
-    answers.forEach(a => { if (!Number.isNaN(a)) score += a; });
-    return clamp(score, 0, 100);
-  }, [answers]);
+  const learningPreferenceIndex = useMemo(
+    () => scoreFromAnswerIndices(answerIndices),
+    [answerIndices],
+  );
+
+  const educationReport = useMemo(
+    () => buildEducationReport(answerIndices),
+    [answerIndices],
+  );
 
   const autoModelName = useMemo(() => {
     if (learningPreferenceIndex > 80) return "Aggressive";
@@ -872,15 +1046,15 @@ export default function InvestmentEducatorApp() {
   ]), [metrics]);
 
   const resetQuiz = () => {
-    setAnswers(Array(QUIZ.length).fill(NaN));
+    setAnswerIndices(Array(QUIZ.length).fill(UNANSWERED));
     setStage("quiz");
     setExamplePathway("Auto");
   };
 
-  const handleAnswer = (qIndex, value) => {
-    setAnswers(prev => {
+  const handleAnswer = (qIndex, optionIndex) => {
+    setAnswerIndices((prev) => {
       const next = [...prev];
-      next[qIndex] = value;
+      next[qIndex] = optionIndex;
       return next;
     });
     if (qIndex < QUIZ.length - 1) {
@@ -1024,12 +1198,14 @@ export default function InvestmentEducatorApp() {
                     <h3>{q.q}</h3>
                     <div className="quiz-option-grid">
                       {q.options.map((opt, idx) => {
-                        const selected = !Number.isNaN(answers[i]) && answers[i] === opt.value;
+                        const selected = answerIndices[i] === idx;
                         return (
                           <button
                             key={idx}
-                            onClick={() => handleAnswer(i, opt.value)}
+                            type="button"
+                            onClick={() => handleAnswer(i, idx)}
                             className={`quiz-option ${selected ? "is-selected" : ""}`}
+                            aria-pressed={selected}
                           >
                             <span>{opt.label}</span>
                           </button>
@@ -1065,17 +1241,49 @@ export default function InvestmentEducatorApp() {
                   <p>This mix is hypothetical and shown only to teach ideas such as diversification, volatility, and long-term compounding. It does not tell you what to buy, sell, or hold.</p>
                 </div>
 
-                <article className={`${surfaceClass} summary-card`}>
-                  <h3 className="concepts-explore-heading">Concepts you may want to understand further</h3>
-                  <p>Based on the learning preferences you explored, here are some investment concepts commonly discussed in education materials (general examples only, not recommendations):</p>
+                <article className={`${surfaceClass} summary-card education-report`}>
+                  <span className="summary-eyebrow">Your learning summary</span>
+                  <h2>Educational pathways to explore</h2>
+                  <p>{educationReport.intro}</p>
+
+                  {educationReport.hasSelections && (
+                    <>
+                      <h3 className="education-report__subheading">What you selected</h3>
+                      <dl className="report-choices">
+                        {educationReport.selections.map((item) => (
+                          <div key={item.question} className="report-choices__row">
+                            <dt>{item.question}</dt>
+                            <dd>{item.answer}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </>
+                  )}
+
+                  {educationReport.themes.length > 0 && (
+                    <>
+                      <h3 className="education-report__subheading">These are areas you may wish to understand further</h3>
+                      <ul className="report-themes">
+                        {educationReport.themes.map((theme) => (
+                          <li key={theme.tag} className="report-themes__item">
+                            <strong>{theme.title}</strong>
+                            <p>{theme.why}</p>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+
+                  <h3 className="education-report__subheading">The following investment concepts may be useful to explore</h3>
                   <ol className="concepts-explore-list">
-                    <li>Broad market ETFs</li>
-                    <li>Higher-growth / thematic ETFs</li>
-                    <li>Dividend-focused ETFs</li>
-                    <li>Defensive assets and bonds</li>
-                    <li>Cash buffers and diversification</li>
+                    {educationReport.concepts.map((concept) => (
+                      <li key={concept}>{concept}</li>
+                    ))}
                   </ol>
-                  <p className="concepts-explore-foot">These are education examples only, not recommendations. Compare the sample mixes below to see how each idea might appear in a purely illustrative allocation.</p>
+
+                  <p className="concepts-explore-foot">
+                    {educationReport.closing} The sample mix below opens on a <strong>{educationReport.pathwayHint}</strong> — you can switch pathways to compare other general illustrations.
+                  </p>
                 </article>
 
                 <article className={`${surfaceClass} summary-card`}>
@@ -1209,7 +1417,9 @@ export default function InvestmentEducatorApp() {
                       return (
                         <div key={item.name} className="legend-row">
                           <span className="legend-swatch" style={{ backgroundImage: gradient }} />
-                          <span className="legend-label">{item.name}</span>
+                          <EtfEducationalLink ticker={item.name} className="legend-label legend-label--link">
+                            {item.name}
+                          </EtfEducationalLink>
                           <span className="legend-value">(e.g. {item.value}% in this example)</span>
                         </div>
                       );
@@ -1217,6 +1427,7 @@ export default function InvestmentEducatorApp() {
                   </div>
                 </div>
                 <AllocationList model={model} pathwayTitle={pathwayLabel(modelName)} />
+                <p className="external-link-disclaimer">{EXTERNAL_LINK_DISCLAIMER}</p>
               </section>
 
               <section className={`${surfaceClass} table-section`}>
@@ -1235,6 +1446,7 @@ export default function InvestmentEducatorApp() {
                         <th className="numeric">5-yr return</th>
                         <th className="numeric">Yield</th>
                         <th>Educational context</th>
+                        <th>Learn more</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1244,8 +1456,16 @@ export default function InvestmentEducatorApp() {
                           const e = getETF(ticker);
                           return (
                           <tr key={ticker} className="data-table__row">
-                              <td className="ticker-cell">{ticker}</td>
-                              <td>{e.name}</td>
+                              <td className="ticker-cell">
+                                <EtfEducationalLink ticker={ticker} className="ticker-cell__link">
+                                  {ticker}
+                                </EtfEducationalLink>
+                              </td>
+                              <td>
+                                <EtfEducationalLink ticker={ticker} className="etf-name-link">
+                                  {e.name}
+                                </EtfEducationalLink>
+                              </td>
                               <td className="numeric">(e.g. {weight}% in this example)</td>
                               <td className="numeric">{e.mer.toFixed(2)}%</td>
                               <td className="numeric">{percent(e.return_5y, 1)}</td>
@@ -1260,6 +1480,11 @@ export default function InvestmentEducatorApp() {
                                 {e.sector === "Global Blue-Chip" && "Illustrates exposure to global companies in a diversified mix."}
                                 {e.sector === "Bonds (AU)" && "Shows how fixed income can reduce volatility in sample portfolios."}
                               </td>
+                              <td>
+                                <EtfEducationalLink ticker={ticker} className="table-learn-link">
+                                  ETF dashboard ↗
+                                </EtfEducationalLink>
+                              </td>
                             </tr>
                           );
                         })}
@@ -1268,9 +1493,10 @@ export default function InvestmentEducatorApp() {
                 </div>
                 <div className="table-section__footer">
                   <p className="table-footnote">{REQUIRED_DISCLAIMER}</p>
+                  <p className="table-footnote external-link-disclaimer">{EXTERNAL_LINK_DISCLAIMER}</p>
                   <div className="etf-dashboard-link">
                     <a 
-                      href="https://etf-dashboards.vercel.app/" 
+                      href={ETF_DASHBOARD_URL}
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="etf-dashboard-button"
@@ -1286,8 +1512,9 @@ export default function InvestmentEducatorApp() {
 
               <section className={`${surfaceClass} callout`}>
                 <div className="callout__content">
-                  <span className="callout-badge">Education service</span>
+                  <span className="callout-badge">Continue your education</span>
                   <h3>Build Your Wealth Blueprint — Education That Empowers You</h3>
+                  <p>{educationReport.wealthBridge}</p>
                   <p>Get a clear, simple education roadmap for how wealth is built, how investing works, and how different long-term strategies behave — all explained in plain English.</p>
                   <p>This service provides general financial education only, not financial advice or product recommendations.</p>
                   <div className="callout-highlight">
@@ -1341,6 +1568,20 @@ export default function InvestmentEducatorApp() {
     console.assert(parseCurrency("") === 0, "parseCurrency empty string -> 0");
     console.assert(toNumberSafe("100", 0) === 100, "toNumberSafe string numeric");
     console.assert(toNumberSafe(undefined, 42) === 42, "toNumberSafe fallback works");
+
+    // Quiz selection: one option index per question (fixes duplicate value highlights on Q6–Q8)
+    const testIndices = Array(QUIZ.length).fill(UNANSWERED);
+    const assertSingleSelection = (qIdx, optIdx) => {
+      testIndices[qIdx] = optIdx;
+      const selectedCount = QUIZ[qIdx].options.filter((_, i) => testIndices[qIdx] === i).length;
+      console.assert(selectedCount === 1, `Q${qIdx + 1} should have exactly one selected option`);
+    };
+    assertSingleSelection(5, 2); // Q6 — balanced tour
+    assertSingleSelection(6, 3); // Q7 — neither
+    assertSingleSelection(7, 1); // Q8 — walk through (distinct from 0 and 2)
+    console.assert(QUIZ[7].options[0].value !== QUIZ[7].options[1].value, "Q8 options should have distinct score values");
+    console.assert(scoreFromAnswerIndices(testIndices) >= 0 && scoreFromAnswerIndices(testIndices) <= 100, "scoreFromAnswerIndices stays in range");
+
     console.groupEnd();
   } catch (e) {
     console.error("Runtime tests failed:", e);
