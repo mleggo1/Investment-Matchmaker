@@ -4,7 +4,7 @@
   "private": true,
   "homepage": "https://mleggo1.github.io/Investment-Matchmaker/",
   "scripts": {
-    "dev": "vite",
+    "dev": "node node_modules/vite/bin/vite.js",
     "build": "node scripts/vercel-build.cjs",
     "vercel-build": "node scripts/vercel-build.cjs",
     "predeploy": "npm run build",
