@@ -5,10 +5,13 @@
   "homepage": "https://mleggo1.github.io/Investment-Matchmaker/",
   "scripts": {
     "dev": "vite",
-    "build": "node ./node_modules/vite/bin/vite.js build",
-    "vercel-build": "node ./node_modules/vite/bin/vite.js build",
+    "build": "node scripts/vercel-build.cjs",
+    "vercel-build": "node scripts/vercel-build.cjs",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.3.1",
