@@ -283,6 +283,106 @@
   box-shadow: 0 38px 65px rgba(79, 70, 229, 0.38);
 }
 
+.hero-card--landing {
+  position: relative;
+  text-align: center;
+  align-items: center;
+  color: var(--text-primary);
+  background: var(--surface-bg);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--surface-shadow);
+}
+
+.hero-card--landing::after {
+  display: none;
+}
+
+.hero-card--landing:hover {
+  transform: none;
+  box-shadow: var(--surface-shadow);
+}
+
+.hero-card--landing .hero-card__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.hero-card--landing h2 {
+  margin-top: 0.5rem;
+  color: var(--text-primary);
+}
+
+.hero-card--landing .hero-lead {
+  margin-top: 1rem !important;
+  max-width: 560px !important;
+  font-size: 1.08rem !important;
+  line-height: 1.55;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.hero-step-hint {
+  margin: 1.25rem 0 0 !important;
+  max-width: 520px !important;
+  font-size: 0.98rem !important;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.primary-button--gold {
+  margin-top: 1.75rem;
+  padding: 1.15rem 2.4rem;
+  font-size: 1.12rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  width: min(100%, 440px);
+  color: #1c1400;
+  background: linear-gradient(135deg, #f7e08a 0%, #e8c547 45%, #c9a227 100%);
+  border: 1px solid rgba(255, 220, 130, 0.65);
+  box-shadow: 0 22px 44px rgba(201, 162, 39, 0.45);
+}
+
+.primary-button--gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 28px 52px rgba(201, 162, 39, 0.5);
+  filter: brightness(1.04);
+}
+
+.primary-button--gold:active {
+  transform: translateY(0);
+  box-shadow: 0 16px 32px rgba(201, 162, 39, 0.38);
+}
+
+.primary-button--gold:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.ghost-button--muted {
+  font-size: 0.88rem;
+  padding: 0.6rem 1.1rem;
+  opacity: 0.82;
+}
+
+.quiz-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.quiz-footer__hint {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
 .hero-card--survey {
   position: relative;
   text-align: center;

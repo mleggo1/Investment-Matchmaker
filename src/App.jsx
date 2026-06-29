@@ -295,6 +295,10 @@ function isValidPathway(pathway) {
   return pathway === "Auto" || Boolean(MODELS[pathway]);
 }
 
+function isSurveyComplete(answerIndices) {
+  return answerIndices.filter((idx) => Number.isInteger(idx) && idx >= 0).length === QUIZ.length;
+}
+
 function deriveAssetExclusions(answerIndices) {
   const excludedGroups = new Set();
   const q6 = answerIndices[5];
@@ -1138,7 +1142,9 @@ export default function InvestmentEducatorApp() {
       if (saved) {
         const s = JSON.parse(saved);
         if (s.theme) setTheme(s.theme);
-        if (s.stage) setStage(s.stage);
+        // Always open on the landing screen — survey is the clear first step.
+        setStage("home");
+        setHomePanel(null);
         if (Array.isArray(s.answerIndices)) {
           setAnswerIndices(normalizeAnswerIndices(s.answerIndices));
         } else if (Array.isArray(s.answers)) {
@@ -1152,9 +1158,9 @@ export default function InvestmentEducatorApp() {
   }, []);
 
   useEffect(() => {
-    const state = { theme, stage, answerIndices, examplePathway, portfolioValue };
+    const state = { theme, answerIndices, examplePathway, portfolioValue };
     localStorage.setItem("ie_v1_state", JSON.stringify(state));
-  }, [theme, stage, answerIndices, examplePathway, portfolioValue]);
+  }, [theme, answerIndices, examplePathway, portfolioValue]);
 
   useEffect(() => {
     if (stage !== "results") {
@@ -1186,6 +1192,8 @@ export default function InvestmentEducatorApp() {
     const answered = answerIndices.filter((idx) => Number.isInteger(idx) && idx >= 0).length;
     return answered / QUIZ.length;
   }, [answerIndices]);
+
+  const surveyComplete = useMemo(() => isSurveyComplete(answerIndices), [answerIndices]);
 
   const learningPreferenceIndex = useMemo(
     () => scoreFromAnswerIndices(answerIndices),
@@ -1311,7 +1319,7 @@ export default function InvestmentEducatorApp() {
               <button className="ghost-button" onClick={() => setTheme(t => (t === "dark" ? "light" : "dark"))}>
                 {theme === "dark" ? "Switch to light" : "Switch to dark"}
               </button>
-              {stage === "results" && (
+              {stage === "results" && surveyComplete && (
                 <button className="ghost-button" onClick={handleExportPDF}>
                   Export PDF
                 </button>
@@ -1321,29 +1329,36 @@ export default function InvestmentEducatorApp() {
 
           {stage === "home" && (
             <main className="home-view home-view--focused">
-              <section className={`${surfaceClass} hero-card hero-card--survey`}>
+              <section className={`${surfaceClass} hero-card hero-card--landing`}>
                 <div className="hero-card__content">
                   <span className="hero-eyebrow">Factual information &amp; education only</span>
                   <h2>Investment Educator</h2>
                   <p className="hero-lead">
-                    Answer a few questions so we can understand your investing knowledge, interests, and learning goals.
+                    Complete a short education survey so we can understand your investing knowledge, interests, and learning goals.
                     This is for education only and does not provide financial advice.
                   </p>
+                  <p className="hero-step-hint">Your first step: complete the Investor Education Survey.</p>
                   <button
                     type="button"
-                    className="primary-button primary-button--hero no-print"
+                    className="primary-button primary-button--gold no-print"
                     onClick={() => setStage("quiz")}
                   >
-                    Start Investor Education Survey
+                    Take Investor Education Survey
                   </button>
                   <div className="hero-secondary-actions no-print">
-                    <button type="button" className="ghost-button ghost-button--on-hero" onClick={() => setStage("results")}>
-                      View education examples
-                    </button>
-                    <button type="button" className="ghost-button ghost-button--on-hero" onClick={() => setHomePanel(homePanel === "how" ? null : "how")}>
+                    {surveyComplete && (
+                      <button
+                        type="button"
+                        className="ghost-button ghost-button--muted"
+                        onClick={() => setStage("results")}
+                      >
+                        View your education pathway
+                      </button>
+                    )}
+                    <button type="button" className="ghost-button ghost-button--muted" onClick={() => setHomePanel(homePanel === "how" ? null : "how")}>
                       Learn how this works
                     </button>
-                    <button type="button" className="ghost-button ghost-button--on-hero" onClick={() => setHomePanel(homePanel === "disclaimer" ? null : "disclaimer")}>
+                    <button type="button" className="ghost-button ghost-button--muted" onClick={() => setHomePanel(homePanel === "disclaimer" ? null : "disclaimer")}>
                       Read education-only disclaimer
                     </button>
                   </div>
@@ -1422,8 +1437,10 @@ export default function InvestmentEducatorApp() {
 
               <div className="quiz-footer">
                 <button
-                  className="primary-button no-print"
+                  className="primary-button primary-button--gold no-print"
+                  disabled={!surveyComplete}
                   onClick={() => {
+                    if (!surveyComplete) return;
                     setStage("results");
                     window.requestAnimationFrame(() => {
                       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1432,11 +1449,14 @@ export default function InvestmentEducatorApp() {
                 >
                   View my education pathway
                 </button>
+                {!surveyComplete && (
+                  <p className="quiz-footer__hint">Answer all questions to view your education pathway.</p>
+                )}
               </div>
             </main>
           )}
 
-          {stage === "results" && (
+          {stage === "results" && surveyComplete && (
             <main ref={resultsRef} className="results-view print-block">
               <section className="summary-section">
                 <div className={`${surfaceClass} education-banner`}>
