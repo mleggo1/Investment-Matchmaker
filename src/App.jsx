@@ -152,6 +152,8 @@ const EXTERNAL_LINK_DISCLAIMER =
   "External links are provided for education and convenience only. They are not recommendations or endorsements.";
 
 const UNANSWERED = -1;
+const STORAGE_KEY = "ie_v2_state";
+const STORAGE_VERSION = 2;
 
 const LEARNING_THEME_MAP = {
   growth: {
@@ -276,9 +278,17 @@ function normalizeAnswerIndices(stored) {
     if (Number.isInteger(val) && val >= 0 && val < QUIZ[qIdx].options.length) {
       return val;
     }
-    const legacyIdx = QUIZ[qIdx].options.findIndex((o) => o.value === val);
-    return legacyIdx >= 0 ? legacyIdx : UNANSWERED;
+    return UNANSWERED;
   });
+}
+
+function firstUnansweredIndex(answerIndices) {
+  const idx = answerIndices.findIndex((i) => !Number.isInteger(i) || i < 0);
+  return idx === -1 ? QUIZ.length - 1 : idx;
+}
+
+function hasAnySurveyAnswers(answerIndices) {
+  return answerIndices.some((i) => Number.isInteger(i) && i >= 0);
 }
 
 function scoreFromAnswerIndices(answerIndices) {
@@ -1134,21 +1144,21 @@ export default function InvestmentEducatorApp() {
   const etfInfoRef = useRef(null);
   const [showEtfInfo, setShowEtfInfo] = useState(false);
   const [homePanel, setHomePanel] = useState(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const quizQuestionRef = useRef(null);
+  const quizNavRef = useRef(null);
 
-  // Restore from localStorage
+  // Restore from localStorage (answers only when explicitly saved with v2 schema)
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("ie_v1_state") || localStorage.getItem("im_v1_state");
+      const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const s = JSON.parse(saved);
         if (s.theme) setTheme(s.theme);
-        // Always open on the landing screen — survey is the clear first step.
         setStage("home");
         setHomePanel(null);
-        if (Array.isArray(s.answerIndices)) {
+        if (s.stateVersion === STORAGE_VERSION && Array.isArray(s.answerIndices)) {
           setAnswerIndices(normalizeAnswerIndices(s.answerIndices));
-        } else if (Array.isArray(s.answers)) {
-          setAnswerIndices(normalizeAnswerIndices(s.answers));
         }
         const pathway = s.examplePathway || s.riskOverride;
         if (isValidPathway(pathway)) setExamplePathway(pathway);
@@ -1158,8 +1168,14 @@ export default function InvestmentEducatorApp() {
   }, []);
 
   useEffect(() => {
-    const state = { theme, answerIndices, examplePathway, portfolioValue };
-    localStorage.setItem("ie_v1_state", JSON.stringify(state));
+    const state = {
+      stateVersion: STORAGE_VERSION,
+      theme,
+      answerIndices,
+      examplePathway,
+      portfolioValue,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }, [theme, answerIndices, examplePathway, portfolioValue]);
 
   useEffect(() => {
@@ -1251,8 +1267,41 @@ export default function InvestmentEducatorApp() {
 
   const resetQuiz = () => {
     setAnswerIndices(Array(QUIZ.length).fill(UNANSWERED));
+    setCurrentQuestionIndex(0);
     setStage("quiz");
     setExamplePathway("Auto");
+  };
+
+  const startSurvey = () => {
+    if (surveyComplete || !hasAnySurveyAnswers(answerIndices)) {
+      setAnswerIndices(Array(QUIZ.length).fill(UNANSWERED));
+      setCurrentQuestionIndex(0);
+    } else {
+      setCurrentQuestionIndex(firstUnansweredIndex(answerIndices));
+    }
+    setExamplePathway("Auto");
+    setStage("quiz");
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  };
+
+  const goToQuestion = (index) => {
+    const nextIndex = clamp(index, 0, QUIZ.length - 1);
+    setCurrentQuestionIndex(nextIndex);
+    window.requestAnimationFrame(() => {
+      const el = quizQuestionRef.current;
+      if (!el) return;
+      const header = progressRef.current;
+      const headerH = header ? header.getBoundingClientRect().height + 20 : 0;
+      const targetY = window.pageYOffset + el.getBoundingClientRect().top - headerH;
+      window.scrollTo({ top: Math.max(0, targetY), behavior: "smooth" });
+    });
+  };
+
+  const isQuestionAnswered = (qIndex) => {
+    const idx = answerIndices[qIndex];
+    return Number.isInteger(idx) && idx >= 0;
   };
 
   const handleAnswer = (qIndex, optionIndex) => {
@@ -1261,27 +1310,26 @@ export default function InvestmentEducatorApp() {
       next[qIndex] = optionIndex;
       return next;
     });
-    if (qIndex < QUIZ.length - 1) {
-      setTimeout(() => scrollToQuestion(qIndex + 1), 120);
-    } else {
-      // Last question answered - scroll to reveal button instead of auto-transitioning
-      setTimeout(() => {
-        const revealButton = document.querySelector('.quiz-footer');
-        if (revealButton) {
-          revealButton.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
+    if (qIndex === currentQuestionIndex && qIndex < QUIZ.length - 1) {
+      window.setTimeout(() => goToQuestion(qIndex + 1), 450);
+    } else if (qIndex === QUIZ.length - 1) {
+      window.setTimeout(() => {
+        quizNavRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
       }, 200);
     }
   };
 
-  const scrollToQuestion = (index) => {
-    const el = document.getElementById(`q-${index}`);
-    if (!el) return;
-    const header = progressRef.current;
-    const extraGap = 8;
-    const headerH = header ? header.getBoundingClientRect().height + 16 : 0;
-    const targetY = window.pageYOffset + el.getBoundingClientRect().top - headerH - extraGap;
-    window.scrollTo({ top: Math.max(0, targetY), behavior: "smooth" });
+  const handleNextQuestion = () => {
+    if (!isQuestionAnswered(currentQuestionIndex)) return;
+    if (currentQuestionIndex < QUIZ.length - 1) {
+      goToQuestion(currentQuestionIndex + 1);
+    }
+  };
+
+  const handlePreviousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      goToQuestion(currentQuestionIndex - 1);
+    }
   };
 
   const handleExportPDF = () => {
@@ -1341,7 +1389,7 @@ export default function InvestmentEducatorApp() {
                   <button
                     type="button"
                     className="primary-button primary-button--gold no-print"
-                    onClick={() => setStage("quiz")}
+                    onClick={startSurvey}
                   >
                     Take Investor Education Survey
                   </button>
@@ -1390,69 +1438,91 @@ export default function InvestmentEducatorApp() {
             <main className="quiz-view">
               <div ref={progressRef} className={`${surfaceClass} quiz-progress`}>
                 <div className="quiz-progress__left">
-                  <span className="quiz-eyebrow">Progress</span>
-                  <div className="progress-bar">
+                  <span className="quiz-eyebrow">Investor Education Survey</span>
+                  <div className="progress-bar" role="progressbar" aria-valuenow={Math.round(progress * 100)} aria-valuemin={0} aria-valuemax={100}>
                     <div className="progress-bar__fill" style={{ width: `${Math.round(progress * 100)}%` }} />
                   </div>
                 </div>
                 <div className="quiz-progress__score">
-                  Investor education survey — {Math.round(progress * 100)}% complete
+                  Question {currentQuestionIndex + 1} of {QUIZ.length} · {Math.round(progress * 100)}% complete
                 </div>
-                <button className="ghost-button no-print" onClick={() => setStage("home")}>
+                <button type="button" className="ghost-button no-print" onClick={() => setStage("home")}>
                   Exit
                 </button>
               </div>
 
               <div className={`${surfaceClass} quiz-disclaimer`}>
                 <p><strong>{SURVEY_DISCLAIMER}</strong></p>
-                <p>Your answers help us understand your education needs and shape your learning pathway only — not financial advice.</p>
+                <p>Select the option that best reflects your learning interests. No answers are pre-selected.</p>
               </div>
 
-              <div className="quiz-questions">
-                {QUIZ.map((q, i) => (
-                  <section id={`q-${i}`} key={q.id} className={`${surfaceClass} quiz-question`}>
-                    <div className="quiz-question__meta">
-                      Question {i + 1} of {QUIZ.length}
-                    </div>
-                    <h3>{q.q}</h3>
-                    <div className="quiz-option-grid">
-                      {q.options.map((opt, idx) => {
-                        const selected = answerIndices[i] === idx;
-                        return (
-                          <button
-                            key={idx}
-                            type="button"
-                            onClick={() => handleAnswer(i, idx)}
-                            className={`quiz-option ${selected ? "is-selected" : ""}`}
-                            aria-pressed={selected}
-                          >
-                            <span>{opt.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </section>
-                ))}
-              </div>
+              <section
+                ref={quizQuestionRef}
+                id={`q-${currentQuestionIndex}`}
+                className={`${surfaceClass} quiz-question quiz-question--active`}
+              >
+                <div className="quiz-question__meta">
+                  Question {currentQuestionIndex + 1} of {QUIZ.length}
+                </div>
+                <h3>{QUIZ[currentQuestionIndex].q}</h3>
+                <div className="quiz-option-grid">
+                  {QUIZ[currentQuestionIndex].options.map((opt, idx) => {
+                    const selected = answerIndices[currentQuestionIndex] === idx;
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => handleAnswer(currentQuestionIndex, idx)}
+                        className={`quiz-option ${selected ? "is-selected" : ""}`}
+                        aria-pressed={selected}
+                      >
+                        <span>{opt.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
 
-              <div className="quiz-footer">
-                <button
-                  className="primary-button primary-button--gold no-print"
-                  disabled={!surveyComplete}
-                  onClick={() => {
-                    if (!surveyComplete) return;
-                    setStage("results");
-                    window.requestAnimationFrame(() => {
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    });
-                  }}
-                >
-                  View my education pathway
-                </button>
-                {!surveyComplete && (
-                  <p className="quiz-footer__hint">Answer all questions to view your education pathway.</p>
+              <div ref={quizNavRef} className="quiz-nav no-print">
+                {currentQuestionIndex > 0 && (
+                  <button type="button" className="ghost-button quiz-nav__back" onClick={handlePreviousQuestion}>
+                    Previous
+                  </button>
+                )}
+                {currentQuestionIndex < QUIZ.length - 1 && (
+                  <button
+                    type="button"
+                    className="primary-button primary-button--gold quiz-nav__next"
+                    disabled={!isQuestionAnswered(currentQuestionIndex)}
+                    onClick={handleNextQuestion}
+                  >
+                    Next question
+                  </button>
+                )}
+                {currentQuestionIndex === QUIZ.length - 1 && (
+                  <button
+                    type="button"
+                    className="primary-button primary-button--gold quiz-nav__next"
+                    disabled={!surveyComplete}
+                    onClick={() => {
+                      if (!surveyComplete) return;
+                      setStage("results");
+                      window.requestAnimationFrame(() => {
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      });
+                    }}
+                  >
+                    View my education pathway
+                  </button>
                 )}
               </div>
+
+              {!isQuestionAnswered(currentQuestionIndex) && currentQuestionIndex < QUIZ.length - 1 && (
+                <p className="quiz-nav__hint">Choose an answer to continue to the next question.</p>
+              )}
+              {currentQuestionIndex === QUIZ.length - 1 && !surveyComplete && (
+                <p className="quiz-nav__hint">Choose an answer to finish the survey.</p>
+              )}
             </main>
           )}
 
