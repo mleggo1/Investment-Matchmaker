@@ -11,7 +11,7 @@
     "deploy": "gh-pages -d dist"
   },
   "engines": {
-    "node": ">=18"
+    "node": "20.x"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.3.1",

@@ -67,6 +67,8 @@ const ETFs = [
   { ticker: "VAF", name: "Vanguard Aus Fixed Interest", sector: "Bonds (AU)", mer: 0.20, return_5y: 0.02, volatility: 0.05, yield: 0.028, risk_band: "defensive" },
 ];
 
+const ETF_BY_TICKER = Object.fromEntries(ETFs.map((e) => [e.ticker, e]));
+
 // ---------- Model Portfolios ----------
 const MODELS = {
   Aggressive: {
@@ -154,6 +156,13 @@ const EXTERNAL_LINK_DISCLAIMER =
 const UNANSWERED = -1;
 const STORAGE_KEY = "ie_v2_state";
 const STORAGE_VERSION = 2;
+const PROJECTION_YEAR_OPTIONS = [5, 7, 10, 15, 20];
+const EXAMPLE_PATHWAY_OPTIONS = [
+  { key: "Auto", label: "From survey" },
+  { key: "Aggressive", label: "Growth illustration" },
+  { key: "Balanced", label: "Balanced illustration" },
+  { key: "Conservative", label: "Stability illustration" },
+];
 
 const LEARNING_THEME_MAP = {
   growth: {
@@ -528,7 +537,7 @@ function toChartData(weights) {
 }
 
 function getETF(ticker) {
-  const e = ETFs.find(e => e.ticker === ticker);
+  const e = ETF_BY_TICKER[ticker];
   if (!e) throw new Error(`ETF not found: ${ticker}`);
   return e;
 }
@@ -569,7 +578,6 @@ function computeMetrics(weights, portfolioValue = 100000, projectionYears = 10) 
     yieldPct,
     vol,
     passiveIncome,
-    tenYear: projectedValue,
     projectedValue,
     illustrativeGain,
     projectionYears: years,
@@ -1210,15 +1218,6 @@ export default function InvestmentEducatorApp() {
   }, [stage]);
 
   useEffect(() => {
-    if (stage === "results" && surveyComplete) {
-      setProjectionYears(deriveProjectionYearsFromSurvey(answerIndices));
-      window.requestAnimationFrame(() => {
-        illustrativeExampleRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
-    }
-  }, [stage, surveyComplete, answerIndices]);
-
-  useEffect(() => {
     if (!showEtfInfo) return;
     const handleClickOutside = (event) => {
       if (etfInfoRef.current && !etfInfoRef.current.contains(event.target)) {
@@ -1279,28 +1278,12 @@ export default function InvestmentEducatorApp() {
   const chartData = useMemo(() => toChartData(model), [model]);
   const diversificationPercent = Math.round(metrics.diversification * 100);
 
-  const kpiItems = useMemo(() => ([
-    {
-      label: "Expected Return",
-      value: percent(metrics.expReturn, 1),
-      hint: "Weighted 5-year CAGR (illustrative).",
-    },
-    {
-      label: "Fee Drag",
-      value: percent(metrics.feeDrag, 2),
-      hint: "Management expense ratio per annum.",
-    },
-    {
-      label: "Volatility",
-      value: percent(metrics.vol, 1),
-      hint: "Simplified blend excluding covariance.",
-    },
-    {
-      label: "Yield (Forward)",
-      value: percent(metrics.yieldPct, 1),
-      hint: "Projected cash yield before tax.",
-    },
-  ]), [metrics]);
+  useEffect(() => {
+    if (stage !== "results") return;
+    window.requestAnimationFrame(() => {
+      illustrativeExampleRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }, [stage]);
 
   const resetQuiz = () => {
     setAnswerIndices(Array(QUIZ.length).fill(UNANSWERED));
@@ -1378,13 +1361,7 @@ export default function InvestmentEducatorApp() {
   const goToResults = () => {
     setProjectionYears(deriveProjectionYearsFromSurvey(answerIndices));
     setStage("results");
-    window.requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      illustrativeExampleRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
   };
-
-  const PROJECTION_YEAR_OPTIONS = [5, 7, 10, 15, 20];
 
   const shellClass = theme === "dark" ? "app-shell is-dark" : "app-shell is-light";
   const surfaceClass = "surface-card";
@@ -1604,12 +1581,7 @@ export default function InvestmentEducatorApp() {
                     <div className="illustrative-hero__control">
                       <label className="control-label">Education example style</label>
                       <div className="toggle-group">
-                        {[
-                          { key: "Auto", label: "From survey" },
-                          { key: "Aggressive", label: "Growth illustration" },
-                          { key: "Balanced", label: "Balanced illustration" },
-                          { key: "Conservative", label: "Stability illustration" },
-                        ].map(({ key, label }) => (
+                        {EXAMPLE_PATHWAY_OPTIONS.map(({ key, label }) => (
                           <button
                             key={key}
                             type="button"
