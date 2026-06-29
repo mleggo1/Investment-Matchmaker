@@ -7,12 +7,18 @@ import "./App.css";
 // ---------------------------------------------
 
 const REQUIRED_DISCLAIMER =
-  "This tool is for general education and coaching purposes only. It does not consider your personal objectives, financial situation, or needs. It is not personal financial advice, financial planning, risk profiling, or a recommendation to buy, sell, or hold any financial product. You should make your own decisions and consider seeking advice from a licensed financial adviser before acting.";
+  "This tool provides factual information and education only. It does not provide financial advice, personal advice, general advice, or product recommendations. It does not consider your personal objectives, financial situation, or needs. You should make your own decisions and consider seeking advice from a licensed financial adviser before acting.";
+
+const SURVEY_DISCLAIMER =
+  "This tool is for educational purposes only. It does not provide financial advice, personal advice, general advice, or product recommendations.";
+
+const ETF_ILLUSTRATIVE_DISCLAIMER =
+  "Any ETF mix shown is an illustrative education example only. It is not a recommendation and should not be treated as financial advice.";
 
 const PATHWAY_LABEL = {
-  Aggressive: "Growth-focused example",
-  Balanced: "Balanced mix example",
-  Conservative: "Stability-focused example",
+  Aggressive: "Illustrative growth-oriented ETF example",
+  Balanced: "Illustrative balanced ETF example",
+  Conservative: "Illustrative stability-oriented ETF example",
 };
 
 function pathwayLabel(internalName) {
@@ -77,61 +83,68 @@ const MODELS = {
   },
 };
 
-// ---------- Quiz ----------
+// ---------- Quiz (original intake questions — shapes education pathway only) ----------
 const QUIZ = [
-  { id: 1, q: "What would you like to learn about first?", options: [
-    { label: "Growth and compounding stories", value: 15, tags: ["growth"] },
-    { label: "Income and cash-flow concepts", value: -5, tags: ["income"] },
-    { label: "Stability and smoothing volatility", value: -10, tags: ["defensive"] },
+  { id: 1, q: "What’s your primary learning goal?", options: [
+    { label: "Grow wealth", value: 15, tags: ["growth"] },
+    { label: "Build income", value: -5, tags: ["income"] },
+    { label: "Protect capital", value: -10, tags: ["defensive"] },
   ]},
-  { id: 2, q: "Which time horizon do you want the examples to emphasise?", options: [
-    { label: "Long horizon (10+ years)", value: 15, tags: ["long"] },
-    { label: "Medium horizon (5–10 years)", value: 5, tags: ["medium"] },
-    { label: "Shorter horizon (under 5 years)", value: -10, tags: ["short"] },
+  { id: 2, q: "What time horizon do you want the education examples to focus on?", options: [
+    { label: "10+ years", value: 15, tags: ["long"] },
+    { label: "5–10 years", value: 5, tags: ["medium"] },
+    { label: "<5 years", value: -10, tags: ["short"] },
   ]},
-  { id: 3, q: "When learning about market drawdowns, which angle interests you?", options: [
-    { label: "Why some investors add over time", value: 15, tags: ["risk-on"] },
-    { label: "Staying neutral and observing", value: 5, tags: ["steady"] },
-    { label: "Stepping back and de-risking in theory", value: -15, tags: ["risk-off"] },
+  { id: 3, q: "How do you typically react when markets drop 20%? (for learning context)", options: [
+    { label: "Buy more", value: 15, tags: ["risk-on"] },
+    { label: "Stay calm", value: 5, tags: ["steady"] },
+    { label: "Sell", value: -15, tags: ["risk-off"] },
   ]},
-  { id: 4, q: "Do you prefer learning about growth, income, stability, or a balanced overview?", options: [
-    { label: "Growth-oriented examples", value: 12, tags: ["growth"] },
-    { label: "Steady, middle-of-the-road patterns", value: 0, tags: ["balanced"] },
-    { label: "More stability-focused narratives", value: -12, tags: ["defensive"] },
+  { id: 4, q: "What’s more important to learn about right now?", options: [
+    { label: "High growth", value: 12, tags: ["growth"] },
+    { label: "Steady returns", value: 0, tags: ["balanced"] },
+    { label: "Sleep at night", value: -12, tags: ["defensive"] },
   ]},
-  { id: 5, q: "How familiar are you with investing vocabulary today?", options: [
-    { label: "Quite comfortable", value: 10, tags: ["experience"] },
-    { label: "Some exposure", value: 3, tags: ["moderate"] },
-    { label: "Fairly new — keep it plain", value: -5, tags: ["new"] },
+  { id: 5, q: "How much investing experience do you have?", options: [
+    { label: "Lots", value: 10, tags: ["experience"] },
+    { label: "Some", value: 3, tags: ["moderate"] },
+    { label: "None", value: -5, tags: ["new"] },
   ]},
-  { id: 6, q: "Which investment concept interests you most right now?", options: [
-    { label: "Global tech and innovation", value: 10, tags: ["tech"] },
-    { label: "Dividend income ideas", value: -3, tags: ["income"] },
-    { label: "A balanced tour of several themes", value: 0, tags: ["balanced"] },
-    { label: "Crypto as a concept (high volatility)", value: 12, tags: ["crypto"] },
+  { id: 6, q: "Preferred focus?", options: [
+    { label: "Global tech", value: 10, tags: ["tech"] },
+    { label: "Dividend income", value: -3, tags: ["income"] },
+    { label: "Balanced mix", value: 0, tags: ["balanced"] },
+    { label: "Crypto exposure", value: 12, tags: ["crypto"] },
   ]},
-  { id: 7, q: "Which themes should the walk-through mention in passing?", options: [
-    { label: "Property (A-REITs) as an example", value: -1, tags: ["property"] },
-    { label: "Crypto-related ETFs as an example", value: 6, tags: ["crypto"] },
-    { label: "Both property and crypto examples", value: 5, tags: ["property","crypto"] },
-    { label: "Neither — keep examples simpler", value: 0, tags: [] },
+  { id: 7, q: "Do you want exposure to property, crypto, or both in the education examples?", options: [
+    { label: "Property", value: -1, tags: ["property"] },
+    { label: "Crypto", value: 6, tags: ["crypto"] },
+    { label: "Both", value: 5, tags: ["property", "crypto"] },
+    { label: "Neither", value: 0, tags: ["exclude-property", "exclude-crypto"] },
   ]},
-  { id: 8, q: "How would you like to explore the materials?", options: [
-    { label: "A quick tour, then deeper reading later", value: 1, tags: ["pace-quick"] },
-    { label: "Walk through examples in order", value: 2, tags: ["pace-sequential"] },
-    { label: "Jump between comparison tables", value: 3, tags: ["pace-compare"] },
+  { id: 8, q: "Annual contribution budget? (helps calibrate education examples only)", options: [
+    { label: "50k+", value: 6, tags: ["capacity"] },
+    { label: "10–50k", value: 3, tags: ["capacity"] },
+    { label: "<10k", value: 0, tags: ["capacity"] },
   ]},
-  { id: 9, q: "Do you prefer hands-on “what-if” examples or a set-and-forget storyline?", options: [
-    { label: "Hands-on what-if examples", value: 4, tags: ["active"] },
-    { label: "Set-and-forget storyline", value: -2, tags: ["passive"] },
+  { id: 9, q: "Do you prefer active tweaking or set-and-forget?", options: [
+    { label: "Active tweaking", value: 4, tags: ["active"] },
+    { label: "Set-and-forget", value: -2, tags: ["passive"] },
   ]},
-  { id: 10, q: "Which example scenario would you like to start from?", options: [
-    { label: "Early-career saver (illustrative chapter)", value: 8, tags: ["young"] },
-    { label: "Mid-career learner (illustrative chapter)", value: 3, tags: ["prime"] },
-    { label: "Pre-retirement concepts (illustrative chapter)", value: -2, tags: ["mid"] },
-    { label: "Retirement income concepts (illustrative chapter)", value: -6, tags: ["senior"] },
+  { id: 10, q: "Age range (optional)?", options: [
+    { label: "<30", value: 8, tags: ["young"] },
+    { label: "30–45", value: 3, tags: ["prime"] },
+    { label: "45–60", value: -2, tags: ["mid"] },
+    { label: "60+", value: -6, tags: ["senior"] },
   ]},
 ];
+
+const TICKER_ASSET_GROUP = {
+  CRYP: "crypto",
+  VAP: "property",
+  NDQ: "tech",
+  RBTZ: "tech",
+};
 
 const ETF_DASHBOARD_URL = "https://etf-dashboards.vercel.app/";
 
@@ -196,6 +209,61 @@ const LEARNING_THEME_MAP = {
     concepts: ["What ETFs are", "How diversification works"],
     why: "You asked for plain-language learning — start with foundational concepts before diving into detailed product comparisons.",
   },
+  moderate: {
+    title: "Building on existing knowledge",
+    concepts: ["Core ETF mechanics", "Diversification concepts"],
+    why: "You have some investing exposure — useful context for layering more detailed education topics.",
+  },
+  "risk-on": {
+    title: "Volatility and long-term perspective",
+    concepts: ["Market drawdowns", "Compounding over time"],
+    why: "You selected a learning angle focused on downturns and opportunity — a common education theme.",
+  },
+  steady: {
+    title: "Staying the course",
+    concepts: ["Behavioural investing concepts", "Long-horizon illustrations"],
+    why: "You wanted to explore neutral, steady responses to volatility in educational examples.",
+  },
+  "risk-off": {
+    title: "Capital preservation concepts",
+    concepts: ["Defensive assets", "Risk and return trade-offs"],
+    why: "You leaned toward capital-preservation learning themes in the survey.",
+  },
+  capacity: {
+    title: "Contribution pacing (education context)",
+    concepts: ["Compounding illustrations", "Example portfolio sizes"],
+    why: "Your contribution-range answer helps calibrate the scale of illustrative examples only — not advice.",
+  },
+  active: {
+    title: "Hands-on learning style",
+    concepts: ["What-if examples", "Comparing illustrative mixes"],
+    why: "You prefer active, hands-on education examples in the materials.",
+  },
+  passive: {
+    title: "Set-and-forget concepts",
+    concepts: ["Automating contributions", "Long-term consistency"],
+    why: "You prefer set-and-forget storylines for learning how consistency is often discussed.",
+  },
+  young: {
+    title: "Early-stage wealth building",
+    concepts: ["Time horizon", "Compounding basics"],
+    why: "You chose an early-career education chapter for contextual examples.",
+  },
+  prime: {
+    title: "Mid-career wealth education",
+    concepts: ["Balanced growth and income themes", "Diversification"],
+    why: "You chose a mid-career education chapter for contextual examples.",
+  },
+  mid: {
+    title: "Pre-retirement concepts",
+    concepts: ["Income transition themes", "Defensive asset education"],
+    why: "You chose a pre-retirement education chapter for contextual examples.",
+  },
+  senior: {
+    title: "Retirement income education",
+    concepts: ["Income-focused ETFs", "Stability concepts"],
+    why: "You chose a retirement-income education chapter for contextual examples.",
+  },
 };
 
 function normalizeAnswerIndices(stored) {
@@ -227,6 +295,95 @@ function isValidPathway(pathway) {
   return pathway === "Auto" || Boolean(MODELS[pathway]);
 }
 
+function deriveAssetExclusions(answerIndices) {
+  const excludedGroups = new Set();
+  const q6 = answerIndices[5];
+  const q7 = answerIndices[6];
+
+  if (Number.isInteger(q7)) {
+    if (q7 === 3) {
+      excludedGroups.add("crypto");
+      excludedGroups.add("property");
+    } else if (q7 === 0) {
+      excludedGroups.add("crypto");
+    } else if (q7 === 1) {
+      excludedGroups.add("property");
+    }
+  }
+
+  if (Number.isInteger(q6)) {
+    if (q6 !== 3) {
+      excludedGroups.add("crypto");
+    }
+    if (q6 === 1) {
+      excludedGroups.add("tech");
+    }
+  }
+
+  if (Number.isInteger(q6) && q6 === 3) {
+    excludedGroups.delete("crypto");
+  }
+  if (Number.isInteger(q7) && (q7 === 1 || q7 === 2)) {
+    excludedGroups.delete("crypto");
+  }
+  if (Number.isInteger(q7) && (q7 === 0 || q7 === 2)) {
+    excludedGroups.delete("property");
+  }
+
+  const messages = [];
+  if (excludedGroups.has("crypto")) {
+    messages.push("Crypto excluded based on your survey response.");
+  }
+  if (excludedGroups.has("property")) {
+    messages.push("Property (A-REIT) exposure excluded based on your survey response.");
+  }
+  if (excludedGroups.has("tech")) {
+    messages.push("Thematic / tech ETFs excluded based on your survey response.");
+  }
+
+  return { excludedGroups, messages };
+}
+
+function applyExclusionsToModel(baseModel, excludedGroups) {
+  if (!excludedGroups || excludedGroups.size === 0) {
+    return { ...baseModel };
+  }
+
+  const result = { notes: baseModel.notes };
+  const keepers = [];
+  let removedWeight = 0;
+
+  Object.entries(baseModel).forEach(([ticker, weight]) => {
+    if (ticker === "notes") return;
+    const group = TICKER_ASSET_GROUP[ticker];
+    if (group && excludedGroups.has(group)) {
+      removedWeight += weight;
+      return;
+    }
+    result[ticker] = weight;
+    keepers.push(ticker);
+  });
+
+  if (keepers.length === 0) {
+    const fallback = { ...MODELS.Conservative, notes: baseModel.notes };
+    return applyExclusionsToModel(fallback, new Set());
+  }
+
+  const keptTotal = keepers.reduce((sum, ticker) => sum + result[ticker], 0);
+  keepers.forEach((ticker) => {
+    result[ticker] = Math.round((result[ticker] / keptTotal) * (keptTotal + removedWeight));
+  });
+
+  const sum = keepers.reduce((s, ticker) => s + result[ticker], 0);
+  if (sum !== 100) {
+    result[keepers[0]] += 100 - sum;
+  }
+
+  return result;
+}
+
+const KNOWLEDGE_LEVELS = ["Experienced learner", "Developing learner", "Foundational learner"];
+
 function buildEducationReport(answerIndices) {
   const selections = QUIZ.map((question, qIdx) => {
     const optIdx = answerIndices[qIdx];
@@ -242,6 +399,7 @@ function buildEducationReport(answerIndices) {
   const tagWeights = {};
   selections.forEach(({ tags }) => {
     tags.forEach((tag) => {
+      if (tag.startsWith("exclude-")) return;
       tagWeights[tag] = (tagWeights[tag] || 0) + 1;
     });
   });
@@ -262,11 +420,28 @@ function buildEducationReport(answerIndices) {
     ["Broad market ETFs", "Dividend-focused ETFs", "Defensive assets and bonds", "Cash buffers and diversification"].forEach((c) => conceptSet.add(c));
   }
 
-  const themeTitles = themes.map((t) => t.title.toLowerCase());
   const score = scoreFromAnswerIndices(answerIndices);
   const pathwayHint = pathwayLabel(
     score > 80 ? "Aggressive" : score > 50 ? "Balanced" : "Conservative",
   );
+
+  const q5 = answerIndices[4];
+  const knowledgeLevel = Number.isInteger(q5) ? KNOWLEDGE_LEVELS[q5] : "Complete the survey to see your knowledge level";
+
+  const topicsInterested = themes.map((t) => t.title);
+  const { messages: topicsExcluded } = deriveAssetExclusions(answerIndices);
+
+  const pathwaySteps = themes.length >= 3
+    ? themes.slice(0, 3).map((t) => t.title)
+    : [
+        themes[0]?.title || "ETF basics & diversification",
+        themes[1]?.title || "Asset class comparisons",
+        themes[2]?.title || "Fees, holdings & historical context (illustrative)",
+      ];
+
+  const profileSummary = selections.length
+    ? `Based on your selected learning preferences, this investor education profile summarises your knowledge, interests, and topics to explore — for education only.`
+    : "Complete the Investor Education Survey to generate your education profile and learning pathway.";
 
   return {
     hasSelections: selections.length > 0,
@@ -274,12 +449,19 @@ function buildEducationReport(answerIndices) {
     themes,
     concepts: [...conceptSet],
     pathwayHint,
-    intro: selections.length
-      ? "Based on your selected learning preferences, this summary collates what you chose and highlights areas you may wish to understand further — for education only."
-      : "Complete the learning prompts to build a summary from your selections. Until then, here are general concepts commonly used in illustrative examples.",
-    closing: "These are education examples only, not recommendations. Consider speaking with a licensed financial adviser before making investment decisions.",
+    knowledgeLevel,
+    topicsInterested,
+    topicsExcluded,
+    educationPathway: {
+      first: pathwaySteps[0],
+      next: pathwaySteps[1],
+      later: pathwaySteps[2],
+    },
+    profileSummary,
+    intro: profileSummary,
+    closing: "These are education examples only, not recommendations.",
     wealthBridge: selections.length
-      ? `You explored themes such as ${themeTitles.slice(0, 3).join(", ") || "general investing concepts"}. Wealth Blueprint can help you continue that learning journey with structured education — not product advice.`
+      ? `Your survey highlighted learning areas such as ${topicsInterested.slice(0, 3).join(", ") || "general investing concepts"}. Wealth Blueprint offers structured investor education — not financial advice.`
       : "Wealth Blueprint offers structured financial education — how wealth is built, how investing works, and how strategies are explained in plain English. Not financial advice.",
   };
 }
@@ -491,9 +673,9 @@ function EducationGate({ children }) {
       <div className="education-gate__card">
         <h1>GENERAL EDUCATION ONLY — NOT FINANCIAL ADVICE</h1>
         <div className="education-gate__content">
-          <p>The Investment Educator is an educational tool that helps you explore different investment concepts, asset classes, and example strategies. It does not provide personal financial advice, assess your risk profile, or recommend any financial product.</p>
+          <p>The Investment Educator provides factual information and education only. It does not provide financial advice, personal advice, general advice, or product recommendations.</p>
           <p>{REQUIRED_DISCLAIMER}</p>
-          <p>Any portfolios, allocations, projections or ETF examples shown are illustrative only and are not suggestions to buy, sell or implement any product.</p>
+          <p>Survey answers are used only to shape your learning pathway — not to tell you what to buy, sell, or invest in.</p>
         </div>
         <form className="education-gate__form" onSubmit={handleAccept}>
           <label className="education-gate__checkbox-label">
@@ -947,6 +1129,7 @@ export default function InvestmentEducatorApp() {
   const progressRef = useRef(null);
   const etfInfoRef = useRef(null);
   const [showEtfInfo, setShowEtfInfo] = useState(false);
+  const [homePanel, setHomePanel] = useState(null);
 
   // Restore from localStorage
   useEffect(() => {
@@ -1014,6 +1197,11 @@ export default function InvestmentEducatorApp() {
     [answerIndices],
   );
 
+  const assetExclusions = useMemo(
+    () => deriveAssetExclusions(answerIndices),
+    [answerIndices],
+  );
+
   const autoModelName = useMemo(() => {
     if (learningPreferenceIndex > 80) return "Aggressive";
     if (learningPreferenceIndex > 50) return "Balanced";
@@ -1021,7 +1209,10 @@ export default function InvestmentEducatorApp() {
   }, [learningPreferenceIndex]);
 
   const modelName = examplePathway === "Auto" ? autoModelName : examplePathway;
-  const model = MODELS[modelName] || MODELS.Balanced;
+  const model = useMemo(() => {
+    const base = MODELS[modelName] || MODELS.Balanced;
+    return applyExclusionsToModel(base, assetExclusions.excludedGroups);
+  }, [modelName, assetExclusions]);
 
   const metrics = useMemo(() => computeMetrics(model, portfolioValue), [model, portfolioValue]);
   const chartData = useMemo(() => toChartData(model), [model]);
@@ -1113,7 +1304,7 @@ export default function InvestmentEducatorApp() {
               <div>
                 <p className="brand-eyebrow">Freedom by Design</p>
                 <h1>Investment Educator</h1>
-                <p className="brand-tagline">Learn how different investment concepts work — through simple, illustrative examples only.</p>
+                <p className="brand-tagline">Factual information and investor education only — not financial advice.</p>
               </div>
             </div>
             <div className="header-actions no-print">
@@ -1129,46 +1320,54 @@ export default function InvestmentEducatorApp() {
           </header>
 
           {stage === "home" && (
-            <main className="home-view">
-              <section className={`${surfaceClass} hero-card`}>
+            <main className="home-view home-view--focused">
+              <section className={`${surfaceClass} hero-card hero-card--survey`}>
                 <div className="hero-card__content">
-                <span className="hero-eyebrow">Educational tool</span>
-                <h2>Explore investment concepts and hypothetical ETF mixes — for learning only.</h2>
-                <p>The Investment Educator is an educational tool that helps you explore different investment concepts, asset classes, and example strategies. It does not provide personal financial advice, assess your risk profile, or recommend any financial product.</p>
-                <p>Optional prompts help you choose learning angles; they do not evaluate your finances or tell you what to buy.</p>
-                  <div className="hero-actions">
-                    <button className="primary-button no-print" onClick={() => setStage("quiz")}>
-                      Start learning
+                  <span className="hero-eyebrow">Factual information &amp; education only</span>
+                  <h2>Investment Educator</h2>
+                  <p className="hero-lead">
+                    Answer a few questions so we can understand your investing knowledge, interests, and learning goals.
+                    This is for education only and does not provide financial advice.
+                  </p>
+                  <button
+                    type="button"
+                    className="primary-button primary-button--hero no-print"
+                    onClick={() => setStage("quiz")}
+                  >
+                    Start Investor Education Survey
+                  </button>
+                  <div className="hero-secondary-actions no-print">
+                    <button type="button" className="ghost-button ghost-button--on-hero" onClick={() => setStage("results")}>
+                      View education examples
                     </button>
-                    <button className="ghost-button no-print" onClick={() => setStage("results")}>
-                      Explore investment options
+                    <button type="button" className="ghost-button ghost-button--on-hero" onClick={() => setHomePanel(homePanel === "how" ? null : "how")}>
+                      Learn how this works
+                    </button>
+                    <button type="button" className="ghost-button ghost-button--on-hero" onClick={() => setHomePanel(homePanel === "disclaimer" ? null : "disclaimer")}>
+                      Read education-only disclaimer
                     </button>
                   </div>
                 </div>
-                <div className="hero-highlights">
-                  <div className="highlight-chip">
-                    <span className="highlight-label">Learning snapshot</span>
-                    <span className="highlight-value">{learningPreferenceIndex}</span>
-                  </div>
-                  <div className="highlight-chip">
-                    <span className="highlight-label">Example pathways</span>
-                    <span className="highlight-value">Growth-focused · Balanced mix · Stability-focused</span>
-                  </div>
-                  <div className="highlight-chip">
-                    <span className="highlight-label">You can explore</span>
-                    <span className="highlight-value">Example mixes · concepts · comparisons</span>
-                  </div>
-                </div>
               </section>
-              <section className={`${surfaceClass} info-card`}>
-                <h3>Understand investment concepts</h3>
-                <ul className="bullet-list">
-                  <li>Learn how different investments are often described in plain language.</li>
-                  <li>Compare education examples — not a plan tailored to your circumstances.</li>
-                  <li>See hypothetical numbers that illustrate ideas, not forecasts you should act on.</li>
-                </ul>
-                <div className="info-card__foot">{REQUIRED_DISCLAIMER}</div>
-              </section>
+
+              {homePanel === "how" && (
+                <section className={`${surfaceClass} info-card info-card--panel`}>
+                  <h3>How this works</h3>
+                  <ul className="bullet-list">
+                    <li>The survey gathers your knowledge, interests, and learning goals — like an education intake form.</li>
+                    <li>Your answers shape a learning pathway and topics to explore first, next, and later.</li>
+                    <li>An illustrative ETF mix may be shown to teach diversification — it is never a recommendation.</li>
+                  </ul>
+                </section>
+              )}
+
+              {homePanel === "disclaimer" && (
+                <section className={`${surfaceClass} info-card info-card--panel`}>
+                  <h3>Education-only disclaimer</h3>
+                  <p>{SURVEY_DISCLAIMER}</p>
+                  <p>{REQUIRED_DISCLAIMER}</p>
+                </section>
+              )}
             </main>
           )}
 
@@ -1182,7 +1381,7 @@ export default function InvestmentEducatorApp() {
                   </div>
                 </div>
                 <div className="quiz-progress__score">
-                  Learning snapshot <span>{learningPreferenceIndex}</span> — preview: {pathwayLabel(autoModelName)}
+                  Investor education survey — {Math.round(progress * 100)}% complete
                 </div>
                 <button className="ghost-button no-print" onClick={() => setStage("home")}>
                   Exit
@@ -1190,8 +1389,8 @@ export default function InvestmentEducatorApp() {
               </div>
 
               <div className={`${surfaceClass} quiz-disclaimer`}>
-                <p><strong>Your choices tune which educational examples we open first — nothing here is advice or an evaluation of what fits you personally.</strong></p>
-                <p>{REQUIRED_DISCLAIMER}</p>
+                <p><strong>{SURVEY_DISCLAIMER}</strong></p>
+                <p>Your answers help us understand your education needs and shape your learning pathway only — not financial advice.</p>
               </div>
 
               <div className="quiz-questions">
@@ -1231,7 +1430,7 @@ export default function InvestmentEducatorApp() {
                     });
                   }}
                 >
-                  Learn how different investments work
+                  View my education pathway
                 </button>
               </div>
             </main>
@@ -1241,33 +1440,22 @@ export default function InvestmentEducatorApp() {
             <main ref={resultsRef} className="results-view print-block">
               <section className="summary-section">
                 <div className={`${surfaceClass} education-banner`}>
-                  <strong>GENERAL EDUCATIONAL EXAMPLE — NOT PERSONAL ADVICE</strong>
+                  <strong>FACTUAL INFORMATION &amp; EDUCATION ONLY</strong>
+                  <p>{SURVEY_DISCLAIMER}</p>
                   <p>{REQUIRED_DISCLAIMER}</p>
-                  <p>This mix is hypothetical and shown only to teach ideas such as diversification, volatility, and long-term compounding. It does not tell you what to buy, sell, or hold.</p>
                 </div>
 
                 <article className={`${surfaceClass} summary-card education-report`}>
-                  <span className="summary-eyebrow">Your learning summary</span>
-                  <h2>Educational pathways to explore</h2>
-                  <p>{educationReport.intro}</p>
+                  <span className="summary-eyebrow">Your investor education profile</span>
+                  <h2>Your learning pathway</h2>
+                  <p>{educationReport.profileSummary}</p>
 
-                  {educationReport.hasSelections && (
-                    <>
-                      <h3 className="education-report__subheading">What you selected</h3>
-                      <dl className="report-choices">
-                        {educationReport.selections.map((item, index) => (
-                          <div key={`${index}-${item.question}`} className="report-choices__row">
-                            <dt>{item.question}</dt>
-                            <dd>{item.answer}</dd>
-                          </div>
-                        ))}
-                      </dl>
-                    </>
-                  )}
+                  <h3 className="education-report__subheading">Your current knowledge level</h3>
+                  <p className="report-highlight">{educationReport.knowledgeLevel}</p>
 
                   {educationReport.themes.length > 0 && (
                     <>
-                      <h3 className="education-report__subheading">These are areas you may wish to understand further</h3>
+                      <h3 className="education-report__subheading">Your key learning areas</h3>
                       <ul className="report-themes">
                         {educationReport.themes.map((theme) => (
                           <li key={theme.tag} className="report-themes__item">
@@ -1279,23 +1467,69 @@ export default function InvestmentEducatorApp() {
                     </>
                   )}
 
-                  <h3 className="education-report__subheading">The following investment concepts may be useful to explore</h3>
-                  <ol className="concepts-explore-list">
-                    {educationReport.concepts.map((concept) => (
-                      <li key={concept}>{concept}</li>
-                    ))}
+                  {educationReport.topicsInterested.length > 0 && (
+                    <>
+                      <h3 className="education-report__subheading">Topics you are interested in</h3>
+                      <ul className="report-tags">
+                        {educationReport.topicsInterested.map((topic) => (
+                          <li key={topic}>{topic}</li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+
+                  {educationReport.topicsExcluded.length > 0 && (
+                    <>
+                      <h3 className="education-report__subheading">Topics you excluded</h3>
+                      <ul className="report-tags report-tags--excluded">
+                        {educationReport.topicsExcluded.map((topic) => (
+                          <li key={topic}>{topic}</li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+
+                  <h3 className="education-report__subheading">Suggested education pathway</h3>
+                  <ol className="pathway-steps">
+                    <li><strong>Learn first:</strong> {educationReport.educationPathway.first}</li>
+                    <li><strong>Learn next:</strong> {educationReport.educationPathway.next}</li>
+                    <li><strong>Learn later:</strong> {educationReport.educationPathway.later}</li>
                   </ol>
 
-                  <p className="concepts-explore-foot">
-                    {educationReport.closing} The sample mix below opens on a <strong>{educationReport.pathwayHint}</strong> — you can switch pathways to compare other general illustrations.
-                  </p>
+                  {educationReport.hasSelections && (
+                    <>
+                      <h3 className="education-report__subheading">Survey responses (education intake)</h3>
+                      <dl className="report-choices">
+                        {educationReport.selections.map((item, index) => (
+                          <div key={`${index}-${item.question}`} className="report-choices__row">
+                            <dt>{item.question}</dt>
+                            <dd>{item.answer}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </>
+                  )}
+
+                  <p className="concepts-explore-foot">{educationReport.closing}</p>
                 </article>
+
+                <div className={`${surfaceClass} etf-disclaimer-banner`}>
+                  <strong>Illustrative ETF example — education only</strong>
+                  <p>{ETF_ILLUSTRATIVE_DISCLAIMER}</p>
+                  {assetExclusions.messages.length > 0 && (
+                    <ul className="exclusion-notices">
+                      {assetExclusions.messages.map((msg) => (
+                        <li key={msg}>{msg}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
 
                 <article className={`${surfaceClass} summary-card`}>
                   <span className="summary-eyebrow">{pathwayLabel(modelName)}</span>
-                  <h2>Sample ETF mix (one educational pathway)</h2>
+                  <h2>Illustrative ETF example (education-only)</h2>
+                  <p>This sample mix helps explain diversification and asset classes. It is not a recommendation and does not tell you what to invest in.</p>
                   <p>{MODELS[modelName].notes}</p>
-                  <p>Use the pathway buttons to compare other <strong>general investment style</strong> examples — none are matched to you personally.</p>
                   <div className="summary-metrics">
                     <div className="summary-metric">
                       <span>10-year hypothetical projection (illustrative only)</span>
@@ -1337,14 +1571,14 @@ export default function InvestmentEducatorApp() {
                 </div>
 
                 <aside className={`${surfaceClass} summary-controls`}>
-                  <h4>Compare education examples</h4>
-                  <label className="control-label">Example pathway</label>
+                  <h4>Alternate illustrative examples</h4>
+                  <label className="control-label">Education example style</label>
                   <div className="toggle-group">
                     {[
-                      { key: "Auto", label: "Auto (from prompts)" },
-                      { key: "Aggressive", label: "Growth-focused" },
-                      { key: "Balanced", label: "Balanced mix" },
-                      { key: "Conservative", label: "Stability-focused" },
+                      { key: "Auto", label: "From survey" },
+                      { key: "Aggressive", label: "Growth illustration" },
+                      { key: "Balanced", label: "Balanced illustration" },
+                      { key: "Conservative", label: "Stability illustration" },
                     ].map(({ key, label }) => (
                       <button
                         key={key}
@@ -1370,7 +1604,7 @@ export default function InvestmentEducatorApp() {
                   </div>
                   <div className="summary-controls__actions no-print">
                     <button className="ghost-button" onClick={resetQuiz}>
-                      Compare education examples again
+                      Retake Investor Education Survey
                     </button>
                     <button className="ghost-button" onClick={() => setStage("home")}>
                       Back to intro
@@ -1386,11 +1620,11 @@ export default function InvestmentEducatorApp() {
               <section className={`${surfaceClass} allocation-section`}>
                 <div className="section-heading section-heading--with-info">
                   <div className="section-heading__copy">
-                    <h3>Illustrative portfolio example</h3>
+                    <h3>Illustrative ETF example</h3>
                     <p>
-                      <span className="section-model">{pathwayLabel(modelName)}</span> · {MODELS[modelName].notes}
+                      <span className="section-model">{pathwayLabel(modelName)}</span> — education-only example to explain diversification and asset classes.
                     </p>
-                    <p className="section-disclaimer">{REQUIRED_DISCLAIMER}</p>
+                    <p className="section-disclaimer">{ETF_ILLUSTRATIVE_DISCLAIMER}</p>
                   </div>
                   <div className="section-heading__info" ref={etfInfoRef}>
                     <button

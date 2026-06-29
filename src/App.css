@@ -234,6 +234,17 @@
   box-shadow: var(--surface-shadow-soft);
 }
 
+.home-view--focused {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+@media (min-width: 960px) {
+  .home-view--focused {
+    grid-template-columns: 1fr;
+  }
+}
+
 .home-view {
   display: grid;
   gap: 26px;
@@ -270,6 +281,111 @@
 .hero-card:hover {
   transform: none;
   box-shadow: 0 38px 65px rgba(79, 70, 229, 0.38);
+}
+
+.hero-card--survey {
+  position: relative;
+  text-align: center;
+  align-items: center;
+}
+
+.hero-card--survey .hero-card__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.hero-card--survey h2 {
+  margin-top: 0.5rem;
+}
+
+.hero-lead {
+  margin-top: 1rem !important;
+  max-width: 560px !important;
+  font-size: 1.08rem !important;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.primary-button--hero {
+  margin-top: 2rem;
+  padding: 1rem 2rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+  width: min(100%, 420px);
+  box-shadow: 0 22px 44px rgba(15, 23, 42, 0.28);
+}
+
+.hero-secondary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 1.25rem;
+  width: 100%;
+}
+
+.ghost-button--on-hero {
+  color: rgba(255, 255, 255, 0.92);
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.9rem;
+}
+
+.ghost-button--on-hero:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.info-card--panel {
+  margin-top: 0;
+}
+
+.report-highlight {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.report-tags {
+  margin: 0;
+  padding-left: 1.25rem;
+  line-height: 1.6;
+}
+
+.report-tags--excluded {
+  list-style: none;
+  padding-left: 0;
+}
+
+.report-tags--excluded li {
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  margin-bottom: 0.5rem;
+}
+
+.pathway-steps {
+  margin: 0.5rem 0 1rem;
+  padding-left: 1.25rem;
+  line-height: 1.65;
+}
+
+.etf-disclaimer-banner {
+  padding: 1.25rem 1.5rem;
+  border-left: 4px solid #6366f1;
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.etf-disclaimer-banner strong {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.exclusion-notices {
+  margin: 0.75rem 0 0;
+  padding-left: 1.2rem;
+  font-size: 0.95rem;
 }
 
 .hero-card__content {
