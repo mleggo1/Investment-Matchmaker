@@ -884,6 +884,37 @@
   margin-top: 1.75rem;
 }
 
+.illustrative-hero__kpis .hero-kpi-card {
+  padding: 1.15rem 1.25rem;
+  background: rgba(0, 24, 72, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(0, 20, 60, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.illustrative-hero__kpis .kpi-label {
+  color: #ffffff;
+  opacity: 1;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.45;
+}
+
+.illustrative-hero__kpis .kpi-value {
+  color: #ffffff;
+  font-size: clamp(1.85rem, 3.2vw, 2.35rem);
+  font-weight: 800;
+  text-shadow: 0 2px 8px rgba(0, 20, 60, 0.35);
+}
+
+.illustrative-hero__kpis .kpi-hint {
+  color: rgba(255, 255, 255, 0.9);
+  opacity: 1;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
 @media (min-width: 900px) {
   .illustrative-hero__kpis {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -936,10 +967,34 @@
   max-width: 720px;
 }
 
+.education-report__headline {
+  font-size: 1.08rem !important;
+  line-height: 1.55;
+  opacity: 1 !important;
+  max-width: 680px !important;
+  font-weight: 500;
+}
+
 .education-report__subheading {
-  margin: 1.5rem 0 0.75rem;
-  font-size: 1.05rem;
+  margin: 1.25rem 0 0.6rem;
+  font-size: 0.95rem;
   font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+.pathway-steps--compact {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.pathway-steps--compact li {
+  opacity: 0.95;
 }
 
 .report-choices {

@@ -405,8 +405,6 @@ function applyExclusionsToModel(baseModel, excludedGroups) {
   return result;
 }
 
-const KNOWLEDGE_LEVELS = ["Experienced learner", "Developing learner", "Foundational learner"];
-
 function buildEducationReport(answerIndices) {
   const selections = QUIZ.map((question, qIdx) => {
     const optIdx = answerIndices[qIdx];
@@ -437,55 +435,51 @@ function buildEducationReport(answerIndices) {
     ...LEARNING_THEME_MAP[tag],
   }));
 
-  const conceptSet = new Set();
-  themes.forEach((theme) => theme.concepts.forEach((c) => conceptSet.add(c)));
-  if (conceptSet.size === 0) {
-    ["Broad market ETFs", "Dividend-focused ETFs", "Defensive assets and bonds", "Cash buffers and diversification"].forEach((c) => conceptSet.add(c));
-  }
-
   const score = scoreFromAnswerIndices(answerIndices);
   const pathwayHint = pathwayLabel(
     score > 80 ? "Aggressive" : score > 50 ? "Balanced" : "Conservative",
   );
 
-  const q5 = answerIndices[4];
-  const knowledgeLevel = Number.isInteger(q5) ? KNOWLEDGE_LEVELS[q5] : "Complete the survey to see your knowledge level";
+  const goal = selections[0]?.answer;
+  const horizon = selections[1]?.answer;
+  const experience = selections[4]?.answer;
+  const focusAnswer = selections[5]?.answer;
+  const { messages: exclusions } = deriveAssetExclusions(answerIndices);
 
-  const topicsInterested = themes.map((t) => t.title);
-  const { messages: topicsExcluded } = deriveAssetExclusions(answerIndices);
+  const headlineParts = [];
+  if (experience) headlineParts.push(experience);
+  if (goal) headlineParts.push(`${goal.toLowerCase()} goal`);
+  if (horizon) headlineParts.push(`${horizon} examples`);
+  if (focusAnswer) headlineParts.push(`${focusAnswer.toLowerCase()} focus`);
 
-  const pathwaySteps = themes.length >= 3
-    ? themes.slice(0, 3).map((t) => t.title)
-    : [
-        themes[0]?.title || "ETF basics & diversification",
-        themes[1]?.title || "Asset class comparisons",
-        themes[2]?.title || "Fees, holdings & historical context (illustrative)",
-      ];
+  const headline = selections.length
+    ? `${headlineParts.join(" · ")}. Illustrative mix: ${pathwayHint}.`
+    : "Complete the survey to see your education snapshot.";
 
-  const profileSummary = selections.length
-    ? `Based on your selected learning preferences, this investor education profile summarises your knowledge, interests, and topics to explore — for education only.`
-    : "Complete the Investor Education Survey to generate your education profile and learning pathway.";
+  const focusAreas = themes.slice(0, 4).map((t) => t.title);
+
+  const pathwaySteps = [];
+  themes.slice(0, 3).forEach((theme) => {
+    if (theme.concepts[0]) pathwaySteps.push(theme.concepts[0]);
+  });
+  const defaults = ["ETF basics & diversification", "Asset class comparisons", "Fees & historical context (illustrative)"];
+  while (pathwaySteps.length < 3) {
+    pathwaySteps.push(defaults[pathwaySteps.length]);
+  }
+
+  const topFocus = focusAreas.slice(0, 2).join(" and ") || "general investing concepts";
 
   return {
     hasSelections: selections.length > 0,
     selections,
-    themes,
-    concepts: [...conceptSet],
-    pathwayHint,
-    knowledgeLevel,
-    topicsInterested,
-    topicsExcluded,
-    educationPathway: {
-      first: pathwaySteps[0],
-      next: pathwaySteps[1],
-      later: pathwaySteps[2],
-    },
-    profileSummary,
-    intro: profileSummary,
-    closing: "These are education examples only, not recommendations.",
+    headline,
+    focusAreas,
+    exclusions,
+    pathwaySteps: pathwaySteps.slice(0, 3),
+    closing: "Education only — not financial advice.",
     wealthBridge: selections.length
-      ? `Your survey highlighted learning areas such as ${topicsInterested.slice(0, 3).join(", ") || "general investing concepts"}. Wealth Blueprint offers structured investor education — not financial advice.`
-      : "Wealth Blueprint offers structured financial education — how wealth is built, how investing works, and how strategies are explained in plain English. Not financial advice.",
+      ? `Your answers pointed to ${topFocus}. Wealth Blueprint covers these topics in plain English — education only.`
+      : "Wealth Blueprint offers structured investor education — not financial advice.",
   };
 }
 
@@ -1628,17 +1622,17 @@ export default function InvestmentEducatorApp() {
                   )}
 
                   <div className="summary-kpis illustrative-hero__kpis">
-                    <div className={`${surfaceClass} kpi-card`}>
-                      <span className="kpi-label">Illustrative historical average — not a forecast or guarantee</span>
+                    <div className="kpi-card hero-kpi-card">
+                      <span className="kpi-label">Historical avg. (illustrative)</span>
                       <span className="kpi-value">{percent(metrics.expReturn, 1)}</span>
-                      <span className="kpi-hint">Weighted 5-year CAGR (illustrative).</span>
+                      <span className="kpi-hint">Weighted 5-year CAGR — not a forecast or guarantee.</span>
                     </div>
-                    <div className={`${surfaceClass} kpi-card`}>
+                    <div className="kpi-card hero-kpi-card">
                       <span className="kpi-label">Illustrative yield example</span>
                       <span className="kpi-value">{currency(metrics.passiveIncome)}</span>
                       <span className="kpi-hint">p.a. before tax — varies widely in real markets.</span>
                     </div>
-                    <div className={`${surfaceClass} kpi-card`}>
+                    <div className="kpi-card hero-kpi-card">
                       <span className="kpi-label">Diversification (example)</span>
                       <span className="kpi-value">{diversificationPercent}%</span>
                       <span className="kpi-hint">Sector spread in this sample mix.</span>
@@ -1655,59 +1649,42 @@ export default function InvestmentEducatorApp() {
                 </div>
 
                 <article className={`${surfaceClass} summary-card education-report`}>
-                  <span className="summary-eyebrow">Your investor education profile</span>
-                  <h2>Your learning pathway</h2>
-                  <p>{educationReport.profileSummary}</p>
+                  <span className="summary-eyebrow">Education snapshot</span>
+                  <h2>Based on your answers</h2>
+                  <p className="education-report__headline">{educationReport.headline}</p>
 
-                  <h3 className="education-report__subheading">Your current knowledge level</h3>
-                  <p className="report-highlight">{educationReport.knowledgeLevel}</p>
-
-                  {educationReport.themes.length > 0 && (
+                  {educationReport.focusAreas.length > 0 && (
                     <>
-                      <h3 className="education-report__subheading">Your key learning areas</h3>
-                      <ul className="report-themes">
-                        {educationReport.themes.map((theme) => (
-                          <li key={theme.tag} className="report-themes__item">
-                            <strong>{theme.title}</strong>
-                            <p>{theme.why}</p>
-                          </li>
-                        ))}
-                      </ul>
-                    </>
-                  )}
-
-                  {educationReport.topicsInterested.length > 0 && (
-                    <>
-                      <h3 className="education-report__subheading">Topics you are interested in</h3>
+                      <h3 className="education-report__subheading">Focus areas</h3>
                       <ul className="report-tags">
-                        {educationReport.topicsInterested.map((topic) => (
+                        {educationReport.focusAreas.map((topic) => (
                           <li key={topic}>{topic}</li>
                         ))}
                       </ul>
                     </>
                   )}
 
-                  {educationReport.topicsExcluded.length > 0 && (
+                  {educationReport.exclusions.length > 0 && (
                     <>
-                      <h3 className="education-report__subheading">Topics you excluded</h3>
+                      <h3 className="education-report__subheading">Excluded from examples</h3>
                       <ul className="report-tags report-tags--excluded">
-                        {educationReport.topicsExcluded.map((topic) => (
+                        {educationReport.exclusions.map((topic) => (
                           <li key={topic}>{topic}</li>
                         ))}
                       </ul>
                     </>
                   )}
-
-                  <h3 className="education-report__subheading">Suggested education pathway</h3>
-                  <ol className="pathway-steps">
-                    <li><strong>Learn first:</strong> {educationReport.educationPathway.first}</li>
-                    <li><strong>Learn next:</strong> {educationReport.educationPathway.next}</li>
-                    <li><strong>Learn later:</strong> {educationReport.educationPathway.later}</li>
-                  </ol>
 
                   {educationReport.hasSelections && (
                     <>
-                      <h3 className="education-report__subheading">Survey responses (education intake)</h3>
+                      <h3 className="education-report__subheading">Suggested next topics</h3>
+                      <ol className="pathway-steps pathway-steps--compact">
+                        {educationReport.pathwaySteps.map((step) => (
+                          <li key={step}>{step}</li>
+                        ))}
+                      </ol>
+
+                      <h3 className="education-report__subheading">Your survey answers</h3>
                       <dl className="report-choices">
                         {educationReport.selections.map((item, index) => (
                           <div key={`${index}-${item.question}`} className="report-choices__row">
