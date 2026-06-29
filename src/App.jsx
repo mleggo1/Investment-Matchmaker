@@ -533,7 +533,17 @@ function getETF(ticker) {
   return e;
 }
 
-function computeMetrics(weights, portfolioValue = 100000) {
+function deriveProjectionYearsFromSurvey(answerIndices) {
+  const q2 = answerIndices[1];
+  if (!Number.isInteger(q2) || q2 < 0) return 10;
+  const tags = QUIZ[1].options[q2]?.tags || [];
+  if (tags.includes("long")) return 10;
+  if (tags.includes("medium")) return 7;
+  if (tags.includes("short")) return 5;
+  return 10;
+}
+
+function computeMetrics(weights, portfolioValue = 100000, projectionYears = 10) {
   const tickers = Object.keys(weights).filter(k => k !== "notes");
   const wsum = tickers.reduce((s, t) => s + (weights[t] || 0), 0) || 1;
 
@@ -547,11 +557,24 @@ function computeMetrics(weights, portfolioValue = 100000) {
     vol += w * e.volatility;
   });
 
+  const years = clamp(Math.round(projectionYears), 1, 40);
   const passiveIncome = portfolioValue * yieldPct;
-  const tenYear = portfolioValue * Math.pow(1 + expReturn, 10);
+  const projectedValue = portfolioValue * Math.pow(1 + expReturn, years);
+  const illustrativeGain = projectedValue - portfolioValue;
   const sectors = new Set(tickers.map(t => getETF(t).sector));
   const diversification = sectors.size / tickers.length;
-  return { expReturn, feeDrag, yieldPct, vol, passiveIncome, tenYear, diversification };
+  return {
+    expReturn,
+    feeDrag,
+    yieldPct,
+    vol,
+    passiveIncome,
+    tenYear: projectedValue,
+    projectedValue,
+    illustrativeGain,
+    projectionYears: years,
+    diversification,
+  };
 }
 
 // ---------- Reusable: PortfolioInput ----------
@@ -1139,7 +1162,9 @@ export default function InvestmentEducatorApp() {
   const [answerIndices, setAnswerIndices] = useState(() => Array(QUIZ.length).fill(UNANSWERED));
   const [examplePathway, setExamplePathway] = useState("Auto");
   const [portfolioValue, setPortfolioValue] = useState(100000);
+  const [projectionYears, setProjectionYears] = useState(10);
   const resultsRef = useRef(null);
+  const illustrativeExampleRef = useRef(null);
   const progressRef = useRef(null);
   const etfInfoRef = useRef(null);
   const [showEtfInfo, setShowEtfInfo] = useState(false);
@@ -1183,6 +1208,15 @@ export default function InvestmentEducatorApp() {
       setShowEtfInfo(false);
     }
   }, [stage]);
+
+  useEffect(() => {
+    if (stage === "results" && surveyComplete) {
+      setProjectionYears(deriveProjectionYearsFromSurvey(answerIndices));
+      window.requestAnimationFrame(() => {
+        illustrativeExampleRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+  }, [stage, surveyComplete, answerIndices]);
 
   useEffect(() => {
     if (!showEtfInfo) return;
@@ -1238,7 +1272,10 @@ export default function InvestmentEducatorApp() {
     return applyExclusionsToModel(base, assetExclusions.excludedGroups);
   }, [modelName, assetExclusions]);
 
-  const metrics = useMemo(() => computeMetrics(model, portfolioValue), [model, portfolioValue]);
+  const metrics = useMemo(
+    () => computeMetrics(model, portfolioValue, projectionYears),
+    [model, portfolioValue, projectionYears],
+  );
   const chartData = useMemo(() => toChartData(model), [model]);
   const diversificationPercent = Math.round(metrics.diversification * 100);
 
@@ -1338,6 +1375,17 @@ export default function InvestmentEducatorApp() {
     }
   };
 
+  const goToResults = () => {
+    setProjectionYears(deriveProjectionYearsFromSurvey(answerIndices));
+    setStage("results");
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      illustrativeExampleRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  };
+
+  const PROJECTION_YEAR_OPTIONS = [5, 7, 10, 15, 20];
+
   const shellClass = theme === "dark" ? "app-shell is-dark" : "app-shell is-light";
   const surfaceClass = "surface-card";
 
@@ -1398,7 +1446,7 @@ export default function InvestmentEducatorApp() {
                       <button
                         type="button"
                         className="ghost-button ghost-button--muted"
-                        onClick={() => setStage("results")}
+                        onClick={goToResults}
                       >
                         View your education pathway
                       </button>
@@ -1504,13 +1552,7 @@ export default function InvestmentEducatorApp() {
                     type="button"
                     className="primary-button primary-button--gold quiz-nav__next"
                     disabled={!surveyComplete}
-                    onClick={() => {
-                      if (!surveyComplete) return;
-                      setStage("results");
-                      window.requestAnimationFrame(() => {
-                        window.scrollTo({ top: 0, behavior: "smooth" });
-                      });
-                    }}
+                    onClick={goToResults}
                   >
                     View my education pathway
                   </button>
@@ -1528,6 +1570,111 @@ export default function InvestmentEducatorApp() {
 
           {stage === "results" && surveyComplete && (
             <main ref={resultsRef} className="results-view print-block">
+              <section
+                ref={illustrativeExampleRef}
+                className="illustrative-hero-section summary-section"
+              >
+                <article className={`${surfaceClass} summary-card illustrative-hero`}>
+                  <p className="summary-eyebrow">Illustrative ETF example — education only</p>
+                  <h2>{pathwayLabel(modelName)}</h2>
+                  <p className="illustrative-hero__intro">
+                    This education-only example uses historical return assumptions from the illustrative ETF mix — not a recommendation.
+                  </p>
+
+                  <div className="illustrative-hero__controls no-print">
+                    <div className="illustrative-hero__control">
+                      <label className="control-label">Starting portfolio size (illustrative)</label>
+                      <PortfolioInput value={portfolioValue} onChange={(v) => setPortfolioValue(clamp(v, 0, 1_000_000_000))} />
+                    </div>
+                    <div className="illustrative-hero__control">
+                      <label className="control-label">Projection period (years)</label>
+                      <div className="toggle-group">
+                        {PROJECTION_YEAR_OPTIONS.map((years) => (
+                          <button
+                            key={years}
+                            type="button"
+                            onClick={() => setProjectionYears(years)}
+                            className={`toggle-chip ${projectionYears === years ? "is-active" : ""}`}
+                          >
+                            {years} yr
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="illustrative-hero__control">
+                      <label className="control-label">Education example style</label>
+                      <div className="toggle-group">
+                        {[
+                          { key: "Auto", label: "From survey" },
+                          { key: "Aggressive", label: "Growth illustration" },
+                          { key: "Balanced", label: "Balanced illustration" },
+                          { key: "Conservative", label: "Stability illustration" },
+                        ].map(({ key, label }) => (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => setExamplePathway(key)}
+                            className={`toggle-chip ${examplePathway === key ? "is-active" : ""}`}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="illustrative-hero__narrative">
+                    Based on a starting portfolio size of <strong>{currency(portfolioValue)}</strong>, this illustrative example shows a hypothetical projected value of <strong>{currency(metrics.projectedValue)}</strong> after <strong>{metrics.projectionYears} years</strong>, using historical return assumptions ({percent(metrics.expReturn, 1)} weighted 5-year CAGR, illustrative only). This is for education only and is not a guarantee, forecast, or financial advice.
+                  </p>
+
+                  <div className="projection-metrics">
+                    <div className="projection-metric">
+                      <span>Starting portfolio size</span>
+                      <strong>{currency(portfolioValue)}</strong>
+                    </div>
+                    <div className="projection-metric">
+                      <span>Hypothetical value after {metrics.projectionYears} years</span>
+                      <strong>{currency(metrics.projectedValue)}</strong>
+                    </div>
+                    <div className="projection-metric">
+                      <span>Illustrative gain</span>
+                      <strong>{currency(metrics.illustrativeGain)}</strong>
+                    </div>
+                  </div>
+
+                  <p className="summary-disclaimer">
+                    Hypothetical figures are based on simplified, backward-looking assumptions. They are not guaranteed, are not a forecast, and do not represent actual or expected performance.
+                  </p>
+                  <p className="summary-disclaimer">{ETF_ILLUSTRATIVE_DISCLAIMER}</p>
+
+                  {assetExclusions.messages.length > 0 && (
+                    <ul className="exclusion-notices">
+                      {assetExclusions.messages.map((msg) => (
+                        <li key={msg}>{msg}</li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <div className="summary-kpis illustrative-hero__kpis">
+                    <div className={`${surfaceClass} kpi-card`}>
+                      <span className="kpi-label">Illustrative historical average — not a forecast or guarantee</span>
+                      <span className="kpi-value">{percent(metrics.expReturn, 1)}</span>
+                      <span className="kpi-hint">Weighted 5-year CAGR (illustrative).</span>
+                    </div>
+                    <div className={`${surfaceClass} kpi-card`}>
+                      <span className="kpi-label">Illustrative yield example</span>
+                      <span className="kpi-value">{currency(metrics.passiveIncome)}</span>
+                      <span className="kpi-hint">p.a. before tax — varies widely in real markets.</span>
+                    </div>
+                    <div className={`${surfaceClass} kpi-card`}>
+                      <span className="kpi-label">Diversification (example)</span>
+                      <span className="kpi-value">{diversificationPercent}%</span>
+                      <span className="kpi-hint">Sector spread in this sample mix.</span>
+                    </div>
+                  </div>
+                </article>
+              </section>
+
               <section className="summary-section">
                 <div className={`${surfaceClass} education-banner`}>
                   <strong>FACTUAL INFORMATION &amp; EDUCATION ONLY</strong>
@@ -1603,103 +1750,16 @@ export default function InvestmentEducatorApp() {
                   <p className="concepts-explore-foot">{educationReport.closing}</p>
                 </article>
 
-                <div className={`${surfaceClass} etf-disclaimer-banner`}>
-                  <strong>Illustrative ETF example — education only</strong>
-                  <p>{ETF_ILLUSTRATIVE_DISCLAIMER}</p>
-                  {assetExclusions.messages.length > 0 && (
-                    <ul className="exclusion-notices">
-                      {assetExclusions.messages.map((msg) => (
-                        <li key={msg}>{msg}</li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-
-                <article className={`${surfaceClass} summary-card`}>
-                  <span className="summary-eyebrow">{pathwayLabel(modelName)}</span>
-                  <h2>Illustrative ETF example (education-only)</h2>
-                  <p>This sample mix helps explain diversification and asset classes. It is not a recommendation and does not tell you what to invest in.</p>
-                  <p>{MODELS[modelName].notes}</p>
-                  <div className="summary-metrics">
-                    <div className="summary-metric">
-                      <span>10-year hypothetical projection (illustrative only)</span>
-                      <strong>{currency(metrics.tenYear)}</strong>
-                    </div>
-                    <div className="summary-metric">
-                      <span>Illustrative yield example — varies widely in real markets</span>
-                      <strong>{currency(metrics.passiveIncome)}</strong>
-                    </div>
-                    <div className="summary-metric">
-                      <span>Diversification (example)</span>
-                      <strong>{diversificationPercent}% sectors</strong>
-                    </div>
-                  </div>
-                  <p className="summary-disclaimer">All projections are hypothetical and based on simplified, backward-looking assumptions. They do not represent actual or expected performance.</p>
-                </article>
-
-                <div className="summary-kpis">
-                  <div className={`${surfaceClass} kpi-card`}>
-                    <span className="kpi-label">Illustrative historical average — not a forecast or guarantee</span>
-                    <span className="kpi-value">{percent(metrics.expReturn, 1)}</span>
-                    <span className="kpi-hint">Weighted 5-year CAGR (illustrative).</span>
-                  </div>
-                  <div className={`${surfaceClass} kpi-card`}>
-                    <span className="kpi-label">Fee Drag</span>
-                    <span className="kpi-value">{percent(metrics.feeDrag, 2)}</span>
-                    <span className="kpi-hint">Management expense ratio per annum.</span>
-                  </div>
-                  <div className={`${surfaceClass} kpi-card`}>
-                    <span className="kpi-label">Volatility</span>
-                    <span className="kpi-value">{percent(metrics.vol, 1)}</span>
-                    <span className="kpi-hint">Simplified blend excluding covariance.</span>
-                  </div>
-                  <div className={`${surfaceClass} kpi-card`}>
-                    <span className="kpi-label">Yield (Forward)</span>
-                    <span className="kpi-value">{percent(metrics.yieldPct, 1)}</span>
-                    <span className="kpi-hint">Projected cash yield before tax.</span>
-                  </div>
-                </div>
-
                 <aside className={`${surfaceClass} summary-controls`}>
-                  <h4>Alternate illustrative examples</h4>
-                  <label className="control-label">Education example style</label>
-                  <div className="toggle-group">
-                    {[
-                      { key: "Auto", label: "From survey" },
-                      { key: "Aggressive", label: "Growth illustration" },
-                      { key: "Balanced", label: "Balanced illustration" },
-                      { key: "Conservative", label: "Stability illustration" },
-                    ].map(({ key, label }) => (
-                      <button
-                        key={key}
-                        type="button"
-                        onClick={() => setExamplePathway(key)}
-                        className={`toggle-chip ${examplePathway === key ? "is-active" : ""}`}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                  <label className="control-label">Portfolio size</label>
-                  <PortfolioInput value={portfolioValue} onChange={(v) => setPortfolioValue(clamp(v, 0, 1_000_000_000))} />
-                  <div className="projection">
-                    <div>Illustrative yield example ≈ <strong>{currency(metrics.passiveIncome)}</strong> p.a. (varies widely in real markets)</div>
-                    <div>10-year hypothetical projection (illustrative only) ≈ <strong>{currency(metrics.tenYear)}</strong></div>
-                  </div>
-                  <div className="diversification">
-                    <span>Diversification</span>
-                    <div className="progress-bar progress-bar--inline">
-                      <div className="progress-bar__fill" style={{ width: `${diversificationPercent}%` }} />
-                    </div>
-                  </div>
+                  <h4>Results actions</h4>
                   <div className="summary-controls__actions no-print">
-                    <button className="ghost-button" onClick={resetQuiz}>
+                    <button type="button" className="ghost-button" onClick={resetQuiz}>
                       Retake Investor Education Survey
                     </button>
-                    <button className="ghost-button" onClick={() => setStage("home")}>
+                    <button type="button" className="ghost-button" onClick={() => setStage("home")}>
                       Back to intro
                     </button>
-                    <button className="ghost-button" onClick={handleExportPDF}>
+                    <button type="button" className="ghost-button" onClick={handleExportPDF}>
                       Export PDF
                     </button>
                   </div>
