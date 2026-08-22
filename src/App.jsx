@@ -158,10 +158,28 @@ const STORAGE_KEY = "ie_v2_state";
 const STORAGE_VERSION = 2;
 const PROJECTION_YEAR_OPTIONS = [5, 7, 10, 15, 20];
 const EXAMPLE_PATHWAY_OPTIONS = [
-  { key: "Auto", label: "From survey" },
-  { key: "Aggressive", label: "Growth illustration" },
+  { key: "Aggressive", label: "Illustrative ETF Example" },
   { key: "Balanced", label: "Balanced illustration" },
   { key: "Conservative", label: "Stability illustration" },
+  { key: "Auto", label: "From survey" },
+];
+
+const REPORT_NAV_ITEMS = [
+  { id: "report-at-a-glance", label: "At a Glance" },
+  { id: "report-responses", label: "Survey Responses" },
+  { id: "report-observations", label: "Educational Observations" },
+  { id: "report-etf-example", label: "Illustrative ETF Example" },
+  { id: "report-research", label: "Further Research" },
+  { id: "report-disclaimers", label: "Important Disclaimers" },
+  { id: "report-coaching", label: "Points to Explore" },
+];
+
+const COACHING_PROMPTS = [
+  "Is anything in this summary different from what you expected?",
+  "Which financial goals are most important to you?",
+  "Are there any answers you would like to revisit?",
+  "What would you like to understand in more detail?",
+  "What independent research would you like to complete next?",
 ];
 
 const LEARNING_THEME_MAP = {
@@ -457,6 +475,10 @@ function buildEducationReport(answerIndices) {
     : "Complete the survey to see your education snapshot.";
 
   const focusAreas = themes.slice(0, 4).map((t) => t.title);
+  const observations = themes.slice(0, 4).map((t) => ({
+    title: t.title,
+    note: t.why,
+  }));
 
   const pathwaySteps = [];
   themes.slice(0, 3).forEach((theme) => {
@@ -468,6 +490,13 @@ function buildEducationReport(answerIndices) {
   }
 
   const topFocus = focusAreas.slice(0, 2).join(" and ") || "general investing concepts";
+  const glanceBullets = [];
+  if (goal) glanceBullets.push(`Learning goal: ${goal}`);
+  if (horizon) glanceBullets.push(`Example time horizon: ${horizon}`);
+  if (experience) glanceBullets.push(`Experience: ${experience}`);
+  if (focusAnswer) glanceBullets.push(`Preferred focus: ${focusAnswer}`);
+  if (pathwayHint) glanceBullets.push(`Illustrative example style: ${pathwayHint}`);
+  if (exclusions.length) glanceBullets.push(`Excluded from examples: ${exclusions.length} topic area(s)`);
 
   return {
     hasSelections: selections.length > 0,
@@ -475,6 +504,8 @@ function buildEducationReport(answerIndices) {
     headline,
     focusAreas,
     exclusions,
+    observations,
+    glanceBullets,
     pathwaySteps: pathwaySteps.slice(0, 3),
     closing: "Education only — not financial advice.",
     wealthBridge: selections.length
@@ -814,6 +845,8 @@ const PrintStyles = () => (
       .app-container,
       .surface-card,
       .summary-card,
+      .report-document,
+      .report-block,
       .callout,
       .allocation-section,
       .table-section,
@@ -1162,13 +1195,16 @@ export default function InvestmentEducatorApp() {
   const [theme, setTheme] = useState("light");
   const [stage, setStage] = useState("home");
   const [answerIndices, setAnswerIndices] = useState(() => Array(QUIZ.length).fill(UNANSWERED));
-  const [examplePathway, setExamplePathway] = useState("Auto");
+  const [examplePathway, setExamplePathway] = useState("Aggressive");
   const [portfolioValue, setPortfolioValue] = useState(100000);
   const [projectionYears, setProjectionYears] = useState(10);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const resultsRef = useRef(null);
   const illustrativeExampleRef = useRef(null);
   const progressRef = useRef(null);
   const etfInfoRef = useRef(null);
+  const quizOptionAnchorRef = useRef(null);
+  const advanceTimerRef = useRef(null);
   const [showEtfInfo, setShowEtfInfo] = useState(false);
   const [homePanel, setHomePanel] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -1189,9 +1225,16 @@ export default function InvestmentEducatorApp() {
         }
         const pathway = s.examplePathway || s.riskOverride;
         if (isValidPathway(pathway)) setExamplePathway(pathway);
+        else setExamplePathway("Aggressive");
         if (typeof s.portfolioValue !== "undefined") setPortfolioValue(toNumberSafe(s.portfolioValue, 100000));
       }
     } catch {}
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (advanceTimerRef.current) window.clearTimeout(advanceTimerRef.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -1275,41 +1318,51 @@ export default function InvestmentEducatorApp() {
   useEffect(() => {
     if (stage !== "results") return;
     window.requestAnimationFrame(() => {
-      illustrativeExampleRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     });
   }, [stage]);
 
   const resetQuiz = () => {
+    if (advanceTimerRef.current) window.clearTimeout(advanceTimerRef.current);
+    setIsGeneratingReport(false);
     setAnswerIndices(Array(QUIZ.length).fill(UNANSWERED));
     setCurrentQuestionIndex(0);
     setStage("quiz");
-    setExamplePathway("Auto");
+    setExamplePathway("Aggressive");
   };
 
   const startSurvey = () => {
+    if (advanceTimerRef.current) window.clearTimeout(advanceTimerRef.current);
+    setIsGeneratingReport(false);
     if (surveyComplete || !hasAnySurveyAnswers(answerIndices)) {
       setAnswerIndices(Array(QUIZ.length).fill(UNANSWERED));
       setCurrentQuestionIndex(0);
     } else {
       setCurrentQuestionIndex(firstUnansweredIndex(answerIndices));
     }
-    setExamplePathway("Auto");
+    setExamplePathway("Aggressive");
     setStage("quiz");
     window.requestAnimationFrame(() => {
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
   };
 
+  const alignQuestionInView = () => {
+    const el = quizQuestionRef.current;
+    if (!el) return;
+    const header = progressRef.current;
+    const headerH = header ? header.getBoundingClientRect().height + 16 : 0;
+    const anchor = quizOptionAnchorRef.current;
+    const targetEl = anchor || el;
+    const targetY = window.pageYOffset + targetEl.getBoundingClientRect().top - headerH - (anchor ? 72 : 0);
+    window.scrollTo({ top: Math.max(0, targetY), behavior: "smooth" });
+  };
+
   const goToQuestion = (index) => {
     const nextIndex = clamp(index, 0, QUIZ.length - 1);
     setCurrentQuestionIndex(nextIndex);
     window.requestAnimationFrame(() => {
-      const el = quizQuestionRef.current;
-      if (!el) return;
-      const header = progressRef.current;
-      const headerH = header ? header.getBoundingClientRect().height + 20 : 0;
-      const targetY = window.pageYOffset + el.getBoundingClientRect().top - headerH;
-      window.scrollTo({ top: Math.max(0, targetY), behavior: "smooth" });
+      window.requestAnimationFrame(alignQuestionInView);
     });
   };
 
@@ -1318,18 +1371,48 @@ export default function InvestmentEducatorApp() {
     return Number.isInteger(idx) && idx >= 0;
   };
 
+  const unansweredQuestions = useMemo(
+    () => QUIZ.map((_, i) => i).filter((i) => !isQuestionAnswered(i)),
+    [answerIndices],
+  );
+
   const handleAnswer = (qIndex, optionIndex) => {
+    const wasAlreadyAnswered = isQuestionAnswered(qIndex);
     setAnswerIndices((prev) => {
       const next = [...prev];
       next[qIndex] = optionIndex;
       return next;
     });
-    if (qIndex === currentQuestionIndex && qIndex < QUIZ.length - 1) {
-      window.setTimeout(() => goToQuestion(qIndex + 1), 450);
-    } else if (qIndex === QUIZ.length - 1) {
-      window.setTimeout(() => {
+
+    // Auto-advance only for a fresh answer on the current question — not when editing a prior answer.
+    if (qIndex !== currentQuestionIndex || wasAlreadyAnswered) return;
+
+    if (advanceTimerRef.current) window.clearTimeout(advanceTimerRef.current);
+    if (qIndex < QUIZ.length - 1) {
+      advanceTimerRef.current = window.setTimeout(() => goToQuestion(qIndex + 1), 260);
+    } else {
+      advanceTimerRef.current = window.setTimeout(() => {
         quizNavRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      }, 200);
+      }, 220);
+    }
+  };
+
+  const handleOptionKeyDown = (event, qIndex, optionIndex, optionCount) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      handleAnswer(qIndex, optionIndex);
+      return;
+    }
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+      event.preventDefault();
+      const next = (optionIndex + 1) % optionCount;
+      const buttons = event.currentTarget.parentElement?.querySelectorAll(".quiz-option");
+      buttons?.[next]?.focus();
+    } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+      event.preventDefault();
+      const prev = (optionIndex - 1 + optionCount) % optionCount;
+      const buttons = event.currentTarget.parentElement?.querySelectorAll(".quiz-option");
+      buttons?.[prev]?.focus();
     }
   };
 
@@ -1341,6 +1424,7 @@ export default function InvestmentEducatorApp() {
   };
 
   const handlePreviousQuestion = () => {
+    if (advanceTimerRef.current) window.clearTimeout(advanceTimerRef.current);
     if (currentQuestionIndex > 0) {
       goToQuestion(currentQuestionIndex - 1);
     }
@@ -1352,13 +1436,38 @@ export default function InvestmentEducatorApp() {
     }
   };
 
+  const scrollToReportSection = (id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   const goToResults = () => {
+    if (!surveyComplete || isGeneratingReport) return;
+    setIsGeneratingReport(true);
     setProjectionYears(deriveProjectionYearsFromSurvey(answerIndices));
-    setStage("results");
+    if (!isValidPathway(examplePathway)) {
+      setExamplePathway("Aggressive");
+    }
+    window.setTimeout(() => {
+      setStage("results");
+      setIsGeneratingReport(false);
+    }, 450);
+  };
+
+  const editSurveyResponses = () => {
+    setIsGeneratingReport(false);
+    setStage("quiz");
+    setCurrentQuestionIndex(0);
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
   };
 
   const shellClass = theme === "dark" ? "app-shell is-dark" : "app-shell is-light";
   const surfaceClass = "surface-card";
+  const currentOptions = QUIZ[currentQuestionIndex]?.options || [];
+  const optionCount = currentOptions.length;
 
   return (
     <EducationGate>
@@ -1461,9 +1570,24 @@ export default function InvestmentEducatorApp() {
                   <div className="progress-bar" role="progressbar" aria-valuenow={Math.round(progress * 100)} aria-valuemin={0} aria-valuemax={100}>
                     <div className="progress-bar__fill" style={{ width: `${Math.round(progress * 100)}%` }} />
                   </div>
+                  <div className="quiz-stepper" aria-label="Question progress">
+                    {QUIZ.map((_, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        className={`quiz-stepper__dot ${i === currentQuestionIndex ? "is-current" : ""} ${isQuestionAnswered(i) ? "is-answered" : "is-unanswered"}`}
+                        aria-label={`Question ${i + 1}${isQuestionAnswered(i) ? ", answered" : ", unanswered"}`}
+                        aria-current={i === currentQuestionIndex ? "step" : undefined}
+                        onClick={() => {
+                          if (advanceTimerRef.current) window.clearTimeout(advanceTimerRef.current);
+                          goToQuestion(i);
+                        }}
+                      />
+                    ))}
+                  </div>
                 </div>
                 <div className="quiz-progress__score">
-                  Question {currentQuestionIndex + 1} of {QUIZ.length} · {Math.round(progress * 100)}% complete
+                  Question {currentQuestionIndex + 1} of {QUIZ.length}
                 </div>
                 <button type="button" className="ghost-button no-print" onClick={() => setStage("home")}>
                   Exit
@@ -1482,20 +1606,27 @@ export default function InvestmentEducatorApp() {
               >
                 <div className="quiz-question__meta">
                   Question {currentQuestionIndex + 1} of {QUIZ.length}
+                  {isQuestionAnswered(currentQuestionIndex) ? " · Answered" : " · Not yet answered"}
                 </div>
                 <h3>{QUIZ[currentQuestionIndex].q}</h3>
-                <div className="quiz-option-grid">
-                  {QUIZ[currentQuestionIndex].options.map((opt, idx) => {
+                <div
+                  ref={quizOptionAnchorRef}
+                  className={`quiz-option-grid quiz-option-grid--count-${Math.min(optionCount, 4)}`}
+                  role="group"
+                  aria-label="Answer options"
+                >
+                  {currentOptions.map((opt, idx) => {
                     const selected = answerIndices[currentQuestionIndex] === idx;
                     return (
                       <button
                         key={idx}
                         type="button"
                         onClick={() => handleAnswer(currentQuestionIndex, idx)}
+                        onKeyDown={(e) => handleOptionKeyDown(e, currentQuestionIndex, idx, optionCount)}
                         className={`quiz-option ${selected ? "is-selected" : ""}`}
                         aria-pressed={selected}
                       >
-                        <span>{opt.label}</span>
+                        <span className="quiz-option__label">{opt.label}</span>
                       </button>
                     );
                   })}
@@ -1522,28 +1653,128 @@ export default function InvestmentEducatorApp() {
                   <button
                     type="button"
                     className="primary-button primary-button--gold quiz-nav__next"
-                    disabled={!surveyComplete}
+                    disabled={!surveyComplete || isGeneratingReport}
                     onClick={goToResults}
+                    aria-busy={isGeneratingReport}
                   >
-                    View my education pathway
+                    {isGeneratingReport ? "Generating report…" : "Generate My Educational Report"}
                   </button>
                 )}
               </div>
 
-              {!isQuestionAnswered(currentQuestionIndex) && currentQuestionIndex < QUIZ.length - 1 && (
-                <p className="quiz-nav__hint">Choose an answer to continue to the next question.</p>
+              {!isQuestionAnswered(currentQuestionIndex) && (
+                <p className="quiz-nav__hint" role="status">
+                  Please choose an answer for this question before continuing.
+                </p>
               )}
-              {currentQuestionIndex === QUIZ.length - 1 && !surveyComplete && (
-                <p className="quiz-nav__hint">Choose an answer to finish the survey.</p>
+              {currentQuestionIndex === QUIZ.length - 1 && !surveyComplete && unansweredQuestions.length > 0 && (
+                <p className="quiz-nav__hint" role="status">
+                  Still missing answers for question{unansweredQuestions.length > 1 ? "s" : ""}{" "}
+                  {unansweredQuestions.map((i) => i + 1).join(", ")}. Use the dots above to jump back.
+                </p>
+              )}
+              {isGeneratingReport && (
+                <p className="quiz-nav__hint quiz-nav__hint--loading" role="status">
+                  Preparing your educational report…
+                </p>
               )}
             </main>
           )}
 
           {stage === "results" && surveyComplete && (
             <main ref={resultsRef} className="results-view print-block">
+              <nav className="report-toc no-print" aria-label="Report sections">
+                {REPORT_NAV_ITEMS.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className="report-toc__link"
+                    onClick={() => scrollToReportSection(item.id)}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </nav>
+
+              <div className="report-actions-bar no-print">
+                <button type="button" className="ghost-button" onClick={handleExportPDF}>Print / Save PDF</button>
+                <button type="button" className="ghost-button" onClick={editSurveyResponses}>Edit responses</button>
+                <button type="button" className="ghost-button" onClick={resetQuiz}>Retake survey</button>
+                <button type="button" className="ghost-button" onClick={() => setExamplePathway("Aggressive")}>Reset to Illustrative ETF Example</button>
+                <button type="button" className="ghost-button" onClick={() => setStage("home")}>Return home</button>
+              </div>
+
+              <article className="report-document" id="report-top">
+                <header className="report-document__header">
+                  <p className="report-eyebrow">Investment Educator</p>
+                  <h2>Educational Report</h2>
+                  <p className="report-document__lede">{educationReport.headline}</p>
+                </header>
+
+                <section className="report-block report-block--disclaimer" id="report-disclaimer" aria-label="Educational-use disclaimer">
+                  <h3>Educational use only</h3>
+                  <p>{SURVEY_DISCLAIMER}</p>
+                  <p>{REQUIRED_DISCLAIMER}</p>
+                </section>
+
+                <section className="report-block" id="report-at-a-glance">
+                  <h3>At a Glance</h3>
+                  <p className="report-block__intro">A concise summary of themes from the survey — for education and coaching discussion only.</p>
+                  <ul className="report-glance-list">
+                    {educationReport.glanceBullets.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                    {educationReport.pathwaySteps.map((step) => (
+                      <li key={`topic-${step}`}>Suggested learning topic: {step}</li>
+                    ))}
+                  </ul>
+                </section>
+
+                <section className="report-block" id="report-responses">
+                  <h3>Survey Responses</h3>
+                  <p className="report-block__intro">Client answers from the Investor Education Survey.</p>
+                  <dl className="report-choices report-choices--readable">
+                    {educationReport.selections.map((item, index) => (
+                      <div key={`${index}-${item.question}`} className="report-choices__row">
+                        <dt>{item.question}</dt>
+                        <dd>{item.answer}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </section>
+
+                <section className="report-block" id="report-observations">
+                  <h3>Key Educational Observations</h3>
+                  <p className="report-block__intro">Observations drawn from the client’s selected learning preferences. These are educational themes, not advice.</p>
+                  {educationReport.observations.length > 0 ? (
+                    <ul className="report-observations">
+                      {educationReport.observations.map((obs) => (
+                        <li key={obs.title}>
+                          <strong>{obs.title}</strong>
+                          <span>{obs.note}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>Complete the survey to see educational observations.</p>
+                  )}
+                  {educationReport.exclusions.length > 0 && (
+                    <>
+                      <h4 className="report-block__subhead">Excluded from illustrative examples</h4>
+                      <ul className="report-tags report-tags--excluded report-tags--on-light">
+                        {educationReport.exclusions.map((topic) => (
+                          <li key={topic}>{topic}</li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                </section>
+              </article>
+
               <section
                 ref={illustrativeExampleRef}
-                className="illustrative-hero-section summary-section"
+                id="report-etf-example"
+                className="illustrative-hero-section report-etf-section"
               >
                 <article className={`${surfaceClass} summary-card illustrative-hero`}>
                   <p className="summary-eyebrow">Illustrative ETF example — education only</p>
@@ -1641,85 +1872,10 @@ export default function InvestmentEducatorApp() {
                 </article>
               </section>
 
-              <section className="summary-section">
-                <div className={`${surfaceClass} education-banner`}>
-                  <strong>FACTUAL INFORMATION &amp; EDUCATION ONLY</strong>
-                  <p>{SURVEY_DISCLAIMER}</p>
-                  <p>{REQUIRED_DISCLAIMER}</p>
-                </div>
-
-                <article className={`${surfaceClass} summary-card education-report`}>
-                  <span className="summary-eyebrow">Education snapshot</span>
-                  <h2>Based on your answers</h2>
-                  <p className="education-report__headline">{educationReport.headline}</p>
-
-                  {educationReport.focusAreas.length > 0 && (
-                    <>
-                      <h3 className="education-report__subheading">Focus areas</h3>
-                      <ul className="report-tags">
-                        {educationReport.focusAreas.map((topic) => (
-                          <li key={topic}>{topic}</li>
-                        ))}
-                      </ul>
-                    </>
-                  )}
-
-                  {educationReport.exclusions.length > 0 && (
-                    <>
-                      <h3 className="education-report__subheading">Excluded from examples</h3>
-                      <ul className="report-tags report-tags--excluded">
-                        {educationReport.exclusions.map((topic) => (
-                          <li key={topic}>{topic}</li>
-                        ))}
-                      </ul>
-                    </>
-                  )}
-
-                  {educationReport.hasSelections && (
-                    <>
-                      <h3 className="education-report__subheading">Suggested next topics</h3>
-                      <ol className="pathway-steps pathway-steps--compact">
-                        {educationReport.pathwaySteps.map((step) => (
-                          <li key={step}>{step}</li>
-                        ))}
-                      </ol>
-
-                      <h3 className="education-report__subheading">Your survey answers</h3>
-                      <dl className="report-choices">
-                        {educationReport.selections.map((item, index) => (
-                          <div key={`${index}-${item.question}`} className="report-choices__row">
-                            <dt>{item.question}</dt>
-                            <dd>{item.answer}</dd>
-                          </div>
-                        ))}
-                      </dl>
-                    </>
-                  )}
-
-                  <p className="concepts-explore-foot">{educationReport.closing}</p>
-                </article>
-
-                <aside className={`${surfaceClass} summary-controls`}>
-                  <h4>Results actions</h4>
-                  <div className="summary-controls__actions no-print">
-                    <button type="button" className="ghost-button" onClick={resetQuiz}>
-                      Retake Investor Education Survey
-                    </button>
-                    <button type="button" className="ghost-button" onClick={() => setStage("home")}>
-                      Back to intro
-                    </button>
-                    <button type="button" className="ghost-button" onClick={handleExportPDF}>
-                      Export PDF
-                    </button>
-                  </div>
-                  <p className="control-footnote">{REQUIRED_DISCLAIMER}</p>
-                </aside>
-              </section>
-
-              <section className={`${surfaceClass} allocation-section`}>
+              <section className={`${surfaceClass} allocation-section`} id="report-allocation">
                 <div className="section-heading section-heading--with-info">
                   <div className="section-heading__copy">
-                    <h3>Illustrative ETF example</h3>
+                    <h3>Illustrative ETF composition</h3>
                     <p>
                       <span className="section-model">{pathwayLabel(modelName)}</span> — education-only example to explain diversification and asset classes.
                     </p>
@@ -1768,9 +1924,9 @@ export default function InvestmentEducatorApp() {
                 <p className="external-link-disclaimer">{EXTERNAL_LINK_DISCLAIMER}</p>
               </section>
 
-              <section className={`${surfaceClass} table-section`}>
+              <section className={`${surfaceClass} table-section`} id="report-research">
                 <div className="section-heading">
-                  <h3>ETF details</h3>
+                  <h3>Further research</h3>
                   <p>How each holding is often described in educational materials — commonly researched options in a sample mix only.</p>
                 </div>
                 <div className="table-wrapper">
@@ -1830,12 +1986,11 @@ export default function InvestmentEducatorApp() {
                   </table>
                 </div>
                 <div className="table-section__footer">
-                  <p className="table-footnote">{REQUIRED_DISCLAIMER}</p>
-                  <p className="table-footnote external-link-disclaimer">{EXTERNAL_LINK_DISCLAIMER}</p>
+                  <p className="table-footnote">{EXTERNAL_LINK_DISCLAIMER}</p>
                   <div className="etf-dashboard-link">
-                    <a 
+                    <a
                       href={ETF_DASHBOARD_URL}
-                      target="_blank" 
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="etf-dashboard-button"
                     >
@@ -1846,6 +2001,28 @@ export default function InvestmentEducatorApp() {
                     </a>
                   </div>
                 </div>
+              </section>
+
+              <section className="report-document report-document--tail" id="report-disclaimers">
+                <section className="report-block report-block--disclaimer">
+                  <h3>Important considerations and disclaimers</h3>
+                  <p>{REQUIRED_DISCLAIMER}</p>
+                  <p>{ETF_ILLUSTRATIVE_DISCLAIMER}</p>
+                  <p>{EXTERNAL_LINK_DISCLAIMER}</p>
+                  <p className="concepts-explore-foot">{educationReport.closing}</p>
+                </section>
+              </section>
+
+              <section className="report-document report-document--tail" id="report-coaching">
+                <section className="report-block">
+                  <h3>Points to Explore Together</h3>
+                  <p className="report-block__intro">Neutral coaching prompts for discussion. These are not recommendations or financial advice.</p>
+                  <ul className="report-coaching-list">
+                    {COACHING_PROMPTS.map((prompt) => (
+                      <li key={prompt}>{prompt}</li>
+                    ))}
+                  </ul>
+                </section>
               </section>
 
               <section className={`${surfaceClass} callout`}>
@@ -1875,6 +2052,14 @@ export default function InvestmentEducatorApp() {
                   </div>
                 </div>
               </section>
+
+              <button
+                type="button"
+                className="back-to-top no-print"
+                onClick={() => scrollToReportSection("report-top")}
+              >
+                Back to top
+              </button>
             </main>
           )}
 
