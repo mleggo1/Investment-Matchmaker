@@ -1,6 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import "./App.css";
+import {
+  EDUCATOR_ETFS,
+  formatMerDisplay,
+  formatReturnDisplay,
+  formatYieldDisplay,
+} from "./data/educatorEtfs.js";
 
 // ---------------------------------------------
 // Investment Educator — educational examples only (not advice)
@@ -55,17 +61,8 @@ function clamp(n, min, max) {
 }
 const percent = (n, dp = 1) => `${(n * 100).toFixed(dp)}%`;
 
-// ---------- Static ETF dataset ----------
-const ETFs = [
-  { ticker: "IVV", name: "iShares S&P 500 ETF", sector: "US Equities", mer: 0.04, return_5y: 0.108, volatility: 0.14, yield: 0.013, risk_band: "growth" },
-  { ticker: "NDQ", name: "BetaShares NASDAQ 100 ETF", sector: "Tech Growth", mer: 0.48, return_5y: 0.135, volatility: 0.18, yield: 0.009, risk_band: "high" },
-  { ticker: "RBTZ", name: "BetaShares Global Robotics ETF", sector: "Automation", mer: 0.57, return_5y: 0.125, volatility: 0.19, yield: 0.006, risk_band: "high" },
-  { ticker: "CRYP", name: "BetaShares Crypto Innovators ETF", sector: "Crypto & Blockchain", mer: 0.99, return_5y: 0.23, volatility: 0.42, yield: 0.0, risk_band: "speculative" },
-  { ticker: "VHY", name: "Vanguard High Yield ETF", sector: "Aussie Dividends", mer: 0.25, return_5y: 0.085, volatility: 0.12, yield: 0.045, risk_band: "income" },
-  { ticker: "VAP", name: "Vanguard Australian Property ETF", sector: "A-REITs", mer: 0.23, return_5y: 0.063, volatility: 0.16, yield: 0.045, risk_band: "income" },
-  { ticker: "IOO", name: "iShares Global 100 ETF", sector: "Global Blue-Chip", mer: 0.40, return_5y: 0.095, volatility: 0.13, yield: 0.021, risk_band: "core" },
-  { ticker: "VAF", name: "Vanguard Aus Fixed Interest", sector: "Bonds (AU)", mer: 0.20, return_5y: 0.02, volatility: 0.05, yield: 0.028, risk_band: "defensive" },
-];
+// ---------- Canonical ETF dataset (shared with ETF Dashboard) ----------
+const ETFs = EDUCATOR_ETFS;
 
 const ETF_BY_TICKER = Object.fromEntries(ETFs.map((e) => [e.ticker, e]));
 
@@ -582,14 +579,24 @@ function computeMetrics(weights, portfolioValue = 100000, projectionYears = 10) 
   const wsum = tickers.reduce((s, t) => s + (weights[t] || 0), 0) || 1;
 
   let expReturn = 0; let feeDrag = 0; let yieldPct = 0; let vol = 0;
+  let returnWeight = 0;
+  let yieldWeight = 0;
   tickers.forEach(t => {
     const w = (weights[t] || 0) / wsum;
     const e = getETF(t);
-    expReturn += w * e.return_5y;
-    feeDrag += w * (e.mer / 100);
-    yieldPct += w * e.yield;
-    vol += w * e.volatility;
+    if (e.return_5y != null) {
+      expReturn += w * e.return_5y;
+      returnWeight += w;
+    }
+    if (e.mer != null) feeDrag += w * (e.mer / 100);
+    if (e.yield != null) {
+      yieldPct += w * e.yield;
+      yieldWeight += w;
+    }
+    vol += w * (e.volatility || 0);
   });
+  if (returnWeight > 0) expReturn = expReturn / returnWeight;
+  if (yieldWeight > 0) yieldPct = yieldPct / yieldWeight;
 
   const years = clamp(Math.round(projectionYears), 1, 40);
   const passiveIncome = portfolioValue * yieldPct;
@@ -678,14 +685,14 @@ function AllocationList({ model, pathwayTitle }) {
             </div>
             <div className="allocation-item__meta">
               <span>{etf.sector}</span>
-              <span>MER {etf.mer.toFixed(2)}%</span>
+              <span>MER {formatMerDisplay(etf.mer)}</span>
             </div>
             <div className="allocation-item__bar">
               <div className="allocation-item__bar-fill" style={{ width: `${weight}%`, backgroundImage: gradient }} />
             </div>
             <footer className="allocation-item__footer">
-              <div>5y CAGR {percent(etf.return_5y, 1)} (illustrative)</div>
-              <div>Yield {percent(etf.yield, 1)} (illustrative)</div>
+              <div>5y CAGR {formatReturnDisplay(etf.return_5y)} (illustrative)</div>
+              <div>Yield {formatYieldDisplay(etf.yield)} (illustrative)</div>
             </footer>
           </article>
         );
@@ -1961,9 +1968,9 @@ export default function InvestmentEducatorApp() {
                                 </EtfEducationalLink>
                               </td>
                               <td className="numeric">(e.g. {weight}% in this example)</td>
-                              <td className="numeric">{e.mer.toFixed(2)}%</td>
-                              <td className="numeric">{percent(e.return_5y, 1)}</td>
-                              <td className="numeric">{percent(e.yield, 1)}</td>
+                              <td className="numeric">{formatMerDisplay(e.mer)}</td>
+                              <td className="numeric">{formatReturnDisplay(e.return_5y)}</td>
+                              <td className="numeric">{formatYieldDisplay(e.yield)}</td>
                               <td>
                                 {e.sector === "US Equities" && "Often used by some investors seeking broad US market exposure."}
                                 {e.sector === "Tech Growth" && "Represents how tech-focused ETFs can contribute growth exposure in a diversified mix."}
@@ -2104,6 +2111,13 @@ export default function InvestmentEducatorApp() {
     assertSingleSelection(7, 1); // Q8 — walk through (distinct from 0 and 2)
     console.assert(QUIZ[7].options[0].value !== QUIZ[7].options[1].value, "Q8 options should have distinct score values");
     console.assert(scoreFromAnswerIndices(testIndices) >= 0 && scoreFromAnswerIndices(testIndices) <= 100, "scoreFromAnswerIndices stays in range");
+    console.assert(ETF_BY_TICKER.IVV.canonicalId === "XASX:IVV", "IVV must resolve to ASX:IVV");
+    console.assert(ETF_BY_TICKER.IVV.mer === 0.04, "ASX IVV management fee must be 0.04 percent points");
+    console.assert(ETF_BY_TICKER.CRYP.return_5y === null, "CRYP 5y return must be unavailable, not zero");
+    console.assert(ETF_BY_TICKER.CRYP.mer === 0.67, "CRYP management fees and costs must be 0.67");
+    console.assert(formatYieldDisplay(null) === "—", "missing yield displays as em dash");
+    console.assert(formatReturnDisplay(null) === "—", "missing 5y return displays as em dash");
+    console.assert(formatMerDisplay(0.04) === "0.04%", "0.04 percent points must display as 0.04%");
 
     console.groupEnd();
   } catch (e) {
