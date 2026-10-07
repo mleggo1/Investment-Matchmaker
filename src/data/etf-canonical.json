@@ -1,6 +1,6 @@
 {
-  "datasetVersion": "2026-09-18.2",
-  "retrievedAt": "2026-09-18",
+  "datasetVersion": "2026-10-07.1",
+  "retrievedAt": "2026-10-07",
   "effectiveDate": "2026-08-31",
   "metricDefinitions": {
     "managementFee": {
@@ -87,6 +87,29 @@
       ],
       "selected": 1.05,
       "reason": "The product page 12m Trailing Yield of 1.05% as of 16 September 2026 is more recent than the 31 August 2026 factsheet figure of 1.04%."
+    },
+    {
+      "id": "XASX:VBND",
+      "topic": "yield",
+      "candidates": [
+        {
+          "value": 8.6,
+          "label": "1-year Distb'n return as at 31 Aug 2026",
+          "source": "VBND factsheet performance table, Distb'n column"
+        },
+        {
+          "value": 3.49,
+          "label": "Running yield as at 31 Aug 2026",
+          "source": "VBND factsheet characteristics"
+        },
+        {
+          "value": 5.63,
+          "label": "Yield to maturity as at 31 Aug 2026",
+          "source": "VBND factsheet characteristics"
+        }
+      ],
+      "selected": 8.6,
+      "reason": "The shared yield metric is Vanguard's 1-year Distb'n return, the same column used for VAS, VHY, VAP and VGS. Running yield and yield to maturity are different measures and are described on the fund record."
     }
   ],
   "instruments": [
@@ -169,7 +192,7 @@
       "holdingsSource": "https://www.blackrock.com/au/literature/fact-sheet/ivv-ishares-s-p-500-etf-fund-fact-sheet-en-au.pdf",
       "inceptionDate": "2000-05-15",
       "listingDate": "2007-10-10",
-      "datasetVersion": "2026-09-18.2"
+      "datasetVersion": "2026-10-07.1"
     },
     {
       "id": "XASX:NDQ",
@@ -248,7 +271,7 @@
       "holdingsAsOf": "As at 16/09/2026 from issuer product page",
       "holdingsSource": "https://www.betashares.com.au/fund/nasdaq-100-etf/",
       "inceptionDate": "2015-05-26",
-      "datasetVersion": "2026-09-18.2"
+      "datasetVersion": "2026-10-07.1"
     },
     {
       "id": "XASX:RBTZ",
@@ -325,7 +348,7 @@
       "holdingsAsOf": "As at 16/09/2026 from issuer product page",
       "holdingsSource": "https://www.betashares.com.au/fund/global-robotics-and-artificial-intelligence-etf/",
       "inceptionDate": "2018-09-12",
-      "datasetVersion": "2026-09-18.2"
+      "datasetVersion": "2026-10-07.1"
     },
     {
       "id": "XASX:CRYP",
@@ -405,7 +428,7 @@
       "holdingsAsOf": "As at 16/09/2026 from issuer product page",
       "holdingsSource": "https://www.betashares.com.au/fund/crypto-innovators-etf/",
       "inceptionDate": "2021-11-02",
-      "datasetVersion": "2026-09-18.2"
+      "datasetVersion": "2026-10-07.1"
     },
     {
       "id": "XASX:VHY",
@@ -485,7 +508,7 @@
       "holdingsAsOf": "Top 10 names as at 31/08/2026 from issuer factsheet; individual weights not published on the factsheet",
       "holdingsSource": "https://fund-docs.vanguard.com/ETF-Vanguard_Australian_Shares_High_Yield_ETF_8210_FS_VHY.pdf",
       "inceptionDate": "2011-05-23",
-      "datasetVersion": "2026-09-18.2"
+      "datasetVersion": "2026-10-07.1"
     },
     {
       "id": "XASX:VAP",
@@ -565,7 +588,7 @@
       "holdingsAsOf": "Top 10 names as at 31/08/2026 from issuer factsheet; individual weights not published on the factsheet",
       "holdingsSource": "https://fund-docs.vanguard.com/ETF-Vanguard_Australian_Property_Securities_Index_ETF_8206_FS_VAP.pdf",
       "inceptionDate": "2010-10-11",
-      "datasetVersion": "2026-09-18.2"
+      "datasetVersion": "2026-10-07.1"
     },
     {
       "id": "XASX:IOO",
@@ -584,16 +607,17 @@
       "hedged": false,
       "distributionPolicy": "distributing",
       "distributionFrequency": "Semi-Annual",
-      "group": "defensive",
+      "group": "growth",
+      "includeInCharts": true,
       "apps": ["dashboard", "educator"],
       "educatorSector": "Global Blue-Chip",
-      "educatorRiskBand": "core",
+      "educatorRiskBand": "growth",
       "educatorVolatility": 0.13,
-      "category": "Global Blue-Chip",
+      "category": "Global Shares",
       "indexTracked": "S&P Global 100 Net TR Index (AUD)",
       "strategy": "Passive index tracking",
-      "description": "Provides exposure to 100 of the world's largest blue-chip companies across developed markets, offering diversified global equity exposure. Australian-domiciled iShares ETF listed on ASX.",
-      "goodFor": "Investors seeking core global equity exposure through established, large-cap companies. Balanced approach to international diversification with moderate volatility.",
+      "description": "Holds 100 of the world's largest companies across developed markets. It is a global equity fund, so its price rises and falls with sharemarkets and it belongs in the growth allocation. Australian-domiciled iShares ETF listed on ASX.",
+      "goodFor": "Long-term growth investors seeking large-cap global equity exposure. The fund holds shares, so its value moves with global sharemarkets.",
       "managementFee": {
         "percentPoints": 0.4,
         "unit": "percent_points",
@@ -639,7 +663,7 @@
       "holdingsSource": "https://www.blackrock.com/au/products/273428/ishares-global-100-etf",
       "inceptionDate": "2000-12-05",
       "listingDate": "2007-10-10",
-      "datasetVersion": "2026-09-18.2"
+      "datasetVersion": "2026-10-07.1"
     },
     {
       "id": "XASX:VAF",
@@ -713,7 +737,84 @@
       "holdingsAsOf": "Composition described from issuer PDS; constituent weights not verified at retrieval",
       "holdingsSource": "https://fund-docs.vanguard.com/AU-ETFPDS-Vanguard_Australian_Fixed_Interest_ETFs-VAF-VGB-VACF.pdf",
       "inceptionDate": "2012-10-29",
-      "datasetVersion": "2026-09-18.2"
+      "datasetVersion": "2026-10-07.1"
+    },
+    {
+      "id": "XASX:VBND",
+      "exchange": "XASX",
+      "exchangeName": "ASX",
+      "ticker": "VBND",
+      "dashboardSymbol": "VBND.AX",
+      "yahooSymbol": "VBND.AX",
+      "marketstackSymbol": "VBND.XASX",
+      "isin": "AU00000VBND9",
+      "issuer": "Vanguard Investments Australia Ltd",
+      "fundName": "Vanguard Global Aggregate Bond Index (Hedged) ETF",
+      "currency": "AUD",
+      "domicile": "Australia",
+      "hedged": true,
+      "distributionPolicy": "distributing",
+      "distributionFrequency": "Quarterly",
+      "group": "defensive",
+      "includeInCharts": true,
+      "apps": ["dashboard", "educator"],
+      "educatorSector": "Bonds (Global)",
+      "educatorRiskBand": "defensive",
+      "educatorVolatility": 0.05,
+      "category": "Fixed Interest",
+      "indexTracked": "Bloomberg Global Aggregate Float-Adjusted and Scaled Index hedged into Australian dollars",
+      "strategy": "Passive index tracking, currency hedged to AUD",
+      "description": "Tracks a global investment-grade bond index and hedges currency back to Australian dollars, so exchange-rate moves are not the main driver of returns. It holds treasury, government-related, corporate and securitised bonds (14,165 holdings as at 31 August 2026). Bond prices still move when interest rates change. The yield figure is Vanguard’s one-year distribution return of 8.60% as at 31 August 2026. The same factsheet shows a running yield of 3.49% and a yield to maturity of 5.63%.",
+      "goodFor": "Investors building the defensive side of a portfolio who want global bonds alongside Australian fixed interest, with currency hedged to Australian dollars.",
+      "managementFee": {
+        "percentPoints": 0.2,
+        "unit": "percent_points",
+        "status": "verified",
+        "issuerLabel": "Management fee",
+        "asOf": "2026-08-31",
+        "sourceName": "Vanguard VBND factsheet",
+        "sourceUrl": "https://fund-docs.vanguard.com/ETF-Vanguard_Global_Aggregate_Bond_Index_Hedged_ETF_8200_FS_VBND.pdf",
+        "retrievedAt": "2026-10-07"
+      },
+      "return1y": { "percentPoints": 1.31, "asOf": "2026-08-31", "status": "verified" },
+      "return3y": { "percentPoints": 3.16, "asOf": "2026-08-31", "status": "verified" },
+      "return5y": {
+        "percentPoints": -1.11,
+        "unit": "percent_points",
+        "status": "verified",
+        "methodology": "annualised_nav_total_return",
+        "annualised": true,
+        "includesReinvestedDistributions": true,
+        "netOfFundFees": true,
+        "basis": "NAV",
+        "currency": "AUD",
+        "asOf": "2026-08-31",
+        "sourceName": "Vanguard VBND factsheet ETF total return, corroborated by the Vanguard ETFs performance summary",
+        "sourceUrl": "https://fund-docs.vanguard.com/ETF-Vanguard_Global_Aggregate_Bond_Index_Hedged_ETF_8200_FS_VBND.pdf",
+        "retrievedAt": "2026-10-07"
+      },
+      "return10y": { "percentPoints": null, "asOf": "2026-08-31", "status": "insufficient_history" },
+      "yield": {
+        "percentPoints": 8.6,
+        "unit": "percent_points",
+        "status": "verified",
+        "definition": "trailing_12_month_distribution_yield",
+        "vanguardSeries": "1y_distbn_return",
+        "asOf": "2026-08-31",
+        "sourceName": "Vanguard VBND factsheet 1-year Distb'n",
+        "sourceUrl": "https://fund-docs.vanguard.com/ETF-Vanguard_Global_Aggregate_Bond_Index_Hedged_ETF_8200_FS_VBND.pdf",
+        "retrievedAt": "2026-10-07"
+      },
+      "holdings": [
+        { "name": "Treasury", "weight": "53.5%" },
+        { "name": "Corporate", "weight": "21.9%" },
+        { "name": "Government-related", "weight": "12.5%" },
+        { "name": "Securitised", "weight": "12.2%" }
+      ],
+      "holdingsAsOf": "Sector allocation as at 31/08/2026 from issuer factsheet. The top 10 issuers, led by US Treasury, are 52.9% of the ETF; individual issuer weights are not published.",
+      "holdingsSource": "https://fund-docs.vanguard.com/ETF-Vanguard_Global_Aggregate_Bond_Index_Hedged_ETF_8200_FS_VBND.pdf",
+      "inceptionDate": "2017-10-10",
+      "datasetVersion": "2026-10-07.1"
     },
     {
       "id": "XASX:VAS",
@@ -790,7 +891,7 @@
       "holdingsAsOf": "Top 10 names as at 31/08/2026 from issuer factsheet; individual weights not published on the factsheet",
       "holdingsSource": "https://fund-docs.vanguard.com/ETF-Vanguard_Australian_Shares_Index_ETF_8205_FS_VAS.pdf",
       "inceptionDate": "2009-05-04",
-      "datasetVersion": "2026-09-18.2"
+      "datasetVersion": "2026-10-07.1"
     },
     {
       "id": "XASX:VGS",
@@ -867,7 +968,7 @@
       "holdingsAsOf": "Top 10 names as at 31/08/2026 from issuer factsheet; individual weights not published on the factsheet",
       "holdingsSource": "https://fund-docs.vanguard.com/ETF-Vanguard_MSCI_Index_International_Shares_ETF_8212_FS_VGS.pdf",
       "inceptionDate": "2014-11-18",
-      "datasetVersion": "2026-09-18.2"
+      "datasetVersion": "2026-10-07.1"
     },
     {
       "id": "CHIA:EBTC",
@@ -875,7 +976,7 @@
       "exchangeName": "Cboe Australia",
       "ticker": "EBTC",
       "dashboardSymbol": "EBTC.XA",
-      "yahooSymbol": "EBTC.AX",
+      "yahooSymbol": "EBTC.XA",
       "marketstackSymbol": "EBTC.CHIA",
       "isin": "AU0000198020",
       "issuer": "Global X Management (AUS) Limited",
@@ -936,7 +1037,7 @@
       "holdingsAsOf": "As at 17/09/2026 from issuer product page",
       "holdingsSource": "https://www.globalxetfs.com.au/funds/ebtc/",
       "inceptionDate": "2022-05-09",
-      "datasetVersion": "2026-09-18.2"
+      "datasetVersion": "2026-10-07.1"
     },
     {
       "id": "CHIA:EETH",
@@ -944,7 +1045,7 @@
       "exchangeName": "Cboe Australia",
       "ticker": "EETH",
       "dashboardSymbol": "EETH.XA",
-      "yahooSymbol": "EETH.AX",
+      "yahooSymbol": "EETH.XA",
       "marketstackSymbol": "EETH.CHIA",
       "isin": "AU0000198012",
       "issuer": "Global X Management (AUS) Limited",
@@ -955,6 +1056,7 @@
       "distributionPolicy": "accumulating",
       "distributionFrequency": "None",
       "group": "growth",
+      "includeInCharts": false,
       "apps": ["dashboard"],
       "category": "Cryptocurrency",
       "indexTracked": "FTSE Ethereum Index",
@@ -1005,7 +1107,7 @@
       "holdingsAsOf": "As at 17/09/2026 from issuer product page",
       "holdingsSource": "https://www.globalxetfs.com.au/funds/eeth/",
       "inceptionDate": "2022-05-09",
-      "datasetVersion": "2026-09-18.2"
+      "datasetVersion": "2026-10-07.1"
     },
     {
       "id": "XNAS:STRF",
@@ -1024,6 +1126,7 @@
       "distributionPolicy": "distributing",
       "distributionFrequency": "Quarterly",
       "group": "defensive",
+      "includeInCharts": false,
       "apps": ["dashboard"],
       "category": "Preferred stock (not an ETF)",
       "indexTracked": "N/A — issuer preferred stock",
@@ -1074,7 +1177,7 @@
       ],
       "holdingsAsOf": "Manually curated; last reviewed 25/08/2026",
       "holdingsSource": "Issuer prospectus / company disclosures (not a live feed)",
-      "datasetVersion": "2026-09-18.2"
+      "datasetVersion": "2026-10-07.1"
     }
   ]
 }

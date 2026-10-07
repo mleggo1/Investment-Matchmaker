@@ -18,6 +18,7 @@ const SHARED = [
   "XASX:VAP",
   "XASX:IOO",
   "XASX:VAF",
+  "XASX:VBND",
 ];
 
 test("educator copy identifies funds by exchange and ticker", () => {
@@ -35,6 +36,18 @@ test("ASX IVV in the educator copy is not the NYSE Arca fund", () => {
   assert.equal(ivv.currency, "AUD");
   assert.equal(ivv.managementFee.percentPoints, 0.04);
   assert.equal(dataset.instruments.some((item) => item.id === "NYSEARCA:IVV"), false);
+});
+
+test("IOO is growth equity and VBND is the hedged defensive bond", () => {
+  const ioo = dataset.instruments.find((item) => item.id === "XASX:IOO");
+  const vbnd = dataset.instruments.find((item) => item.id === "XASX:VBND");
+  const eeth = dataset.instruments.find((item) => item.id === "CHIA:EETH");
+  assert.equal(ioo.group, "growth");
+  assert.equal(ioo.educatorRiskBand, "growth");
+  assert.equal(vbnd.group, "defensive");
+  assert.equal(vbnd.hedged, true);
+  assert.equal(vbnd.managementFee.percentPoints, 0.2);
+  assert.equal(eeth.includeInCharts, false);
 });
 
 test("educator copy keeps CRYP 5y null and VAF yield null", () => {

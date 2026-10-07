@@ -69,15 +69,15 @@ const ETF_BY_TICKER = Object.fromEntries(ETFs.map((e) => [e.ticker, e]));
 // ---------- Model Portfolios ----------
 const MODELS = {
   Aggressive: {
-    IVV: 35, NDQ: 25, CRYP: 15, RBTZ: 15, VHY: 10,
+    IVV: 30, NDQ: 20, IOO: 15, RBTZ: 15, CRYP: 10, VHY: 10,
     notes: "General educational example only: a sample mix illustrating diversification and how different asset types can fit together. This may be worth learning more about — it is not a suggestion to buy, sell, or hold anything. Consider speaking with a licensed financial adviser before making investment decisions.",
   },
   Balanced: {
-    IVV: 30, NDQ: 20, VHY: 20, VAP: 10, IOO: 10, CRYP: 10,
+    IVV: 20, NDQ: 10, IOO: 15, CRYP: 10, VHY: 15, VAP: 10, VBND: 20,
     notes: "General educational example only: a sample mix illustrating diversification and how different asset types can fit together. This may be worth learning more about — it is not a suggestion to buy, sell, or hold anything. Consider speaking with a licensed financial adviser before making investment decisions.",
   },
   Conservative: {
-    VHY: 25, VAP: 20, IOO: 20, VAF: 15, IVV: 10, NDQ: 10,
+    VHY: 20, VAP: 15, VAF: 30, VBND: 25, IVV: 10,
     notes: "General educational example only: a sample mix illustrating diversification and how different asset types can fit together. This may be worth learning more about — it is not a suggestion to buy, sell, or hold anything. Consider speaking with a licensed financial adviser before making investment decisions.",
   },
 };
@@ -514,7 +514,7 @@ function buildEducationReport(answerIndices) {
 function EtfEducationalLink({ ticker, className, children, style }) {
   return (
     <a
-      href={ETF_DASHBOARD_URL}
+      href={`${ETF_DASHBOARD_URL}#${encodeURIComponent(ticker)}`}
       target="_blank"
       rel="noopener noreferrer"
       className={className}
@@ -1978,8 +1978,9 @@ export default function InvestmentEducatorApp() {
                                 {e.sector === "Crypto & Blockchain" && "Shows how high-volatility assets can be included in example portfolios."}
                                 {e.sector === "Aussie Dividends" && "Often used by some investors seeking income and franking credits."}
                                 {e.sector === "A-REITs" && "Represents how property ETFs can contribute income & sector diversification."}
-                                {e.sector === "Global Blue-Chip" && "Illustrates exposure to global companies in a diversified mix."}
-                                {e.sector === "Bonds (AU)" && "Shows how fixed income can reduce volatility in sample portfolios."}
+                                {e.sector === "Global Blue-Chip" && "Holds global shares, so it carries sharemarket risk and sits with the growth examples on the ETF dashboard."}
+                                {e.sector === "Bonds (AU)" && "Shows how Australian fixed interest can sit in a defensive allocation."}
+                                {e.sector === "Bonds (Global)" && "Shows how global bonds, hedged to Australian dollars, can sit in a defensive allocation beside Australian fixed interest."}
                               </td>
                               <td>
                                 <EtfEducationalLink ticker={ticker} className="table-learn-link">
@@ -2118,6 +2119,16 @@ export default function InvestmentEducatorApp() {
     console.assert(formatYieldDisplay(null) === "—", "missing yield displays as em dash");
     console.assert(formatReturnDisplay(null) === "—", "missing 5y return displays as em dash");
     console.assert(formatMerDisplay(0.04) === "0.04%", "0.04 percent points must display as 0.04%");
+    console.assert(ETF_BY_TICKER.IOO.risk_band === "growth", "IOO is global equity and belongs in the growth band");
+    console.assert(ETF_BY_TICKER.VBND.risk_band === "defensive", "VBND is the defensive global bond example");
+    console.assert(ETF_BY_TICKER.VBND.sector === "Bonds (Global)", "VBND sector label");
+    Object.entries(MODELS).forEach(([name, model]) => {
+      const sum = Object.entries(model).reduce((total, [key, weight]) => (key === "notes" ? total : total + weight), 0);
+      console.assert(sum === 100, `${name} illustrative weights must sum to 100`);
+      Object.keys(model).forEach((ticker) => {
+        if (ticker !== "notes") console.assert(ETF_BY_TICKER[ticker], `${name} ticker ${ticker} must exist in the canonical set`);
+      });
+    });
 
     console.groupEnd();
   } catch (e) {

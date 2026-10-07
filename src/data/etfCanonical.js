@@ -364,6 +364,7 @@ export function getDashboardEtfConfig(dataset) {
       symbol: item.dashboardSymbol,
       name: item.fundName,
       group: item.group,
+      includeInCharts: item.includeInCharts !== false,
     }));
 }
 
