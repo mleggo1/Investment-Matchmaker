@@ -414,6 +414,7 @@ export function getDashboardMetadataMap(dataset) {
         canonicalId: item.id,
         datasetVersion: dataset.datasetVersion,
         metricDefinitions: dataset.metricDefinitions,
+        performanceAsOf: item.return1y?.asOf || item.return5y?.asOf || null,
         asOf: {
           managementFee: item.managementFee.asOf,
           return5y: item.return5y.asOf,

@@ -1020,6 +1020,40 @@
   font-size: 0.95rem;
 }
 
+.report-block--lead {
+  margin-top: 1.15rem;
+  padding-top: 0;
+  border-top: none;
+}
+
+.report-insights {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.report-insights li {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.7rem 0.9rem;
+  background: #f8fafc;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 12px;
+}
+
+.report-insights strong {
+  color: #0f172a;
+  font-size: 0.95rem;
+}
+
+.report-insights span {
+  color: #334155;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
 .report-choices--readable .report-choices__row {
   background: #f8fafc;
   border: 1px solid rgba(15, 23, 42, 0.08);
@@ -1107,8 +1141,83 @@
   gap: 1.25rem;
   margin: 1.5rem 0 0.5rem;
   padding: 1.25rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 18, 56, 0.38);
+  border: 1px solid rgba(255, 255, 255, 0.35);
   border-radius: 18px;
+}
+
+.illustrative-hero,
+.illustrative-hero h2,
+.illustrative-hero p,
+.illustrative-hero strong,
+.illustrative-hero span,
+.illustrative-hero label,
+.illustrative-hero .summary-eyebrow,
+.illustrative-hero .summary-disclaimer,
+.illustrative-hero .exclusion-notices,
+.illustrative-hero .projection-metric span,
+.illustrative-hero .projection-metric strong,
+.illustrative-hero .kpi-label,
+.illustrative-hero .kpi-value,
+.illustrative-hero .kpi-hint {
+  color: #ffffff;
+  opacity: 1;
+}
+
+.illustrative-hero .control-label {
+  color: #ffffff;
+  opacity: 1;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.35;
+}
+
+.illustrative-hero .portfolio-input {
+  background: rgba(0, 12, 40, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow: none;
+}
+
+.illustrative-hero .portfolio-input__field,
+.illustrative-hero .portfolio-input__suffix {
+  color: #ffffff;
+  opacity: 1;
+  font-weight: 800;
+  caret-color: #ffffff;
+}
+
+.illustrative-hero .portfolio-input__field {
+  font-size: 1.35rem;
+}
+
+.illustrative-hero .toggle-chip {
+  background: rgba(0, 12, 40, 0.62);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  font-weight: 700;
+}
+
+.illustrative-hero .toggle-chip:hover {
+  background: rgba(0, 12, 40, 0.8);
+  color: #ffffff;
+}
+
+.illustrative-hero .toggle-chip.is-active {
+  background: linear-gradient(135deg, #7c3aed, #c084fc);
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  box-shadow: 0 8px 20px rgba(88, 28, 135, 0.45);
+}
+
+.illustrative-hero .projection-metric {
+  background: rgba(0, 12, 40, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.illustrative-hero .projection-metric span {
+  letter-spacing: 0.08em;
+  font-weight: 700;
 }
 
 @media (min-width: 900px) {

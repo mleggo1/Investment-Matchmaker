@@ -3,6 +3,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import "./App.css";
 import {
   EDUCATOR_ETFS,
+  canonicalDataset,
   formatMerDisplay,
   formatReturnDisplay,
   formatYieldDisplay,
@@ -58,6 +59,27 @@ function parseCurrency(input) {
 
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, n));
+}
+
+const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function formatIsoDate(iso) {
+  if (!iso || typeof iso !== "string") return "";
+  const [year, month, day] = iso.slice(0, 10).split("-").map(Number);
+  if (!year || !month || !day) return iso;
+  return `${day} ${MONTHS_SHORT[month - 1]} ${year}`;
+}
+
+function educatorFreshnessNote(dataset) {
+  const dates = (dataset?.instruments || [])
+    .filter((item) => (item.apps || []).includes("educator") && item.return5y?.asOf)
+    .map((item) => item.return5y.asOf)
+    .sort();
+  if (!dates.length) return "";
+  const span = dates[0] === dates[dates.length - 1]
+    ? formatIsoDate(dates[0])
+    : `${formatIsoDate(dates[0])} to ${formatIsoDate(dates[dates.length - 1])}`;
+  return `Performance figures as of ${span}. Checked against issuer sources on ${formatIsoDate(dataset.retrievedAt)}.`;
 }
 const percent = (n, dp = 1) => `${(n * 100).toFixed(dp)}%`;
 
@@ -162,9 +184,7 @@ const EXAMPLE_PATHWAY_OPTIONS = [
 ];
 
 const REPORT_NAV_ITEMS = [
-  { id: "report-at-a-glance", label: "At a Glance" },
-  { id: "report-responses", label: "Survey Responses" },
-  { id: "report-observations", label: "Educational Observations" },
+  { id: "report-observations", label: "Key Observations" },
   { id: "report-etf-example", label: "Illustrative ETF Example" },
   { id: "report-research", label: "Further Research" },
   { id: "report-disclaimers", label: "Important Disclaimers" },
@@ -178,119 +198,6 @@ const COACHING_PROMPTS = [
   "What would you like to understand in more detail?",
   "What independent research would you like to complete next?",
 ];
-
-const LEARNING_THEME_MAP = {
-  growth: {
-    title: "Growth & compounding",
-    concepts: ["Broad market ETFs", "Higher-growth / thematic ETFs"],
-    why: "You signalled interest in growth-oriented ideas — helpful for learning how markets and long-term compounding are commonly explained.",
-  },
-  income: {
-    title: "Income & cash-flow concepts",
-    concepts: ["Dividend-focused ETFs", "Yield and distributions (illustrative only)"],
-    why: "Your choices touched on income themes — useful for understanding how yield and cash flow are described in education materials.",
-  },
-  defensive: {
-    title: "Stability & volatility smoothing",
-    concepts: ["Defensive assets and bonds", "Cash buffers and diversification"],
-    why: "You leaned toward stability-focused narratives — a common education topic when explaining how defensive assets are discussed.",
-  },
-  tech: {
-    title: "Innovation & global tech",
-    concepts: ["Tech and innovation ETFs", "Thematic growth examples"],
-    why: "You wanted to explore tech-oriented concepts — useful for learning how sector-focused ETFs are often presented in examples.",
-  },
-  crypto: {
-    title: "Crypto & high-volatility themes",
-    concepts: ["Crypto-related ETF examples", "Volatility and diversification trade-offs"],
-    why: "You asked to see crypto mentioned in examples — helpful for learning how high-volatility assets are described in educational contexts.",
-  },
-  property: {
-    title: "Property (A-REIT) examples",
-    concepts: ["Property / A-REIT ETFs", "Income and sector diversification"],
-    why: "You indicated interest in property-themed examples — useful for learning how real-estate exposure is often illustrated.",
-  },
-  long: {
-    title: "Long time horizons",
-    concepts: ["Compounding over decades", "Broad market exposure examples"],
-    why: "You emphasised long-horizon examples — a core education theme for how time and compounding interact in illustrations.",
-  },
-  short: {
-    title: "Shorter time horizons",
-    concepts: ["Liquidity and stability concepts", "Defensive asset examples"],
-    why: "You focused on shorter-horizon illustrations — helpful for learning how educators discuss liquidity and stability.",
-  },
-  balanced: {
-    title: "Balanced, mixed approaches",
-    concepts: ["Multi-asset example mixes", "Diversification across sectors"],
-    why: "You preferred a balanced tour — useful for comparing how different asset types appear together in sample mixes.",
-  },
-  experience: {
-    title: "Deeper vocabulary & mechanics",
-    concepts: ["Fees (MER)", "Holdings and asset allocation"],
-    why: "You are comfortable with investing vocabulary — you may benefit from drilling into holdings, fees, and composition on external education tools.",
-  },
-  new: {
-    title: "Plain-language foundations",
-    concepts: ["What ETFs are", "How diversification works"],
-    why: "You asked for plain-language learning — start with foundational concepts before diving into detailed product comparisons.",
-  },
-  moderate: {
-    title: "Building on existing knowledge",
-    concepts: ["Core ETF mechanics", "Diversification concepts"],
-    why: "You have some investing exposure — useful context for layering more detailed education topics.",
-  },
-  "risk-on": {
-    title: "Volatility and long-term perspective",
-    concepts: ["Market drawdowns", "Compounding over time"],
-    why: "You selected a learning angle focused on downturns and opportunity — a common education theme.",
-  },
-  steady: {
-    title: "Staying the course",
-    concepts: ["Behavioural investing concepts", "Long-horizon illustrations"],
-    why: "You wanted to explore neutral, steady responses to volatility in educational examples.",
-  },
-  "risk-off": {
-    title: "Capital preservation concepts",
-    concepts: ["Defensive assets", "Risk and return trade-offs"],
-    why: "You leaned toward capital-preservation learning themes in the survey.",
-  },
-  capacity: {
-    title: "Contribution pacing (education context)",
-    concepts: ["Compounding illustrations", "Example portfolio sizes"],
-    why: "Your contribution-range answer helps calibrate the scale of illustrative examples only — not advice.",
-  },
-  active: {
-    title: "Hands-on learning style",
-    concepts: ["What-if examples", "Comparing illustrative mixes"],
-    why: "You prefer active, hands-on education examples in the materials.",
-  },
-  passive: {
-    title: "Set-and-forget concepts",
-    concepts: ["Automating contributions", "Long-term consistency"],
-    why: "You prefer set-and-forget storylines for learning how consistency is often discussed.",
-  },
-  young: {
-    title: "Early-stage wealth building",
-    concepts: ["Time horizon", "Compounding basics"],
-    why: "You chose an early-career education chapter for contextual examples.",
-  },
-  prime: {
-    title: "Mid-career wealth education",
-    concepts: ["Balanced growth and income themes", "Diversification"],
-    why: "You chose a mid-career education chapter for contextual examples.",
-  },
-  mid: {
-    title: "Pre-retirement concepts",
-    concepts: ["Income transition themes", "Defensive asset education"],
-    why: "You chose a pre-retirement education chapter for contextual examples.",
-  },
-  senior: {
-    title: "Retirement income education",
-    concepts: ["Income-focused ETFs", "Stability concepts"],
-    why: "You chose a retirement-income education chapter for contextual examples.",
-  },
-};
 
 function normalizeAnswerIndices(stored) {
   if (!Array.isArray(stored)) {
@@ -421,93 +328,101 @@ function applyExclusionsToModel(baseModel, excludedGroups) {
 }
 
 function buildEducationReport(answerIndices) {
-  const selections = QUIZ.map((question, qIdx) => {
+  const answers = QUIZ.map((question, qIdx) => {
     const optIdx = answerIndices[qIdx];
-    if (!Number.isInteger(optIdx) || optIdx < 0 || optIdx >= question.options.length) return null;
-    const option = question.options[optIdx];
-    return {
-      question: question.q,
-      answer: option.label,
-      tags: option.tags,
-    };
-  }).filter(Boolean);
-
-  const tagWeights = {};
-  selections.forEach(({ tags }) => {
-    tags.forEach((tag) => {
-      if (tag.startsWith("exclude-")) return;
-      tagWeights[tag] = (tagWeights[tag] || 0) + 1;
-    });
+    if (!Number.isInteger(optIdx) || optIdx < 0 || optIdx >= question.options.length) return "";
+    return question.options[optIdx].label;
   });
-
-  const rankedTags = Object.entries(tagWeights)
-    .filter(([tag]) => LEARNING_THEME_MAP[tag])
-    .sort((a, b) => b[1] - a[1])
-    .map(([tag]) => tag);
-
-  const themes = rankedTags.map((tag) => ({
-    tag,
-    ...LEARNING_THEME_MAP[tag],
-  }));
+  const answer = (index) => answers[index] || "";
+  const answeredCount = answers.filter(Boolean).length;
 
   const score = scoreFromAnswerIndices(answerIndices);
   const pathwayHint = pathwayLabel(
     score > 80 ? "Aggressive" : score > 50 ? "Balanced" : "Conservative",
   );
+  const { excludedGroups } = deriveAssetExclusions(answerIndices);
 
-  const goal = selections[0]?.answer;
-  const horizon = selections[1]?.answer;
-  const experience = selections[4]?.answer;
-  const focusAnswer = selections[5]?.answer;
-  const { messages: exclusions } = deriveAssetExclusions(answerIndices);
-
-  const headlineParts = [];
-  if (experience) headlineParts.push(experience);
-  if (goal) headlineParts.push(`${goal.toLowerCase()} goal`);
-  if (horizon) headlineParts.push(`${horizon} examples`);
-  if (focusAnswer) headlineParts.push(`${focusAnswer.toLowerCase()} focus`);
-
-  const headline = selections.length
-    ? `${headlineParts.join(" · ")}. Illustrative mix: ${pathwayHint}.`
-    : "Complete the survey to see your education snapshot.";
-
-  const focusAreas = themes.slice(0, 4).map((t) => t.title);
-  const observations = themes.slice(0, 4).map((t) => ({
-    title: t.title,
-    note: t.why,
-  }));
-
-  const pathwaySteps = [];
-  themes.slice(0, 3).forEach((theme) => {
-    if (theme.concepts[0]) pathwaySteps.push(theme.concepts[0]);
-  });
-  const defaults = ["ETF basics & diversification", "Asset class comparisons", "Fees & historical context (illustrative)"];
-  while (pathwaySteps.length < 3) {
-    pathwaySteps.push(defaults[pathwaySteps.length]);
+  const insights = [];
+  const goal = answer(0);
+  const priority = answer(3);
+  if (goal || priority) {
+    const chosen = [goal && `"${goal}"`, priority && `"${priority}"`].filter(Boolean).join(" and ");
+    insights.push({
+      title: "Learning focus",
+      note: `Primary goal and current priority: ${chosen}. The example below uses that as the education theme.`,
+    });
   }
 
-  const topFocus = focusAreas.slice(0, 2).join(" and ") || "general investing concepts";
-  const glanceBullets = [];
-  if (goal) glanceBullets.push(`Learning goal: ${goal}`);
-  if (horizon) glanceBullets.push(`Example time horizon: ${horizon}`);
-  if (experience) glanceBullets.push(`Experience: ${experience}`);
-  if (focusAnswer) glanceBullets.push(`Preferred focus: ${focusAnswer}`);
-  if (pathwayHint) glanceBullets.push(`Illustrative example style: ${pathwayHint}`);
-  if (exclusions.length) glanceBullets.push(`Excluded from examples: ${exclusions.length} topic area(s)`);
+  const horizon = answer(1);
+  const age = answer(9);
+  if (horizon || age) {
+    const bits = [horizon, age && `age range ${age}`].filter(Boolean);
+    insights.push({
+      title: "Time horizon",
+      note: `You asked for ${bits.join(", ")}. Projection years start from that answer, and you can change them on the example.`,
+    });
+  }
+
+  const reaction = answer(2);
+  if (reaction) {
+    const meaning = {
+      "Buy more": "The example treats volatility and compounding as the learning topic.",
+      "Stay calm": "The example treats staying invested through a drop as the learning topic.",
+      Sell: "The example leans toward how defensive assets and capital preservation are usually explained.",
+    }[reaction] || "That answer sets the volatility topic in the example.";
+    insights.push({
+      title: "Markets down 20%",
+      note: `You said "${reaction}". ${meaning}`,
+    });
+  }
+
+  const experience = answer(4);
+  if (experience) {
+    const meaning = {
+      Lots: "Fees, five-year returns, and yield are shown so you can compare them yourself.",
+      Some: "The notes stay in plain language, with fees and returns shown beside the mix.",
+      None: "Start with the i beside the mix for what an ETF is. Fees and returns are labels for learning.",
+    }[experience] || "";
+    insights.push({
+      title: "Experience",
+      note: `You said "${experience}". ${meaning}`.trim(),
+    });
+  }
+
+  const focus = answer(5);
+  const exposure = answer(6);
+  if (focus || exposure) {
+    const chosen = [focus && `Preferred focus is ${focus}`, exposure && `for property and crypto you chose ${exposure}`].filter(Boolean).join(", and ");
+    const leftOut = [];
+    if (excludedGroups.has("crypto")) leftOut.push("crypto");
+    if (excludedGroups.has("property")) leftOut.push("property");
+    if (excludedGroups.has("tech")) leftOut.push("thematic tech");
+    const exclusionSentence = leftOut.length ? ` Left out of this sample mix: ${leftOut.join(", ")}.` : "";
+    insights.push({
+      title: "Sample mix",
+      note: `${chosen}.${exclusionSentence} Opened example: ${pathwayHint}.`,
+    });
+  }
+
+  const budget = answer(7);
+  const style = answer(8);
+  if (budget || style) {
+    const chosen = [style && `"${style}"`, budget && `contribution range "${budget}"`].filter(Boolean).join(" and ");
+    insights.push({
+      title: "How the example is scaled",
+      note: `You chose ${chosen}. The contribution range only sets the size of the illustration.`,
+    });
+  }
+
+  const topFocus = [goal, priority].filter(Boolean).join(" and ") || "investing concepts";
 
   return {
-    hasSelections: selections.length > 0,
-    selections,
-    headline,
-    focusAreas,
-    exclusions,
-    observations,
-    glanceBullets,
-    pathwaySteps: pathwaySteps.slice(0, 3),
-    closing: "Education only — not financial advice.",
-    wealthBridge: selections.length
-      ? `Your answers pointed to ${topFocus}. Wealth Blueprint covers these topics in plain English — education only.`
-      : "Wealth Blueprint offers structured investor education — not financial advice.",
+    hasSelections: answeredCount > 0,
+    insights,
+    closing: "Education only. Not financial advice.",
+    wealthBridge: answeredCount
+      ? `Your survey highlighted ${topFocus}. Wealth Blueprint covers topics like this in plain English. Education only.`
+      : "Wealth Blueprint offers structured investor education. Not financial advice.",
   };
 }
 
@@ -634,8 +549,8 @@ function PortfolioInput({ value, onChange }) {
 
   const digitCount = useMemo(() => displayValue.replace(/[^0-9]/g, "").length, [displayValue]);
   const inputFontSize = useMemo(() => {
-    if (digitCount <= 10) return "1.15rem";
-    const scaled = 1.15 - (digitCount - 10) * 0.05;
+    if (digitCount <= 10) return "1.45rem";
+    const scaled = 1.45 - (digitCount - 10) * 0.06;
     return `${Math.max(0.75, scaled)}rem`;
   }, [digitCount]);
 
@@ -1715,65 +1630,22 @@ export default function InvestmentEducatorApp() {
                 <header className="report-document__header">
                   <p className="report-eyebrow">Investment Educator</p>
                   <h2>Educational Report</h2>
-                  <p className="report-document__lede">{educationReport.headline}</p>
+                  <p className="report-document__lede">{SURVEY_DISCLAIMER}</p>
                 </header>
 
-                <section className="report-block report-block--disclaimer" id="report-disclaimer" aria-label="Educational-use disclaimer">
-                  <h3>Educational use only</h3>
-                  <p>{SURVEY_DISCLAIMER}</p>
-                  <p>{REQUIRED_DISCLAIMER}</p>
-                </section>
-
-                <section className="report-block" id="report-at-a-glance">
-                  <h3>At a Glance</h3>
-                  <p className="report-block__intro">A concise summary of themes from the survey — for education and coaching discussion only.</p>
-                  <ul className="report-glance-list">
-                    {educationReport.glanceBullets.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                    {educationReport.pathwaySteps.map((step) => (
-                      <li key={`topic-${step}`}>Suggested learning topic: {step}</li>
-                    ))}
-                  </ul>
-                </section>
-
-                <section className="report-block" id="report-responses">
-                  <h3>Survey Responses</h3>
-                  <p className="report-block__intro">Client answers from the Investor Education Survey.</p>
-                  <dl className="report-choices report-choices--readable">
-                    {educationReport.selections.map((item, index) => (
-                      <div key={`${index}-${item.question}`} className="report-choices__row">
-                        <dt>{item.question}</dt>
-                        <dd>{item.answer}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                </section>
-
-                <section className="report-block" id="report-observations">
+                <section className="report-block report-block--lead" id="report-observations">
                   <h3>Key Educational Observations</h3>
-                  <p className="report-block__intro">Observations drawn from the client’s selected learning preferences. These are educational themes, not advice.</p>
-                  {educationReport.observations.length > 0 ? (
-                    <ul className="report-observations">
-                      {educationReport.observations.map((obs) => (
-                        <li key={obs.title}>
-                          <strong>{obs.title}</strong>
-                          <span>{obs.note}</span>
+                  {educationReport.insights.length > 0 ? (
+                    <ul className="report-insights">
+                      {educationReport.insights.map((item) => (
+                        <li key={item.title}>
+                          <strong>{item.title}</strong>
+                          <span>{item.note}</span>
                         </li>
                       ))}
                     </ul>
                   ) : (
                     <p>Complete the survey to see educational observations.</p>
-                  )}
-                  {educationReport.exclusions.length > 0 && (
-                    <>
-                      <h4 className="report-block__subhead">Excluded from illustrative examples</h4>
-                      <ul className="report-tags report-tags--excluded report-tags--on-light">
-                        {educationReport.exclusions.map((topic) => (
-                          <li key={topic}>{topic}</li>
-                        ))}
-                      </ul>
-                    </>
                   )}
                 </section>
               </article>
@@ -1994,6 +1866,7 @@ export default function InvestmentEducatorApp() {
                   </table>
                 </div>
                 <div className="table-section__footer">
+                  <p className="table-footnote">{educatorFreshnessNote(canonicalDataset)}</p>
                   <p className="table-footnote">{EXTERNAL_LINK_DISCLAIMER}</p>
                   <div className="etf-dashboard-link">
                     <a

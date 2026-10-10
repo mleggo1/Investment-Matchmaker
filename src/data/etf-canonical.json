@@ -1,7 +1,7 @@
 {
-  "datasetVersion": "2026-10-07.1",
-  "retrievedAt": "2026-10-07",
-  "effectiveDate": "2026-08-31",
+  "datasetVersion": "2026-10-10.1",
+  "retrievedAt": "2026-10-10",
+  "effectiveDate": "2026-09-30",
   "metricDefinitions": {
     "managementFee": {
       "id": "management_fee_or_management_fees_and_costs",
@@ -75,18 +75,18 @@
       "topic": "yield",
       "candidates": [
         {
-          "value": 1.04,
-          "label": "12m Trailing Yield as of 31 Aug 2026",
-          "source": "iShares S&P 500 ETF factsheet dated 31 August 2026"
+          "value": 1.25,
+          "label": "12m Trailing Yield on the September 2026 factsheet",
+          "source": "iShares S&P 500 ETF factsheet, performance as at 30 September 2026"
         },
         {
-          "value": 1.05,
-          "label": "12m Trailing Yield as of 16 Sept 2026",
-          "source": "BlackRock Australia IVV product page retrieved 18 September 2026"
+          "value": 1.01,
+          "label": "12m Trailing Yield as of 8 Oct 2026",
+          "source": "BlackRock Australia IVV product page retrieved 10 October 2026"
         }
       ],
-      "selected": 1.05,
-      "reason": "The product page 12m Trailing Yield of 1.05% as of 16 September 2026 is more recent than the 31 August 2026 factsheet figure of 1.04%."
+      "selected": 1.01,
+      "reason": "The product page 12m Trailing Yield of 1.01% as of 8 October 2026 is more recent than the 30 September 2026 factsheet figure of 1.25%."
     },
     {
       "id": "XASX:VBND",
@@ -131,7 +131,10 @@
       "distributionPolicy": "distributing",
       "distributionFrequency": "Quarterly",
       "group": "growth",
-      "apps": ["dashboard", "educator"],
+      "apps": [
+        "dashboard",
+        "educator"
+      ],
       "educatorSector": "US Equities",
       "educatorRiskBand": "growth",
       "educatorVolatility": 0.14,
@@ -148,12 +151,20 @@
         "asOf": "2026-03-04",
         "sourceName": "BlackRock Australia product page and PDS",
         "sourceUrl": "https://www.blackrock.com/au/products/275304/ishares-s-p-500-etf-fund",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
-      "return1y": { "percentPoints": 9.66, "asOf": "2026-08-31", "status": "verified" },
-      "return3y": { "percentPoints": 16.76, "asOf": "2026-08-31", "status": "verified" },
+      "return1y": {
+        "percentPoints": 10.09,
+        "asOf": "2026-09-30",
+        "status": "verified"
+      },
+      "return3y": {
+        "percentPoints": 19.56,
+        "asOf": "2026-09-30",
+        "status": "verified"
+      },
       "return5y": {
-        "percentPoints": 12.96,
+        "percentPoints": 14.38,
         "unit": "percent_points",
         "status": "verified",
         "methodology": "annualised_nav_total_return",
@@ -162,37 +173,65 @@
         "netOfFundFees": true,
         "basis": "NAV",
         "currency": "AUD",
-        "asOf": "2026-08-31",
-        "sourceName": "iShares S&P 500 ETF factsheet",
+        "asOf": "2026-09-30",
+        "sourceName": "iShares S&P 500 ETF factsheet, annualised NAV total return as at 30 September 2026",
         "sourceUrl": "https://www.blackrock.com/au/literature/fact-sheet/ivv-ishares-s-p-500-etf-fund-fact-sheet-en-au.pdf",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
-      "return10y": { "percentPoints": 15.65, "asOf": "2026-08-31", "status": "verified" },
+      "return10y": {
+        "percentPoints": 16.16,
+        "asOf": "2026-09-30",
+        "status": "verified"
+      },
       "yield": {
-        "percentPoints": 1.05,
+        "percentPoints": 1.01,
         "unit": "percent_points",
         "status": "verified",
         "definition": "trailing_12_month_distribution_yield",
-        "asOf": "2026-09-16",
+        "asOf": "2026-10-08",
         "sourceName": "BlackRock Australia IVV product page 12m Trailing Yield",
         "sourceUrl": "https://www.blackrock.com/au/products/275304/ishares-s-p-500-etf-fund",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
       "holdings": [
-        { "name": "NVIDIA", "weight": "8.07%" },
-        { "name": "Apple", "weight": "7.02%" },
-        { "name": "Microsoft", "weight": "5.68%" },
-        { "name": "Amazon.com Inc.", "weight": "3.84%" },
-        { "name": "Alphabet Class A", "weight": "3.00%" },
-        { "name": "Broadcom Inc.", "weight": "2.64%" },
-        { "name": "Alphabet Class C", "weight": "2.39%" },
-        { "name": "Meta Platforms Class A", "weight": "1.90%" }
+        {
+          "name": "NVIDIA",
+          "weight": "8.37%"
+        },
+        {
+          "name": "Apple",
+          "weight": "7.36%"
+        },
+        {
+          "name": "Microsoft",
+          "weight": "5.77%"
+        },
+        {
+          "name": "Amazon.com Inc.",
+          "weight": "3.70%"
+        },
+        {
+          "name": "Alphabet Class A",
+          "weight": "3.06%"
+        },
+        {
+          "name": "Broadcom Inc.",
+          "weight": "2.53%"
+        },
+        {
+          "name": "Alphabet Class C",
+          "weight": "2.45%"
+        },
+        {
+          "name": "Meta Platforms Class A",
+          "weight": "2.42%"
+        }
       ],
-      "holdingsAsOf": "Underlying holdings as at 31/08/2026 from issuer factsheet",
+      "holdingsAsOf": "Underlying holdings as at 30/09/2026 from issuer factsheet",
       "holdingsSource": "https://www.blackrock.com/au/literature/fact-sheet/ivv-ishares-s-p-500-etf-fund-fact-sheet-en-au.pdf",
       "inceptionDate": "2000-05-15",
       "listingDate": "2007-10-10",
-      "datasetVersion": "2026-10-07.1"
+      "datasetVersion": "2026-10-10.1"
     },
     {
       "id": "XASX:NDQ",
@@ -211,7 +250,10 @@
       "distributionPolicy": "distributing",
       "distributionFrequency": "Semi-annual",
       "group": "growth",
-      "apps": ["dashboard", "educator"],
+      "apps": [
+        "dashboard",
+        "educator"
+      ],
       "educatorSector": "Tech Growth",
       "educatorRiskBand": "high",
       "educatorVolatility": 0.18,
@@ -225,15 +267,23 @@
         "unit": "percent_points",
         "status": "verified",
         "issuerLabel": "Management fee and costs",
-        "asOf": "2026-08-31",
+        "asOf": "2026-09-30",
         "sourceName": "Betashares NDQ product page",
         "sourceUrl": "https://www.betashares.com.au/fund/nasdaq-100-etf/",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
-      "return1y": { "percentPoints": 14.96, "asOf": "2026-08-31", "status": "verified" },
-      "return3y": { "percentPoints": 19.92, "asOf": "2026-08-31", "status": "verified" },
+      "return1y": {
+        "percentPoints": 17.45,
+        "asOf": "2026-09-30",
+        "status": "verified"
+      },
+      "return3y": {
+        "percentPoints": 24.4,
+        "asOf": "2026-09-30",
+        "status": "verified"
+      },
       "return5y": {
-        "percentPoints": 14.22,
+        "percentPoints": 16.74,
         "unit": "percent_points",
         "status": "verified",
         "methodology": "annualised_nav_total_return",
@@ -242,36 +292,64 @@
         "netOfFundFees": true,
         "basis": "NAV",
         "currency": "AUD",
-        "asOf": "2026-08-31",
-        "sourceName": "Betashares NDQ product page",
+        "asOf": "2026-09-30",
+        "sourceName": "Betashares NDQ product page, fund returns after fees as at 30 September 2026",
         "sourceUrl": "https://www.betashares.com.au/fund/nasdaq-100-etf/",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
-      "return10y": { "percentPoints": 20.86, "asOf": "2026-08-31", "status": "verified" },
+      "return10y": {
+        "percentPoints": 21.57,
+        "asOf": "2026-09-30",
+        "status": "verified"
+      },
       "yield": {
-        "percentPoints": 1.5,
+        "percentPoints": 1.4,
         "unit": "percent_points",
         "status": "verified",
         "definition": "trailing_12_month_distribution_yield",
-        "asOf": "2026-08-31",
+        "asOf": "2026-09-30",
         "sourceName": "Betashares NDQ 12 mth distribution yield",
         "sourceUrl": "https://www.betashares.com.au/fund/nasdaq-100-etf/",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
       "holdings": [
-        { "name": "NVIDIA Corp", "weight": "8.4%" },
-        { "name": "Apple Inc.", "weight": "7.9%" },
-        { "name": "Microsoft Corp", "weight": "5.9%" },
-        { "name": "Micron Technology Inc.", "weight": "4.7%" },
-        { "name": "Amazon.com Inc.", "weight": "4.3%" },
-        { "name": "Advanced Micro Devices Inc.", "weight": "3.8%" },
-        { "name": "Alphabet Inc.", "weight": "3.2%" },
-        { "name": "Meta Platforms Inc.", "weight": "3.2%" }
+        {
+          "name": "NVIDIA Corp",
+          "weight": "8.3%"
+        },
+        {
+          "name": "Apple Inc",
+          "weight": "7.5%"
+        },
+        {
+          "name": "Microsoft Corp",
+          "weight": "5.8%"
+        },
+        {
+          "name": "Micron Technology Inc",
+          "weight": "4.9%"
+        },
+        {
+          "name": "Advanced Micro Devices Inc",
+          "weight": "4.2%"
+        },
+        {
+          "name": "Amazon.com Inc",
+          "weight": "4.1%"
+        },
+        {
+          "name": "Meta Platforms Inc",
+          "weight": "3.2%"
+        },
+        {
+          "name": "Alphabet Inc Class A",
+          "weight": "3.1%"
+        }
       ],
-      "holdingsAsOf": "As at 16/09/2026 from issuer product page",
+      "holdingsAsOf": "As at 8 October 2026 from issuer product page",
       "holdingsSource": "https://www.betashares.com.au/fund/nasdaq-100-etf/",
       "inceptionDate": "2015-05-26",
-      "datasetVersion": "2026-10-07.1"
+      "datasetVersion": "2026-10-10.1"
     },
     {
       "id": "XASX:RBTZ",
@@ -290,7 +368,10 @@
       "distributionPolicy": "distributing",
       "distributionFrequency": "Annual",
       "group": "growth",
-      "apps": ["dashboard", "educator"],
+      "apps": [
+        "dashboard",
+        "educator"
+      ],
       "educatorSector": "Automation",
       "educatorRiskBand": "high",
       "educatorVolatility": 0.19,
@@ -304,15 +385,23 @@
         "unit": "percent_points",
         "status": "verified",
         "issuerLabel": "Management fee and costs",
-        "asOf": "2026-08-31",
+        "asOf": "2026-09-30",
         "sourceName": "Betashares RBTZ product page",
         "sourceUrl": "https://www.betashares.com.au/fund/global-robotics-and-artificial-intelligence-etf/",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
-      "return1y": { "percentPoints": -1.78, "asOf": "2026-08-31", "status": "verified" },
-      "return3y": { "percentPoints": 7.04, "asOf": "2026-08-31", "status": "verified" },
+      "return1y": {
+        "percentPoints": -4.92,
+        "asOf": "2026-09-30",
+        "status": "verified"
+      },
+      "return3y": {
+        "percentPoints": 9.98,
+        "asOf": "2026-09-30",
+        "status": "verified"
+      },
       "return5y": {
-        "percentPoints": 0.31,
+        "percentPoints": 0.23,
         "unit": "percent_points",
         "status": "verified",
         "methodology": "annualised_nav_total_return",
@@ -321,34 +410,56 @@
         "netOfFundFees": true,
         "basis": "NAV",
         "currency": "AUD",
-        "asOf": "2026-08-31",
-        "sourceName": "Betashares RBTZ product page",
+        "asOf": "2026-09-30",
+        "sourceName": "Betashares RBTZ product page, fund returns after fees as at 30 September 2026",
         "sourceUrl": "https://www.betashares.com.au/fund/global-robotics-and-artificial-intelligence-etf/",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
-      "return10y": { "percentPoints": null, "asOf": "2026-08-31", "status": "insufficient_history" },
+      "return10y": {
+        "percentPoints": null,
+        "asOf": "2026-09-30",
+        "status": "insufficient_history"
+      },
       "yield": {
         "percentPoints": 0.1,
         "unit": "percent_points",
         "status": "verified",
         "definition": "trailing_12_month_distribution_yield",
-        "asOf": "2026-08-31",
+        "asOf": "2026-09-30",
         "sourceName": "Betashares RBTZ 12 mth distribution yield",
         "sourceUrl": "https://www.betashares.com.au/fund/global-robotics-and-artificial-intelligence-etf/",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
       "holdings": [
-        { "name": "Fanuc Corp", "weight": "8.5%" },
-        { "name": "Intuitive Surgical Inc.", "weight": "8.3%" },
-        { "name": "ABB Ltd", "weight": "8.2%" },
-        { "name": "Keyence Corp", "weight": "8.1%" },
-        { "name": "NVIDIA Corp", "weight": "7.7%" },
-        { "name": "SMC Corp", "weight": "4.8%" }
+        {
+          "name": "Intuitive Surgical Inc",
+          "weight": "9.0%"
+        },
+        {
+          "name": "Fanuc Corp",
+          "weight": "8.5%"
+        },
+        {
+          "name": "Keyence Corp",
+          "weight": "8.3%"
+        },
+        {
+          "name": "NVIDIA Corp",
+          "weight": "8.3%"
+        },
+        {
+          "name": "ABB Ltd",
+          "weight": "8.0%"
+        },
+        {
+          "name": "SMC Corp",
+          "weight": "4.9%"
+        }
       ],
-      "holdingsAsOf": "As at 16/09/2026 from issuer product page",
+      "holdingsAsOf": "As at 8 October 2026 from issuer product page",
       "holdingsSource": "https://www.betashares.com.au/fund/global-robotics-and-artificial-intelligence-etf/",
       "inceptionDate": "2018-09-12",
-      "datasetVersion": "2026-10-07.1"
+      "datasetVersion": "2026-10-10.1"
     },
     {
       "id": "XASX:CRYP",
@@ -367,7 +478,10 @@
       "distributionPolicy": "distributing",
       "distributionFrequency": "At least annually",
       "group": "growth",
-      "apps": ["dashboard", "educator"],
+      "apps": [
+        "dashboard",
+        "educator"
+      ],
       "educatorSector": "Crypto & Blockchain",
       "educatorRiskBand": "speculative",
       "educatorVolatility": 0.42,
@@ -381,13 +495,21 @@
         "unit": "percent_points",
         "status": "verified",
         "issuerLabel": "Management fees and costs",
-        "asOf": "2026-08-31",
+        "asOf": "2026-09-30",
         "sourceName": "Betashares CRYP PDS and product page",
         "sourceUrl": "https://www.betashares.com.au/fund/crypto-innovators-etf/",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
-      "return1y": { "percentPoints": 7.22, "asOf": "2026-08-31", "status": "verified" },
-      "return3y": { "percentPoints": 37.09, "asOf": "2026-08-31", "status": "verified" },
+      "return1y": {
+        "percentPoints": -6.66,
+        "asOf": "2026-09-30",
+        "status": "verified"
+      },
+      "return3y": {
+        "percentPoints": 44.78,
+        "asOf": "2026-09-30",
+        "status": "verified"
+      },
       "return5y": {
         "percentPoints": null,
         "unit": "percent_points",
@@ -398,37 +520,57 @@
         "netOfFundFees": true,
         "basis": "NAV",
         "currency": "AUD",
-        "asOf": "2026-08-31",
-        "sourceName": "Betashares CRYP product page (5 year fund return not yet published; inception 2 Nov 2021)",
+        "asOf": "2026-09-30",
+        "sourceName": "Betashares CRYP product page (5-year fund return not published; inception 2 Nov 2021). Index return is not used.",
         "sourceUrl": "https://www.betashares.com.au/fund/crypto-innovators-etf/",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
-      "return10y": { "percentPoints": null, "asOf": "2026-08-31", "status": "insufficient_history" },
+      "return10y": {
+        "percentPoints": null,
+        "asOf": "2026-09-30",
+        "status": "insufficient_history"
+      },
       "yield": {
         "percentPoints": 0,
         "unit": "percent_points",
         "status": "verified",
         "verifiedZero": true,
         "definition": "trailing_12_month_distribution_yield",
-        "asOf": "2026-08-31",
-        "sourceName": "Betashares CRYP factsheet 12 mth distribution yield 0.0%",
-        "sourceUrl": "https://www.betashares.com.au/files/factsheets/CRYP-Factsheet.pdf",
-        "retrievedAt": "2026-09-18"
+        "asOf": "2026-09-30",
+        "sourceName": "Betashares CRYP product page distributions show no cash distribution",
+        "sourceUrl": "https://www.betashares.com.au/fund/crypto-innovators-etf/",
+        "retrievedAt": "2026-10-10"
       },
       "holdings": [
-        { "name": "Coinbase Global Inc.", "weight": "11.1%" },
-        { "name": "Strategy Inc", "weight": "10.7%" },
-        { "name": "Circle Internet Group Inc.", "weight": "8.8%" },
-        { "name": "Iris Energy Ltd", "weight": "8.0%" },
-        { "name": "Bitmine Immersion Technologies", "weight": "7.7%" },
-        { "name": "Hut 8 Corp", "weight": "5.6%" },
-        { "name": "Riot Platforms Inc.", "weight": "4.4%" },
-        { "name": "TeraWulf Inc.", "weight": "3.9%" }
+        {
+          "name": "Strategy Inc",
+          "weight": "11.9%"
+        },
+        {
+          "name": "Bitmine Immersion Technologies",
+          "weight": "10.8%"
+        },
+        {
+          "name": "Coinbase Global Inc",
+          "weight": "10.4%"
+        },
+        {
+          "name": "Circle Internet Group Inc",
+          "weight": "8.9%"
+        },
+        {
+          "name": "Hut 8 Corp",
+          "weight": "8.3%"
+        },
+        {
+          "name": "Galaxy Digital Inc",
+          "weight": "7.1%"
+        }
       ],
-      "holdingsAsOf": "As at 16/09/2026 from issuer product page",
+      "holdingsAsOf": "As at 8 October 2026 from issuer product page",
       "holdingsSource": "https://www.betashares.com.au/fund/crypto-innovators-etf/",
       "inceptionDate": "2021-11-02",
-      "datasetVersion": "2026-10-07.1"
+      "datasetVersion": "2026-10-10.1"
     },
     {
       "id": "XASX:VHY",
@@ -447,7 +589,10 @@
       "distributionPolicy": "distributing",
       "distributionFrequency": "Quarterly",
       "group": "defensive",
-      "apps": ["dashboard", "educator"],
+      "apps": [
+        "dashboard",
+        "educator"
+      ],
       "educatorSector": "Aussie Dividends",
       "educatorRiskBand": "income",
       "educatorVolatility": 0.12,
@@ -464,10 +609,20 @@
         "asOf": "2026-08-31",
         "sourceName": "Vanguard VHY factsheet and Australian Shares ETFs PDS",
         "sourceUrl": "https://fund-docs.vanguard.com/ETF-Vanguard_Australian_Shares_High_Yield_ETF_8210_FS_VHY.pdf",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
-      "return1y": { "percentPoints": 11.63, "asOf": "2026-08-31", "status": "verified" },
-      "return3y": { "percentPoints": 14.78, "asOf": "2026-08-31", "status": "verified" },
+      "return1y": {
+        "percentPoints": 11.63,
+        "asOf": "2026-08-31",
+        "status": "verified",
+        "retrievedAt": "2026-10-10"
+      },
+      "return3y": {
+        "percentPoints": 14.78,
+        "asOf": "2026-08-31",
+        "status": "verified",
+        "retrievedAt": "2026-10-10"
+      },
       "return5y": {
         "percentPoints": 11.7,
         "unit": "percent_points",
@@ -479,11 +634,16 @@
         "basis": "NAV",
         "currency": "AUD",
         "asOf": "2026-08-31",
-        "sourceName": "Vanguard VHY factsheet ETF total return",
+        "sourceName": "Vanguard VHY factsheet ETF total return. Rechecked 10 October 2026; Vanguard performance summary is still as at end of August 2026.",
         "sourceUrl": "https://fund-docs.vanguard.com/ETF-Vanguard_Australian_Shares_High_Yield_ETF_8210_FS_VHY.pdf",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
-      "return10y": { "percentPoints": 10.49, "asOf": "2026-08-31", "status": "verified" },
+      "return10y": {
+        "percentPoints": 10.49,
+        "asOf": "2026-08-31",
+        "status": "verified",
+        "retrievedAt": "2026-10-10"
+      },
       "yield": {
         "percentPoints": 4.09,
         "unit": "percent_points",
@@ -496,19 +656,43 @@
         "retrievedAt": "2026-09-18"
       },
       "holdings": [
-        { "name": "BHP Group Ltd.", "weight": "—" },
-        { "name": "Commonwealth Bank of Australia", "weight": "—" },
-        { "name": "National Australia Bank Ltd.", "weight": "—" },
-        { "name": "Westpac Banking Corp.", "weight": "—" },
-        { "name": "ANZ Group Holdings Ltd.", "weight": "—" },
-        { "name": "Rio Tinto plc", "weight": "—" },
-        { "name": "Woodside Energy Group Ltd.", "weight": "—" },
-        { "name": "Macquarie Group Ltd.", "weight": "—" }
+        {
+          "name": "BHP Group Ltd.",
+          "weight": "—"
+        },
+        {
+          "name": "Commonwealth Bank of Australia",
+          "weight": "—"
+        },
+        {
+          "name": "National Australia Bank Ltd.",
+          "weight": "—"
+        },
+        {
+          "name": "Westpac Banking Corp.",
+          "weight": "—"
+        },
+        {
+          "name": "ANZ Group Holdings Ltd.",
+          "weight": "—"
+        },
+        {
+          "name": "Rio Tinto plc",
+          "weight": "—"
+        },
+        {
+          "name": "Woodside Energy Group Ltd.",
+          "weight": "—"
+        },
+        {
+          "name": "Macquarie Group Ltd.",
+          "weight": "—"
+        }
       ],
       "holdingsAsOf": "Top 10 names as at 31/08/2026 from issuer factsheet; individual weights not published on the factsheet",
       "holdingsSource": "https://fund-docs.vanguard.com/ETF-Vanguard_Australian_Shares_High_Yield_ETF_8210_FS_VHY.pdf",
       "inceptionDate": "2011-05-23",
-      "datasetVersion": "2026-10-07.1"
+      "datasetVersion": "2026-10-10.1"
     },
     {
       "id": "XASX:VAP",
@@ -527,7 +711,10 @@
       "distributionPolicy": "distributing",
       "distributionFrequency": "Quarterly",
       "group": "defensive",
-      "apps": ["dashboard", "educator"],
+      "apps": [
+        "dashboard",
+        "educator"
+      ],
       "educatorSector": "A-REITs",
       "educatorRiskBand": "income",
       "educatorVolatility": 0.16,
@@ -544,10 +731,20 @@
         "asOf": "2026-08-31",
         "sourceName": "Vanguard VAP factsheet and PDS",
         "sourceUrl": "https://fund-docs.vanguard.com/ETF-Vanguard_Australian_Property_Securities_Index_ETF_8206_FS_VAP.pdf",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
-      "return1y": { "percentPoints": -15.2, "asOf": "2026-08-31", "status": "verified" },
-      "return3y": { "percentPoints": 6.5, "asOf": "2026-08-31", "status": "verified" },
+      "return1y": {
+        "percentPoints": -15.2,
+        "asOf": "2026-08-31",
+        "status": "verified",
+        "retrievedAt": "2026-10-10"
+      },
+      "return3y": {
+        "percentPoints": 6.5,
+        "asOf": "2026-08-31",
+        "status": "verified",
+        "retrievedAt": "2026-10-10"
+      },
       "return5y": {
         "percentPoints": 2.64,
         "unit": "percent_points",
@@ -559,11 +756,16 @@
         "basis": "NAV",
         "currency": "AUD",
         "asOf": "2026-08-31",
-        "sourceName": "Vanguard VAP factsheet ETF total return",
+        "sourceName": "Vanguard VAP factsheet ETF total return. Rechecked 10 October 2026; Vanguard performance summary is still as at end of August 2026.",
         "sourceUrl": "https://fund-docs.vanguard.com/ETF-Vanguard_Australian_Property_Securities_Index_ETF_8206_FS_VAP.pdf",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
-      "return10y": { "percentPoints": 4.82, "asOf": "2026-08-31", "status": "verified" },
+      "return10y": {
+        "percentPoints": 4.82,
+        "asOf": "2026-08-31",
+        "status": "verified",
+        "retrievedAt": "2026-10-10"
+      },
       "yield": {
         "percentPoints": 2.42,
         "unit": "percent_points",
@@ -576,19 +778,43 @@
         "retrievedAt": "2026-09-18"
       },
       "holdings": [
-        { "name": "Goodman Group", "weight": "—" },
-        { "name": "Scentre Group", "weight": "—" },
-        { "name": "Stockland", "weight": "—" },
-        { "name": "Vicinity Ltd.", "weight": "—" },
-        { "name": "Charter Hall Group", "weight": "—" },
-        { "name": "GPT Group", "weight": "—" },
-        { "name": "Mirvac Group", "weight": "—" },
-        { "name": "Dexus", "weight": "—" }
+        {
+          "name": "Goodman Group",
+          "weight": "—"
+        },
+        {
+          "name": "Scentre Group",
+          "weight": "—"
+        },
+        {
+          "name": "Stockland",
+          "weight": "—"
+        },
+        {
+          "name": "Vicinity Ltd.",
+          "weight": "—"
+        },
+        {
+          "name": "Charter Hall Group",
+          "weight": "—"
+        },
+        {
+          "name": "GPT Group",
+          "weight": "—"
+        },
+        {
+          "name": "Mirvac Group",
+          "weight": "—"
+        },
+        {
+          "name": "Dexus",
+          "weight": "—"
+        }
       ],
       "holdingsAsOf": "Top 10 names as at 31/08/2026 from issuer factsheet; individual weights not published on the factsheet",
       "holdingsSource": "https://fund-docs.vanguard.com/ETF-Vanguard_Australian_Property_Securities_Index_ETF_8206_FS_VAP.pdf",
       "inceptionDate": "2010-10-11",
-      "datasetVersion": "2026-10-07.1"
+      "datasetVersion": "2026-10-10.1"
     },
     {
       "id": "XASX:IOO",
@@ -609,7 +835,10 @@
       "distributionFrequency": "Semi-Annual",
       "group": "growth",
       "includeInCharts": true,
-      "apps": ["dashboard", "educator"],
+      "apps": [
+        "dashboard",
+        "educator"
+      ],
       "educatorSector": "Global Blue-Chip",
       "educatorRiskBand": "growth",
       "educatorVolatility": 0.13,
@@ -626,12 +855,20 @@
         "asOf": "2026-09-17",
         "sourceName": "BlackRock Australia IOO product page / PDS",
         "sourceUrl": "https://www.blackrock.com/au/products/273428/ishares-global-100-etf",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
-      "return1y": { "percentPoints": 15.57, "asOf": "2026-09-17", "status": "verified" },
-      "return3y": { "percentPoints": 20.36, "asOf": "2026-09-17", "status": "verified" },
+      "return1y": {
+        "percentPoints": 15.16,
+        "asOf": "2026-09-30",
+        "status": "verified"
+      },
+      "return3y": {
+        "percentPoints": 23.29,
+        "asOf": "2026-09-30",
+        "status": "verified"
+      },
       "return5y": {
-        "percentPoints": 15.86,
+        "percentPoints": 17.39,
         "unit": "percent_points",
         "status": "verified",
         "methodology": "annualised_nav_total_return",
@@ -640,30 +877,65 @@
         "netOfFundFees": true,
         "basis": "NAV",
         "currency": "AUD",
-        "asOf": "2026-09-17",
-        "sourceName": "BlackRock Australia IOO product page annualised total return",
-        "sourceUrl": "https://www.blackrock.com/au/products/273428/ishares-global-100-etf",
-        "retrievedAt": "2026-09-18"
+        "asOf": "2026-09-30",
+        "sourceName": "iShares Global 100 ETF factsheet, annualised NAV total return as at 30 September 2026",
+        "sourceUrl": "https://www.blackrock.com/au/literature/fact-sheet/ioo-ishares-global-100-etf-fund-fact-sheet-en-au.pdf",
+        "retrievedAt": "2026-10-10"
       },
-      "return10y": { "percentPoints": 16.79, "asOf": "2026-09-17", "status": "verified" },
+      "return10y": {
+        "percentPoints": 17.3,
+        "asOf": "2026-09-30",
+        "status": "verified"
+      },
       "yield": {
-        "percentPoints": 1.21,
+        "percentPoints": 1.17,
         "unit": "percent_points",
         "status": "verified",
         "definition": "trailing_12_month_distribution_yield",
-        "asOf": "2026-09-16",
-        "sourceName": "BlackRock Australia IOO 12m Trailing Yield",
-        "sourceUrl": "https://www.blackrock.com/au/products/273428/ishares-global-100-etf",
-        "retrievedAt": "2026-09-18"
+        "asOf": "2026-09-30",
+        "sourceName": "iShares Global 100 ETF factsheet 12m Trailing Yield",
+        "sourceUrl": "https://www.blackrock.com/au/literature/fact-sheet/ioo-ishares-global-100-etf-fund-fact-sheet-en-au.pdf",
+        "retrievedAt": "2026-10-10"
       },
       "holdings": [
-        { "name": "See issuer factsheet for current underlying global 100 holdings", "weight": "—" }
+        {
+          "name": "NVIDIA",
+          "weight": "13.32%"
+        },
+        {
+          "name": "Apple",
+          "weight": "11.72%"
+        },
+        {
+          "name": "Microsoft",
+          "weight": "9.18%"
+        },
+        {
+          "name": "Amazon.com Inc.",
+          "weight": "5.89%"
+        },
+        {
+          "name": "Alphabet Class A",
+          "weight": "4.87%"
+        },
+        {
+          "name": "Broadcom Inc.",
+          "weight": "4.03%"
+        },
+        {
+          "name": "Alphabet Class C",
+          "weight": "3.90%"
+        },
+        {
+          "name": "Eli Lilly",
+          "weight": "2.23%"
+        }
       ],
-      "holdingsAsOf": "Direct fund holding is the US-listed iShares Global 100 ETF; underlying names were not fully published on the product page at retrieval",
-      "holdingsSource": "https://www.blackrock.com/au/products/273428/ishares-global-100-etf",
+      "holdingsAsOf": "Underlying holdings as at 30/09/2026 from issuer factsheet",
+      "holdingsSource": "https://www.blackrock.com/au/literature/fact-sheet/ioo-ishares-global-100-etf-fund-fact-sheet-en-au.pdf",
       "inceptionDate": "2000-12-05",
       "listingDate": "2007-10-10",
-      "datasetVersion": "2026-10-07.1"
+      "datasetVersion": "2026-10-10.1"
     },
     {
       "id": "XASX:VAF",
@@ -682,7 +954,10 @@
       "distributionPolicy": "distributing",
       "distributionFrequency": "Quarterly",
       "group": "defensive",
-      "apps": ["dashboard", "educator"],
+      "apps": [
+        "dashboard",
+        "educator"
+      ],
       "educatorSector": "Bonds (AU)",
       "educatorRiskBand": "defensive",
       "educatorVolatility": 0.05,
@@ -699,10 +974,20 @@
         "asOf": "2026-08-31",
         "sourceName": "Vanguard Australian Fixed Interest ETFs PDS and performance summary",
         "sourceUrl": "https://fund-docs.vanguard.com/AU-ETFPDS-Vanguard_Australian_Fixed_Interest_ETFs-VAF-VGB-VACF.pdf",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
-      "return1y": { "percentPoints": 0.48, "asOf": "2026-08-31", "status": "verified" },
-      "return3y": { "percentPoints": 3.25, "asOf": "2026-08-31", "status": "verified" },
+      "return1y": {
+        "percentPoints": 0.48,
+        "asOf": "2026-08-31",
+        "status": "verified",
+        "retrievedAt": "2026-10-10"
+      },
+      "return3y": {
+        "percentPoints": 3.25,
+        "asOf": "2026-08-31",
+        "status": "verified",
+        "retrievedAt": "2026-10-10"
+      },
       "return5y": {
         "percentPoints": -0.22,
         "unit": "percent_points",
@@ -714,11 +999,16 @@
         "basis": "NAV",
         "currency": "AUD",
         "asOf": "2026-08-31",
-        "sourceName": "Vanguard ETFs performance summary ETF total return",
+        "sourceName": "Vanguard ETFs performance summary ETF total return. Rechecked 10 October 2026; Vanguard performance summary is still as at end of August 2026.",
         "sourceUrl": "https://fund-docs.vanguard.com/AU-Vanguard_ETFs_performance_summary.pdf",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
-      "return10y": { "percentPoints": 1.45, "asOf": "2026-08-31", "status": "verified" },
+      "return10y": {
+        "percentPoints": 1.45,
+        "asOf": "2026-08-31",
+        "status": "verified",
+        "retrievedAt": "2026-10-10"
+      },
       "yield": {
         "percentPoints": null,
         "unit": "percent_points",
@@ -730,14 +1020,23 @@
         "retrievedAt": "2026-09-18"
       },
       "holdings": [
-        { "name": "Australian Government Bonds", "weight": "—" },
-        { "name": "Semi-Government Bonds", "weight": "—" },
-        { "name": "Corporate Bonds", "weight": "—" }
+        {
+          "name": "Australian Government Bonds",
+          "weight": "—"
+        },
+        {
+          "name": "Semi-Government Bonds",
+          "weight": "—"
+        },
+        {
+          "name": "Corporate Bonds",
+          "weight": "—"
+        }
       ],
       "holdingsAsOf": "Composition described from issuer PDS; constituent weights not verified at retrieval",
       "holdingsSource": "https://fund-docs.vanguard.com/AU-ETFPDS-Vanguard_Australian_Fixed_Interest_ETFs-VAF-VGB-VACF.pdf",
       "inceptionDate": "2012-10-29",
-      "datasetVersion": "2026-10-07.1"
+      "datasetVersion": "2026-10-10.1"
     },
     {
       "id": "XASX:VBND",
@@ -757,7 +1056,10 @@
       "distributionFrequency": "Quarterly",
       "group": "defensive",
       "includeInCharts": true,
-      "apps": ["dashboard", "educator"],
+      "apps": [
+        "dashboard",
+        "educator"
+      ],
       "educatorSector": "Bonds (Global)",
       "educatorRiskBand": "defensive",
       "educatorVolatility": 0.05,
@@ -774,10 +1076,20 @@
         "asOf": "2026-08-31",
         "sourceName": "Vanguard VBND factsheet",
         "sourceUrl": "https://fund-docs.vanguard.com/ETF-Vanguard_Global_Aggregate_Bond_Index_Hedged_ETF_8200_FS_VBND.pdf",
-        "retrievedAt": "2026-10-07"
+        "retrievedAt": "2026-10-10"
       },
-      "return1y": { "percentPoints": 1.31, "asOf": "2026-08-31", "status": "verified" },
-      "return3y": { "percentPoints": 3.16, "asOf": "2026-08-31", "status": "verified" },
+      "return1y": {
+        "percentPoints": 1.31,
+        "asOf": "2026-08-31",
+        "status": "verified",
+        "retrievedAt": "2026-10-10"
+      },
+      "return3y": {
+        "percentPoints": 3.16,
+        "asOf": "2026-08-31",
+        "status": "verified",
+        "retrievedAt": "2026-10-10"
+      },
       "return5y": {
         "percentPoints": -1.11,
         "unit": "percent_points",
@@ -789,11 +1101,16 @@
         "basis": "NAV",
         "currency": "AUD",
         "asOf": "2026-08-31",
-        "sourceName": "Vanguard VBND factsheet ETF total return, corroborated by the Vanguard ETFs performance summary",
+        "sourceName": "Vanguard VBND factsheet ETF total return, corroborated by the Vanguard ETFs performance summary. Rechecked 10 October 2026; Vanguard performance summary is still as at end of August 2026.",
         "sourceUrl": "https://fund-docs.vanguard.com/ETF-Vanguard_Global_Aggregate_Bond_Index_Hedged_ETF_8200_FS_VBND.pdf",
-        "retrievedAt": "2026-10-07"
+        "retrievedAt": "2026-10-10"
       },
-      "return10y": { "percentPoints": null, "asOf": "2026-08-31", "status": "insufficient_history" },
+      "return10y": {
+        "percentPoints": null,
+        "asOf": "2026-08-31",
+        "status": "insufficient_history",
+        "retrievedAt": "2026-10-10"
+      },
       "yield": {
         "percentPoints": 8.6,
         "unit": "percent_points",
@@ -806,15 +1123,27 @@
         "retrievedAt": "2026-10-07"
       },
       "holdings": [
-        { "name": "Treasury", "weight": "53.5%" },
-        { "name": "Corporate", "weight": "21.9%" },
-        { "name": "Government-related", "weight": "12.5%" },
-        { "name": "Securitised", "weight": "12.2%" }
+        {
+          "name": "Treasury",
+          "weight": "53.5%"
+        },
+        {
+          "name": "Corporate",
+          "weight": "21.9%"
+        },
+        {
+          "name": "Government-related",
+          "weight": "12.5%"
+        },
+        {
+          "name": "Securitised",
+          "weight": "12.2%"
+        }
       ],
       "holdingsAsOf": "Sector allocation as at 31/08/2026 from issuer factsheet. The top 10 issuers, led by US Treasury, are 52.9% of the ETF; individual issuer weights are not published.",
       "holdingsSource": "https://fund-docs.vanguard.com/ETF-Vanguard_Global_Aggregate_Bond_Index_Hedged_ETF_8200_FS_VBND.pdf",
       "inceptionDate": "2017-10-10",
-      "datasetVersion": "2026-10-07.1"
+      "datasetVersion": "2026-10-10.1"
     },
     {
       "id": "XASX:VAS",
@@ -833,7 +1162,9 @@
       "distributionPolicy": "distributing",
       "distributionFrequency": "Quarterly",
       "group": "defensive",
-      "apps": ["dashboard"],
+      "apps": [
+        "dashboard"
+      ],
       "category": "Australian Shares",
       "indexTracked": "S&P/ASX 300 Index",
       "strategy": "Passive index tracking",
@@ -847,10 +1178,20 @@
         "asOf": "2026-08-31",
         "sourceName": "Vanguard VAS factsheet and Australian Shares ETFs PDS",
         "sourceUrl": "https://fund-docs.vanguard.com/ETF-Vanguard_Australian_Shares_Index_ETF_8205_FS_VAS.pdf",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
-      "return1y": { "percentPoints": 4.2, "asOf": "2026-08-31", "status": "verified" },
-      "return3y": { "percentPoints": 11.11, "asOf": "2026-08-31", "status": "verified" },
+      "return1y": {
+        "percentPoints": 4.2,
+        "asOf": "2026-08-31",
+        "status": "verified",
+        "retrievedAt": "2026-10-10"
+      },
+      "return3y": {
+        "percentPoints": 11.11,
+        "asOf": "2026-08-31",
+        "status": "verified",
+        "retrievedAt": "2026-10-10"
+      },
       "return5y": {
         "percentPoints": 7.56,
         "unit": "percent_points",
@@ -862,11 +1203,16 @@
         "basis": "NAV",
         "currency": "AUD",
         "asOf": "2026-08-31",
-        "sourceName": "Vanguard VAS factsheet ETF total return",
+        "sourceName": "Vanguard VAS factsheet ETF total return. Rechecked 10 October 2026; Vanguard performance summary is still as at end of August 2026.",
         "sourceUrl": "https://fund-docs.vanguard.com/ETF-Vanguard_Australian_Shares_Index_ETF_8205_FS_VAS.pdf",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
-      "return10y": { "percentPoints": 9.27, "asOf": "2026-08-31", "status": "verified" },
+      "return10y": {
+        "percentPoints": 9.27,
+        "asOf": "2026-08-31",
+        "status": "verified",
+        "retrievedAt": "2026-10-10"
+      },
       "yield": {
         "percentPoints": 3.08,
         "unit": "percent_points",
@@ -879,19 +1225,43 @@
         "retrievedAt": "2026-09-18"
       },
       "holdings": [
-        { "name": "BHP Group Ltd.", "weight": "—" },
-        { "name": "Commonwealth Bank of Australia", "weight": "—" },
-        { "name": "National Australia Bank Ltd.", "weight": "—" },
-        { "name": "Westpac Banking Corp.", "weight": "—" },
-        { "name": "ANZ Group Holdings Ltd.", "weight": "—" },
-        { "name": "Wesfarmers Ltd.", "weight": "—" },
-        { "name": "Macquarie Group Ltd.", "weight": "—" },
-        { "name": "CSL Ltd.", "weight": "—" }
+        {
+          "name": "BHP Group Ltd.",
+          "weight": "—"
+        },
+        {
+          "name": "Commonwealth Bank of Australia",
+          "weight": "—"
+        },
+        {
+          "name": "National Australia Bank Ltd.",
+          "weight": "—"
+        },
+        {
+          "name": "Westpac Banking Corp.",
+          "weight": "—"
+        },
+        {
+          "name": "ANZ Group Holdings Ltd.",
+          "weight": "—"
+        },
+        {
+          "name": "Wesfarmers Ltd.",
+          "weight": "—"
+        },
+        {
+          "name": "Macquarie Group Ltd.",
+          "weight": "—"
+        },
+        {
+          "name": "CSL Ltd.",
+          "weight": "—"
+        }
       ],
       "holdingsAsOf": "Top 10 names as at 31/08/2026 from issuer factsheet; individual weights not published on the factsheet",
       "holdingsSource": "https://fund-docs.vanguard.com/ETF-Vanguard_Australian_Shares_Index_ETF_8205_FS_VAS.pdf",
       "inceptionDate": "2009-05-04",
-      "datasetVersion": "2026-10-07.1"
+      "datasetVersion": "2026-10-10.1"
     },
     {
       "id": "XASX:VGS",
@@ -910,7 +1280,9 @@
       "distributionPolicy": "distributing",
       "distributionFrequency": "Quarterly",
       "group": "defensive",
-      "apps": ["dashboard"],
+      "apps": [
+        "dashboard"
+      ],
       "category": "Global Shares",
       "indexTracked": "MSCI World ex-Australia Index (net dividends reinvested, AUD)",
       "strategy": "Passive index tracking",
@@ -924,10 +1296,20 @@
         "asOf": "2026-08-31",
         "sourceName": "Vanguard VGS factsheet and International Shares ETFs PDS",
         "sourceUrl": "https://fund-docs.vanguard.com/ETF-Vanguard_MSCI_Index_International_Shares_ETF_8212_FS_VGS.pdf",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
-      "return1y": { "percentPoints": 10.04, "asOf": "2026-08-31", "status": "verified" },
-      "return3y": { "percentPoints": 16.25, "asOf": "2026-08-31", "status": "verified" },
+      "return1y": {
+        "percentPoints": 10.04,
+        "asOf": "2026-08-31",
+        "status": "verified",
+        "retrievedAt": "2026-10-10"
+      },
+      "return3y": {
+        "percentPoints": 16.25,
+        "asOf": "2026-08-31",
+        "status": "verified",
+        "retrievedAt": "2026-10-10"
+      },
       "return5y": {
         "percentPoints": 11.76,
         "unit": "percent_points",
@@ -939,11 +1321,16 @@
         "basis": "NAV",
         "currency": "AUD",
         "asOf": "2026-08-31",
-        "sourceName": "Vanguard VGS factsheet ETF total return",
+        "sourceName": "Vanguard VGS factsheet ETF total return. Rechecked 10 October 2026; Vanguard performance summary is still as at end of August 2026.",
         "sourceUrl": "https://fund-docs.vanguard.com/ETF-Vanguard_MSCI_Index_International_Shares_ETF_8212_FS_VGS.pdf",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
-      "return10y": { "percentPoints": 13.7, "asOf": "2026-08-31", "status": "verified" },
+      "return10y": {
+        "percentPoints": 13.7,
+        "asOf": "2026-08-31",
+        "status": "verified",
+        "retrievedAt": "2026-10-10"
+      },
       "yield": {
         "percentPoints": 1.46,
         "unit": "percent_points",
@@ -956,19 +1343,43 @@
         "retrievedAt": "2026-09-18"
       },
       "holdings": [
-        { "name": "NVIDIA Corp.", "weight": "—" },
-        { "name": "Apple Inc.", "weight": "—" },
-        { "name": "Microsoft Corp.", "weight": "—" },
-        { "name": "Alphabet Inc.", "weight": "—" },
-        { "name": "Amazon.com Inc.", "weight": "—" },
-        { "name": "Broadcom Inc.", "weight": "—" },
-        { "name": "Meta Platforms Inc.", "weight": "—" },
-        { "name": "Micron Technology Inc.", "weight": "—" }
+        {
+          "name": "NVIDIA Corp.",
+          "weight": "—"
+        },
+        {
+          "name": "Apple Inc.",
+          "weight": "—"
+        },
+        {
+          "name": "Microsoft Corp.",
+          "weight": "—"
+        },
+        {
+          "name": "Alphabet Inc.",
+          "weight": "—"
+        },
+        {
+          "name": "Amazon.com Inc.",
+          "weight": "—"
+        },
+        {
+          "name": "Broadcom Inc.",
+          "weight": "—"
+        },
+        {
+          "name": "Meta Platforms Inc.",
+          "weight": "—"
+        },
+        {
+          "name": "Micron Technology Inc.",
+          "weight": "—"
+        }
       ],
       "holdingsAsOf": "Top 10 names as at 31/08/2026 from issuer factsheet; individual weights not published on the factsheet",
       "holdingsSource": "https://fund-docs.vanguard.com/ETF-Vanguard_MSCI_Index_International_Shares_ETF_8212_FS_VGS.pdf",
       "inceptionDate": "2014-11-18",
-      "datasetVersion": "2026-10-07.1"
+      "datasetVersion": "2026-10-10.1"
     },
     {
       "id": "CHIA:EBTC",
@@ -987,7 +1398,9 @@
       "distributionPolicy": "accumulating",
       "distributionFrequency": "None",
       "group": "growth",
-      "apps": ["dashboard"],
+      "apps": [
+        "dashboard"
+      ],
       "category": "Cryptocurrency",
       "indexTracked": "FTSE Bitcoin Index",
       "strategy": "Physical Bitcoin backing",
@@ -998,13 +1411,21 @@
         "unit": "percent_points",
         "status": "verified",
         "issuerLabel": "Management Fees & Costs",
-        "asOf": "2026-09-17",
+        "asOf": "2026-10-08",
         "sourceName": "Global X EBTC product page",
         "sourceUrl": "https://www.globalxetfs.com.au/funds/ebtc/",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
-      "return1y": { "percentPoints": -38.89, "asOf": "2026-09-16", "status": "verified" },
-      "return3y": { "percentPoints": 36.5, "asOf": "2026-09-16", "status": "verified" },
+      "return1y": {
+        "percentPoints": -36.29,
+        "asOf": "2026-10-08",
+        "status": "verified"
+      },
+      "return3y": {
+        "percentPoints": 38.86,
+        "asOf": "2026-10-08",
+        "status": "verified"
+      },
       "return5y": {
         "percentPoints": null,
         "unit": "percent_points",
@@ -1015,29 +1436,36 @@
         "netOfFundFees": true,
         "basis": "NAV",
         "currency": "AUD",
-        "asOf": "2026-09-16",
-        "sourceName": "Global X EBTC product page (inception 9 May 2022)",
+        "asOf": "2026-10-08",
+        "sourceName": "Global X EBTC product page (inception 9 May 2022), returns as of 8 October 2026",
         "sourceUrl": "https://www.globalxetfs.com.au/funds/ebtc/",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
-      "return10y": { "percentPoints": null, "asOf": "2026-09-16", "status": "insufficient_history" },
+      "return10y": {
+        "percentPoints": null,
+        "asOf": "2026-10-08",
+        "status": "insufficient_history"
+      },
       "yield": {
         "percentPoints": null,
         "unit": "percent_points",
         "status": "not_applicable",
         "definition": "trailing_12_month_distribution_yield",
-        "asOf": "2026-09-17",
+        "asOf": "2026-10-08",
         "sourceName": "Global X EBTC distributions: None",
         "sourceUrl": "https://www.globalxetfs.com.au/funds/ebtc/",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
       "holdings": [
-        { "name": "Bitcoin (BTC)", "weight": "Physical holding" }
+        {
+          "name": "Bitcoin (BTC)",
+          "weight": "Physical holding"
+        }
       ],
-      "holdingsAsOf": "As at 17/09/2026 from issuer product page",
+      "holdingsAsOf": "As at 8 October 2026 from issuer product page",
       "holdingsSource": "https://www.globalxetfs.com.au/funds/ebtc/",
       "inceptionDate": "2022-05-09",
-      "datasetVersion": "2026-10-07.1"
+      "datasetVersion": "2026-10-10.1"
     },
     {
       "id": "CHIA:EETH",
@@ -1057,7 +1485,9 @@
       "distributionFrequency": "None",
       "group": "growth",
       "includeInCharts": false,
-      "apps": ["dashboard"],
+      "apps": [
+        "dashboard"
+      ],
       "category": "Cryptocurrency",
       "indexTracked": "FTSE Ethereum Index",
       "strategy": "Physical Ethereum backing",
@@ -1068,13 +1498,21 @@
         "unit": "percent_points",
         "status": "verified",
         "issuerLabel": "Management Costs",
-        "asOf": "2026-09-17",
+        "asOf": "2026-10-08",
         "sourceName": "Global X EETH product page",
         "sourceUrl": "https://www.globalxetfs.com.au/funds/eeth/",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
-      "return1y": { "percentPoints": -49.94, "asOf": "2026-09-16", "status": "verified" },
-      "return3y": { "percentPoints": 9.35, "asOf": "2026-09-16", "status": "verified" },
+      "return1y": {
+        "percentPoints": -47.46,
+        "asOf": "2026-10-08",
+        "status": "verified"
+      },
+      "return3y": {
+        "percentPoints": 11.89,
+        "asOf": "2026-10-08",
+        "status": "verified"
+      },
       "return5y": {
         "percentPoints": null,
         "unit": "percent_points",
@@ -1085,29 +1523,36 @@
         "netOfFundFees": true,
         "basis": "NAV",
         "currency": "AUD",
-        "asOf": "2026-09-16",
-        "sourceName": "Global X EETH product page (inception 9 May 2022)",
+        "asOf": "2026-10-08",
+        "sourceName": "Global X EETH product page (inception 9 May 2022), returns as of 8 October 2026",
         "sourceUrl": "https://www.globalxetfs.com.au/funds/eeth/",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
-      "return10y": { "percentPoints": null, "asOf": "2026-09-16", "status": "insufficient_history" },
+      "return10y": {
+        "percentPoints": null,
+        "asOf": "2026-10-08",
+        "status": "insufficient_history"
+      },
       "yield": {
         "percentPoints": null,
         "unit": "percent_points",
         "status": "not_applicable",
         "definition": "trailing_12_month_distribution_yield",
-        "asOf": "2026-09-17",
+        "asOf": "2026-10-08",
         "sourceName": "Global X EETH distributions: None",
         "sourceUrl": "https://www.globalxetfs.com.au/funds/eeth/",
-        "retrievedAt": "2026-09-18"
+        "retrievedAt": "2026-10-10"
       },
       "holdings": [
-        { "name": "Ethereum (ETH)", "weight": "Physical holding" }
+        {
+          "name": "Ethereum (ETH)",
+          "weight": "Physical holding"
+        }
       ],
-      "holdingsAsOf": "As at 17/09/2026 from issuer product page",
+      "holdingsAsOf": "As at 8 October 2026 from issuer product page",
       "holdingsSource": "https://www.globalxetfs.com.au/funds/eeth/",
       "inceptionDate": "2022-05-09",
-      "datasetVersion": "2026-10-07.1"
+      "datasetVersion": "2026-10-10.1"
     },
     {
       "id": "XNAS:STRF",
@@ -1127,7 +1572,9 @@
       "distributionFrequency": "Quarterly",
       "group": "defensive",
       "includeInCharts": false,
-      "apps": ["dashboard"],
+      "apps": [
+        "dashboard"
+      ],
       "category": "Preferred stock (not an ETF)",
       "indexTracked": "N/A — issuer preferred stock",
       "strategy": "Fixed 10% cumulative preferred dividend; no conversion feature",
@@ -1143,8 +1590,16 @@
         "sourceUrl": null,
         "retrievedAt": "2026-09-18"
       },
-      "return1y": { "percentPoints": null, "asOf": null, "status": "unavailable" },
-      "return3y": { "percentPoints": null, "asOf": null, "status": "unavailable" },
+      "return1y": {
+        "percentPoints": null,
+        "asOf": null,
+        "status": "unavailable"
+      },
+      "return3y": {
+        "percentPoints": null,
+        "asOf": null,
+        "status": "unavailable"
+      },
       "return5y": {
         "percentPoints": null,
         "unit": "percent_points",
@@ -1160,7 +1615,11 @@
         "sourceUrl": null,
         "retrievedAt": "2026-09-18"
       },
-      "return10y": { "percentPoints": null, "asOf": null, "status": "insufficient_history" },
+      "return10y": {
+        "percentPoints": null,
+        "asOf": null,
+        "status": "insufficient_history"
+      },
       "yield": {
         "percentPoints": null,
         "unit": "percent_points",
@@ -1173,11 +1632,14 @@
         "retrievedAt": "2026-09-18"
       },
       "holdings": [
-        { "name": "Strategy Inc (issuer obligation)", "weight": "N/A" }
+        {
+          "name": "Strategy Inc (issuer obligation)",
+          "weight": "N/A"
+        }
       ],
       "holdingsAsOf": "Manually curated; last reviewed 25/08/2026",
       "holdingsSource": "Issuer prospectus / company disclosures (not a live feed)",
-      "datasetVersion": "2026-10-07.1"
+      "datasetVersion": "2026-10-10.1"
     }
   ]
 }

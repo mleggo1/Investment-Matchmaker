@@ -19,6 +19,7 @@ function ensureDependencies() {
 
 async function runBuild() {
   ensureDependencies();
+  execSync("node scripts/check-etf-data.mjs", { stdio: "inherit", cwd: root, env: process.env });
   process.env.VERCEL = process.env.VERCEL || "1";
 
   const { build } = await import("vite");

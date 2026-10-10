@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 import assert from "node:assert/strict";
+import { validateDataset } from "../src/data/etfCanonical.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataset = JSON.parse(
@@ -48,6 +49,11 @@ test("IOO is growth equity and VBND is the hedged defensive bond", () => {
   assert.equal(vbnd.hedged, true);
   assert.equal(vbnd.managementFee.percentPoints, 0.2);
   assert.equal(eeth.includeInCharts, false);
+});
+
+test("canonical dataset is valid and inside the freshness window", () => {
+  const result = validateDataset(dataset);
+  assert.equal(result.ok, true, (result.errors || []).join("\n"));
 });
 
 test("educator copy keeps CRYP 5y null and VAF yield null", () => {
